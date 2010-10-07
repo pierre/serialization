@@ -18,12 +18,48 @@ package com.ning.serialization;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TType;
 
-public interface ThriftField
+public abstract class ThriftField
 {
-    public short getId();
+    public abstract short getId();
 
-    public DataItem getDataItem();
+    public abstract DataItem getDataItem();
 
-    public void write(TProtocol protocol) throws TException;
+    public abstract void write(TProtocol protocol) throws TException;
+
+    public byte[] toByteArray()
+    {
+        switch (getDataItem().getThriftType()) {
+            case TType.BOOL:
+                return booleanToByteArray(getDataItem().getBoolean());
+            case TType.BYTE:
+                return numberToByteArray(Byte.toString(getDataItem().getByte()));
+            case TType.I16:
+                return numberToByteArray(Short.toString(getDataItem().getShort()));
+            case TType.I32:
+                return numberToByteArray(Integer.toString(getDataItem().getInteger()));
+            case TType.I64:
+                return numberToByteArray(Long.toString(getDataItem().getLong()));
+            case TType.STRING:
+                return getDataItem().getString().getBytes();
+            default:
+                throw new IllegalStateException("Unsupported field type " + getDataItem().getThriftType());
+        }
+    }
+
+    private static byte[] numberToByteArray(String string)
+    {
+        byte[] bytes = new byte[string.length()];
+
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) string.charAt(i);
+        }
+        return bytes;
+    }
+
+    private static byte[] booleanToByteArray(boolean b)
+    {
+        return numberToByteArray(b ? "0" : "1");
+    }
 }

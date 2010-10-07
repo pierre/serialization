@@ -21,7 +21,7 @@ import org.apache.thrift.protocol.TField;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TType;
 
-public class ThriftFieldImpl implements ThriftField
+public class ThriftFieldImpl extends ThriftField
 {
     private final TField field;
     private final DataItem dataItem;

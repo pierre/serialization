@@ -101,6 +101,19 @@ public class ThriftEnvelope
         return payload;
     }
 
+    public byte[][] toByteArray()
+    {
+        byte[][] data = new byte[payload.size()][];
+
+        int index = 0;
+        for (ThriftField field : payload) {
+            data[index] = field.toByteArray();
+            index++;
+        }
+
+        return data;
+    }
+
     @Override
     public boolean equals(Object o)
     {

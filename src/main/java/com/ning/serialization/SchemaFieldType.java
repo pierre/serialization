@@ -56,6 +56,7 @@ public enum SchemaFieldType
         }
     }
 
+    @SuppressWarnings("unused")
     public static SchemaField createSchemaField(String name, String type, short id)
     {
         try {
