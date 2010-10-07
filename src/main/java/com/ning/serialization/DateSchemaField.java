@@ -20,7 +20,7 @@ import org.joda.time.DateTime;
 
 public class DateSchemaField extends AbstractSchemaField implements SchemaField
 {
-    public DateSchemaField(String name, int id)
+    public DateSchemaField(String name, short id)
     {
         super(name, SchemaFieldType.DATE, id);
     }

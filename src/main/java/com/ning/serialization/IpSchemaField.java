@@ -18,7 +18,7 @@ package com.ning.serialization;
 
 public class IpSchemaField extends AbstractSchemaField implements SchemaField
 {
-    public IpSchemaField(String name, int id)
+    public IpSchemaField(String name, short id)
     {
         super(name, SchemaFieldType.IP, id);
     }

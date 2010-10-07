@@ -18,9 +18,18 @@ package com.ning.serialization;
 
 import java.io.Serializable;
 
+/**
+ * A SchemaField is a ThriftField description in a Schema.
+ * Thrift has only a few types allowed (@see TType).
+ * At the application level though, we want an extra layer of abstraction,
+ * e.g. a I64 TType can represent a number, a Date, an IP address, ...
+ * SchemaField implements this layer of abstraction.
+ *
+ * @see com.ning.serialization.SchemaFieldType
+ */
 public interface SchemaField extends Serializable
 {
-    public int getId();
+    public short getId();
 
     public String getName();
 

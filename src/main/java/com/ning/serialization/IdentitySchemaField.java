@@ -20,7 +20,7 @@ import org.apache.thrift.protocol.TType;
 
 public class IdentitySchemaField extends AbstractSchemaField implements SchemaField
 {
-    public IdentitySchemaField(String name, byte type, int id)
+    public IdentitySchemaField(String name, byte type, short id)
     {
         super(name, getSchemaFieldType(type), id);
     }

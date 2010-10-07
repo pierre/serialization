@@ -20,17 +20,22 @@ abstract public class AbstractSchemaField implements SchemaField
 {
     private final String name;
     private final SchemaFieldType type;
-    private final int id;
+    private final short id;
 
-    public AbstractSchemaField(String name, SchemaFieldType type, int id)
+    public AbstractSchemaField(String name, SchemaFieldType type, short id)
     {
         this.name = name;
         this.type = type;
         this.id = id;
     }
 
+    /**
+     * Return the field position of the described field in the Thrift schema.
+     *
+     * @return the field position
+     */
     @Override
-    public int getId()
+    public short getId()
     {
         return id;
     }
