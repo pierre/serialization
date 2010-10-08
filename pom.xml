@@ -36,7 +36,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.12</version>
+            <version>1.2.13</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -61,7 +61,9 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>5.12.1</version>
+            <version>5.11</version>
+            <classifier>jdk15</classifier>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
