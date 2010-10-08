@@ -12,7 +12,7 @@ import java.util.HashMap;
  */
 public class Schema
 {
-    private String name;
+    private final String name;
     private HashMap<Short, SchemaField> schemaFields = new HashMap<Short, SchemaField>();
 
     public Schema(String name)
