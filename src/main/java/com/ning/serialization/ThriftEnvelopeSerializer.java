@@ -16,7 +16,6 @@
 
 package com.ning.serialization;
 
-import org.apache.hadoop.io.serializer.Serializer;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TField;
@@ -28,7 +27,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ThriftEnvelopeSerializer implements Serializer<ThriftEnvelope>
+public class ThriftEnvelopeSerializer
 {
     private static final TField TYPE_NAME_FIELD = new TField("typeName", TType.STRING, ThriftEnvelopeSerialization.TYPE_ID);
     private static final TField PAYLOAD_FIELD = new TField("payload", TType.STRING, ThriftEnvelopeSerialization.PAYLOAD_ID);
@@ -37,13 +36,11 @@ public class ThriftEnvelopeSerializer implements Serializer<ThriftEnvelope>
     private TProtocol protocol;
     private final ThriftFieldListSerializer payloadSerializer = new ThriftFieldListSerializer();
 
-    @Override
     public void open(OutputStream out) throws IOException
     {
         protocol = new TBinaryProtocol(new TIOStreamTransport(out));
     }
 
-    @Override
     public void serialize(ThriftEnvelope thriftEnvelope) throws IOException
     {
         try {
@@ -74,7 +71,6 @@ public class ThriftEnvelopeSerializer implements Serializer<ThriftEnvelope>
         }
     }
 
-    @Override
     public void close() throws IOException
     {
         protocol.getTransport().close();

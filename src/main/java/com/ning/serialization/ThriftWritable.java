@@ -16,7 +16,6 @@
 
 package com.ning.serialization;
 
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -41,7 +40,7 @@ import java.io.OutputStream;
  * Instances of this class are not thread-safe.
  * </p>
  */
-abstract public class ThriftWritable<T extends TBase> implements WritableComparable
+abstract public class ThriftWritable<T extends TBase> implements Comparable
 {
 
     static class Transport extends TIOStreamTransport

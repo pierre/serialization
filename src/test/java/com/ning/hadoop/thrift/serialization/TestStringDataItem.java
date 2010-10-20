@@ -2,7 +2,6 @@ package com.ning.hadoop.thrift.serialization;
 
 import com.ning.serialization.DataItem;
 import com.ning.serialization.StringDataItem;
-import org.apache.hadoop.io.Text;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -46,11 +45,8 @@ public class TestStringDataItem
     public void testConstructor() throws Exception
     {
         String testString = "test-string";
-        Text testText = new Text(testString);
         DataItem item1 = new StringDataItem(testString);
-        DataItem item2 = new StringDataItem(testText);
         Assert.assertEquals(item1.getString(), testString);
-        Assert.assertEquals(item2.getString(), testString);
     }
 
     @Test(groups = "fast")

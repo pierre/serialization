@@ -16,7 +16,6 @@
 
 package com.ning.serialization;
 
-import org.apache.hadoop.io.serializer.Deserializer;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TField;
@@ -29,18 +28,16 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ThriftEnvelopeDeserializer implements Deserializer<ThriftEnvelope>
+public class ThriftEnvelopeDeserializer
 {
     private TProtocol protocol;
     private final ThriftFieldListDeserializer payloadDeserializer = new ThriftFieldListDeserializer();
 
-    @Override
     public void open(InputStream in) throws IOException
     {
         protocol = new TBinaryProtocol(new TIOStreamTransport(in));
     }
 
-    @Override
     public ThriftEnvelope deserialize(ThriftEnvelope thriftEnvelope) throws IOException
     {
         String typeName = null;
@@ -91,7 +88,6 @@ public class ThriftEnvelopeDeserializer implements Deserializer<ThriftEnvelope>
         return nextThriftEnvelope;
     }
 
-    @Override
     public void close() throws IOException
     {
         protocol.getTransport().close();

@@ -16,7 +16,6 @@
 
 package com.ning.serialization;
 
-import org.apache.hadoop.io.WritableUtils;
 import org.apache.thrift.protocol.TType;
 
 import java.io.DataInput;
@@ -107,13 +106,13 @@ public class LongDataItem implements DataItem
     public void write(DataOutput out) throws IOException
     {
         out.writeByte(LONG_TYPE);
-        WritableUtils.writeVLong(out, value);
+        out.writeLong(value);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException
     {
-        value = WritableUtils.readVLong(in);
+        value = in.readLong();
     }
 
     @Override

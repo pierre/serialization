@@ -16,11 +16,12 @@
 
 package com.ning.serialization;
 
-import org.apache.hadoop.io.WritableComparable;
-
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.Serializable;
 
-public interface DataItem extends WritableComparable, Serializable
+public interface DataItem extends Comparable, Serializable
 {
     public Boolean getBoolean();
 
@@ -39,6 +40,10 @@ public interface DataItem extends WritableComparable, Serializable
     public Comparable getComparable();
 
     public byte getThriftType();
+
+    public void write(DataOutput out) throws IOException;
+
+    public void readFields(DataInput in) throws IOException;
 
     public static byte LONG_TYPE = 0;
     public static byte STRING_TYPE = 1;

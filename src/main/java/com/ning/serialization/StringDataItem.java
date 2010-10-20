@@ -16,8 +16,6 @@
 
 package com.ning.serialization;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableUtils;
 import org.apache.thrift.protocol.TType;
 
 import java.io.DataInput;
@@ -31,11 +29,6 @@ public class StringDataItem implements DataItem
     public StringDataItem()
     {
         value = "";
-    }
-
-    public StringDataItem(Text value)
-    {
-        this(value.toString());
     }
 
     public StringDataItem(String value)
@@ -133,14 +126,14 @@ public class StringDataItem implements DataItem
         byte[] bytes = value.getBytes();
 
         out.writeByte(STRING_TYPE);
-        WritableUtils.writeVInt(out, bytes.length);
+        out.writeInt(bytes.length);
         out.write(bytes);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException
     {
-        int length = WritableUtils.readVInt(in);
+        int length = in.readInt();
         byte[] bytes = new byte[length];
 
         in.readFully(bytes);

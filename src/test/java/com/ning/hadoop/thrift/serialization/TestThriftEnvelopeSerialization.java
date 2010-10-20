@@ -8,10 +8,10 @@ import com.ning.serialization.LongDataItem;
 import com.ning.serialization.ShortDataItem;
 import com.ning.serialization.StringDataItem;
 import com.ning.serialization.ThriftEnvelope;
+import com.ning.serialization.ThriftEnvelopeDeserializer;
 import com.ning.serialization.ThriftEnvelopeSerialization;
+import com.ning.serialization.ThriftEnvelopeSerializer;
 import com.ning.serialization.ThriftFieldImpl;
-import org.apache.hadoop.io.serializer.Deserializer;
-import org.apache.hadoop.io.serializer.Serializer;
 import org.apache.thrift.protocol.TField;
 import org.apache.thrift.protocol.TType;
 import org.testng.Assert;
@@ -24,8 +24,8 @@ import java.io.IOException;
 public class TestThriftEnvelopeSerialization
 {
     private final ThriftEnvelopeSerialization serialization = new ThriftEnvelopeSerialization();
-    private final Serializer<ThriftEnvelope> serializer = serialization.getSerializer(ThriftEnvelope.class);
-    private final Deserializer<ThriftEnvelope> deserializer = serialization.getDeserializer(ThriftEnvelope.class);
+    private final ThriftEnvelopeSerializer serializer = new ThriftEnvelopeSerializer();
+    private final ThriftEnvelopeDeserializer deserializer = new ThriftEnvelopeDeserializer();
 
     @Test(groups = "fast")
     public void testSerializeNull() throws Exception
