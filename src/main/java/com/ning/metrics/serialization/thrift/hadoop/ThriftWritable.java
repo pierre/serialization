@@ -40,7 +40,7 @@ import java.io.OutputStream;
  * Instances of this class are not thread-safe.
  * </p>
  */
-abstract class ThriftWritable<T extends TBase> implements Comparable
+public abstract class ThriftWritable<T extends TBase> implements Comparable
 {
 
     static class Transport extends TIOStreamTransport

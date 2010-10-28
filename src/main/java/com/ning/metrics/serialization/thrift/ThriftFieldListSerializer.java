@@ -25,7 +25,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-class ThriftFieldListSerializer
+public class ThriftFieldListSerializer
 {
     public byte[] createPayload(List<ThriftField> thriftFieldList) throws TException
     {

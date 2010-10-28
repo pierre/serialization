@@ -16,8 +16,11 @@
 
 package com.ning.metrics.serialization.thrift;
 
+import com.ning.metrics.serialization.schema.SchemaFieldType;
 import com.ning.metrics.serialization.thrift.item.DataItem;
+import com.ning.metrics.serialization.thrift.item.DataItemFactory;
 import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TField;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TType;
 
@@ -62,5 +65,40 @@ public abstract class ThriftField
     private static byte[] booleanToByteArray(boolean b)
     {
         return numberToByteArray(b ? "0" : "1");
+    }
+
+    public static ThriftField createThriftField(Boolean value, short id)
+    {
+        return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.BOOLEAN.getThriftType(), id));
+    }
+
+    public static ThriftField createThriftField(Byte value, short id)
+    {
+        return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.BYTE.getThriftType(), id));
+    }
+
+    public static ThriftField createThriftField(Short value, short id)
+    {
+        return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.SHORT.getThriftType(), id));
+    }
+
+    public static ThriftField createThriftField(Integer value, short id)
+    {
+        return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.INTEGER.getThriftType(), id));
+    }
+
+    public static ThriftField createThriftField(Long value, short id)
+    {
+        return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.LONG.getThriftType(), id));
+    }
+
+    public static ThriftField createThriftField(Double value, short id)
+    {
+        return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.DOUBLE.getThriftType(), id));
+    }
+
+    public static ThriftField createThriftField(String value, short id)
+    {
+        return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.STRING.getThriftType(), id));
     }
 }

@@ -16,8 +16,8 @@
 
 package com.ning.metrics.serialization.thrift;
 
-import com.ning.metrics.serialization.thrift.item.DataItemDeserializer;
 import com.ning.metrics.serialization.thrift.item.DataItem;
+import com.ning.metrics.serialization.thrift.item.DataItemDeserializer;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TField;
@@ -29,7 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-class ThriftFieldListDeserializer
+public class ThriftFieldListDeserializer
 {
     private final DataItemDeserializer dataItemDeserializer = new DataItemDeserializer();
 
