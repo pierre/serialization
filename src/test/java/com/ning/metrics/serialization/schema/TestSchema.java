@@ -1,0 +1,53 @@
+package com.ning.metrics.serialization.schema;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+
+public class TestSchema
+{
+    private static final String EVENT_NAME = "FuuEvent";
+    private static final String EVENT_FIELD1_NAME = "FuuField1";
+    private static final String EVENT_FIELD1_TYPE = "STRING";
+    private static final String EVENT_FIELD2_NAME = "FuuField2";
+    private static final String EVENT_FIELD2_TYPE = "DATE";
+    private static final String EVENT_FIELD3_NAME = "FuuField3";
+    private static final String EVENT_FIELD3_TYPE = "BOOLEAN";
+
+
+    @Test(groups = "fast")
+    public void testCreateSchema() throws Exception
+    {
+        Schema schema = new Schema(EVENT_NAME);
+
+        Assert.assertEquals(schema.getName(), EVENT_NAME);
+
+        // Un-ordered on purpose
+        schema.addSchemaField(SchemaFieldType.createSchemaField(EVENT_FIELD1_NAME, EVENT_FIELD1_TYPE, (short) 1));
+        schema.addSchemaField(SchemaFieldType.createSchemaField(EVENT_FIELD3_NAME, EVENT_FIELD3_TYPE, (short) 3));
+        schema.addSchemaField(SchemaFieldType.createSchemaField(EVENT_FIELD2_NAME, EVENT_FIELD2_TYPE, (short) 2));
+
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD1_NAME).getName(), EVENT_FIELD1_NAME);
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD2_NAME).getName(), EVENT_FIELD2_NAME);
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD3_NAME).getName(), EVENT_FIELD3_NAME);
+
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD1_NAME).getType(), SchemaFieldType.valueOf(EVENT_FIELD1_TYPE));
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD2_NAME).getType(), SchemaFieldType.valueOf(EVENT_FIELD2_TYPE));
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD3_NAME).getType(), SchemaFieldType.valueOf(EVENT_FIELD3_TYPE));
+
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD1_NAME).getId(), (short) 1);
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD2_NAME).getId(), (short) 2);
+        Assert.assertEquals(schema.getFieldByName(EVENT_FIELD3_NAME).getId(), (short) 3);
+
+        Assert.assertEquals(schema.getFieldByPosition((short) 1), schema.getFieldByName(EVENT_FIELD1_NAME));
+        Assert.assertEquals(schema.getFieldByPosition((short) 2), schema.getFieldByName(EVENT_FIELD2_NAME));
+        Assert.assertEquals(schema.getFieldByPosition((short) 3), schema.getFieldByName(EVENT_FIELD3_NAME));
+
+        // Test ordering
+        ArrayList<SchemaField> field = schema.getSchema();
+        Assert.assertEquals(field.get(0), schema.getFieldByName(EVENT_FIELD1_NAME));
+        Assert.assertEquals(field.get(2), schema.getFieldByName(EVENT_FIELD3_NAME));
+        Assert.assertEquals(field.get(1), schema.getFieldByName(EVENT_FIELD2_NAME));
+    }
+}
