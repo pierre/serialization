@@ -14,9 +14,8 @@
  * under the License.
  */
 
-package com.ning.metrics.serialization.writer;
+package com.ning.metrics.serialization.event;
 
-import com.ning.metrics.serialization.event.Event;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
