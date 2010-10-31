@@ -45,10 +45,22 @@ public class TestThresholdEventWriter
             protected long getNow()
             {
                 // Hack: fake nano time since epoch
-                // System.nanoTime() doen't have any notion of time, it can only be used for elapsed time calculations
+                // System.nanoTime() doesn't have any notion of time, it can only be used for elapsed time calculations
                 return now.getMillis() * 1000000;
             }
         };
+    }
+
+    @Test(groups = "fast")
+    public void testProperties() throws Exception
+    {
+        Assert.assertEquals(eventWriter.getMaxWriteCount(), 2);
+        eventWriter.setMaxWriteCount(20);
+        Assert.assertEquals(eventWriter.getMaxWriteCount(), 20);
+
+        Assert.assertEquals(eventWriter.getMaxFlushPeriodInSeconds(), 300);
+        eventWriter.setMaxFlushPeriodInSeconds(600);
+        Assert.assertEquals(eventWriter.getMaxFlushPeriodInSeconds(), 600);
     }
 
     @Test(groups = "fast")
