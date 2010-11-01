@@ -26,6 +26,8 @@ public interface Event extends Externalizable
 
     public String getName();
 
+    public Granularity getGranularity();
+
     public String getVersion();
 
     public String getOutputDir(String prefix);

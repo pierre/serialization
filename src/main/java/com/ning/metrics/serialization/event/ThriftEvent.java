@@ -47,6 +47,12 @@ public class ThriftEvent implements Event
     }
 
     @Override
+    public Granularity getGranularity()
+    {
+        return granularity;
+    }
+
+    @Override
     public String getVersion()
     {
         throw new RuntimeException("Not implemented for native Thrift objects");

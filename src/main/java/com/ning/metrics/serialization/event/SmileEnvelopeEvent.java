@@ -90,6 +90,12 @@ public class SmileEnvelopeEvent implements Event
     }
 
     @Override
+    public Granularity getGranularity()
+    {
+        return granularity;
+    }
+
+    @Override
     public String getVersion()
     {
         // TODO Not sure how to version these schemata. Need more thinking here.

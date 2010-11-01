@@ -37,6 +37,12 @@ public class StubEvent implements Event
     }
 
     @Override
+    public Granularity getGranularity()
+    {
+        return Granularity.HOURLY;
+    }
+
+    @Override
     public DateTime getEventDateTime()
     {
         throw new UnsupportedOperationException();

@@ -71,6 +71,12 @@ public class ThriftEnvelopeEvent implements Event
     }
 
     @Override
+    public Granularity getGranularity()
+    {
+        return granularity;
+    }
+
+    @Override
     public String getVersion()
     {
         return thriftEnvelope.getVersion();
