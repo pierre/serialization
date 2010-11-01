@@ -138,4 +138,13 @@ public class ThriftEnvelopeEvent implements Event
         }
     }
 
+    @Override
+    public String toString()
+    {
+        return "ThriftEnvelopeEvent{" +
+            "eventDateTime=" + eventDateTime +
+            ", thriftEnvelope=" + thriftEnvelope +
+            ", granularity=" + granularity +
+            '}';
+    }
 }

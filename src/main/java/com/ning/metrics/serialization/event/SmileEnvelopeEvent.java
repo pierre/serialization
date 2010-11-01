@@ -166,4 +166,15 @@ public class SmileEnvelopeEvent implements Event
     {
         this.eventName = eventName;
     }
+
+    @Override
+    public String toString()
+    {
+        return "SmileEnvelopeEvent{" +
+            "eventDateTime=" + eventDateTime +
+            ", eventName='" + eventName + '\'' +
+            ", granularity=" + granularity +
+            ", payloadLength=" + payload.length +
+            '}';
+    }
 }

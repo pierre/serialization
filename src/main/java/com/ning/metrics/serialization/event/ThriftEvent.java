@@ -92,4 +92,15 @@ public class ThriftEvent implements Event
         granularity = (Granularity) objectInput.readObject();
         thriftObject = objectInput.readObject();
     }
+
+    @Override
+    public String toString()
+    {
+        return "ThriftEvent{" +
+            "eventDateTime=" + eventDateTime +
+            ", eventName='" + eventName + '\'' +
+            ", granularity=" + granularity +
+            ", thriftObject=" + thriftObject +
+            '}';
+    }
 }
