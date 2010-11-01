@@ -85,7 +85,7 @@ public class TestDiskSpoolEventWriter
         eventThrowsOnToBytes = new StubEvent()
         {
             @Override
-            public void toBytes()
+            public Object getData()
             {
                 throw new RuntimeException();
             }

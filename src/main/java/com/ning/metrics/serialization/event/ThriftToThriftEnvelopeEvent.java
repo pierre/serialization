@@ -26,11 +26,28 @@ import java.util.List;
 
 public class ThriftToThriftEnvelopeEvent
 {
+    /**
+     * Given a serialized Thrift, generate a ThrifTEnvelopeEvent
+     *
+     * @param type    Thrift schema name
+     * @param payload serialized Thrift
+     * @return ThriftEnvelopeEvent representing the Thrift (the event timestamp defaults to now())
+     * @throws TException if the payload is not a valid Thrift
+     */
     public static Event extractEvent(String type, byte[] payload) throws TException
     {
         return extractEvent(type, new DateTime(), payload);
     }
 
+    /**
+     * Given a serialized Thrift, generate a ThrifTEnvelopeEvent
+     *
+     * @param type          Thrift schema name
+     * @param eventDateTime the event timestamp
+     * @param payload       serialized Thrift
+     * @return ThriftEnvelopeEvent representing the Thrift
+     * @throws TException if the payload is not a valid Thrift
+     */
     public static Event extractEvent(String type, DateTime eventDateTime, byte[] payload) throws TException
     {
         final List<ThriftField> list = new ThriftFieldListDeserializer().readPayload(payload);

@@ -55,11 +55,6 @@ public class StubEvent implements Event
     }
 
     @Override
-    public void toBytes() throws IOException
-    {
-    }
-
-    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
     }

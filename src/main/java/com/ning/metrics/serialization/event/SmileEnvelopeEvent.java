@@ -110,11 +110,6 @@ public class SmileEnvelopeEvent implements Event
         return payload; // This is a String representation of a serialized SMILE event
     }
 
-    @Override
-    public void toBytes() throws IOException
-    {
-    }
-
     /**
      * The object implements the writeExternal method to save its contents
      * by calling the methods of DataOutput for its primitive values or

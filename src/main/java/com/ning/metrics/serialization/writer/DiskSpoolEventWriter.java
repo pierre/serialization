@@ -138,25 +138,19 @@ public class DiskSpoolEventWriter implements EventWriter
         }
 
         try {
-            event.toBytes();
+            currentOutputter.writeObject(event);
+            writeRate.increment();
         }
         catch (RuntimeException e) {
             eventSerializationFailures.incrementAndGet();
             //noinspection AccessToStaticFieldLockedOnInstance
             log.warn("unable to serialize event", e);
-
-            return;
         }
         catch (IOException e) {
             eventSerializationFailures.incrementAndGet();
             //noinspection AccessToStaticFieldLockedOnInstance
             log.warn("unable to serialize event", e);
-
-            return;
         }
-
-        currentOutputter.writeObject(event);
-        writeRate.increment();
     }
 
     @Override

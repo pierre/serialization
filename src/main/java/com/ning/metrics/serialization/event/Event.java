@@ -19,7 +19,6 @@ package com.ning.metrics.serialization.event;
 import org.joda.time.DateTime;
 
 import java.io.Externalizable;
-import java.io.IOException;
 
 public interface Event extends Externalizable
 {
@@ -35,6 +34,4 @@ public interface Event extends Externalizable
      * @return Object representing the data (ThriftEnvelope, ...)
      */
     public Object getData();
-
-    public void toBytes() throws IOException;
 }

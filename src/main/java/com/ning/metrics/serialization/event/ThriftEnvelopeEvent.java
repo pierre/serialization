@@ -80,9 +80,8 @@ public class ThriftEnvelopeEvent implements Event
     public String getOutputDir(String prefix)
     {
         GranularityPathMapper pathMapper = new GranularityPathMapper(String.format("%s/%s", prefix, thriftEnvelope.getTypeName()), granularity);
-        String outputPath = pathMapper.getPathForDateTime(getEventDateTime());
 
-        return outputPath;
+        return pathMapper.getPathForDateTime(getEventDateTime());
     }
 
     @Override
@@ -118,8 +117,7 @@ public class ThriftEnvelopeEvent implements Event
         out.writeObject(granularity);
     }
 
-    @Override
-    public void toBytes() throws IOException
+    private void toBytes() throws IOException
     {
         if (serializedBytes == null) {
             ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
