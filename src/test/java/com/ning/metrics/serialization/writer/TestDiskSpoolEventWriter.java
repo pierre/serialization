@@ -45,16 +45,33 @@ public class TestDiskSpoolEventWriter
 
     private Runnable commandToRun;
     private long secondsToWait;
-    private ScheduledExecutorService executor;
+    private ScheduledExecutorService executor = new StubScheduledExecutorService()
+    {
+        @Override
+        public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)
+        {
+            commandToRun = command;
+            secondsToWait = TimeUnit.SECONDS.convert(delay, unit);
+
+            return null;
+        }
+    };
     private File spoolDir;
     private File tmpDir;
     private File quarantineDir;
-    private EventWriter writerThrowsIOExceptionOnCommit = new MockEventWriter(true, false, false);
-    private EventWriter writerThrowsIOExceptionOnWrite = new MockEventWriter(false, false, true);
-    private EventWriter writerThrowsIOExceptionOnCommitAndRollback = new MockEventWriter(true, true, false);
-    private EventWriter writerThrowsIOExceptionOnAll = new MockEventWriter(true, true, true);
-    private EventWriter writerSucceeds = new StubEventWriter();
-    private Event eventThrowsOnWrite;
+    private final EventHandler writerThrowsIOExceptionOnCommit = new StubEventHandler(new MockEventWriter(true, false, false));
+    private final EventHandler writerThrowsIOExceptionOnWrite = new StubEventHandler(new MockEventWriter(false, false, true));
+    private final EventHandler writerThrowsIOExceptionOnCommitAndRollback = new StubEventHandler(new MockEventWriter(true, true, false));
+    private final EventHandler writerThrowsIOExceptionOnAll = new StubEventHandler(new MockEventWriter(true, true, true));
+    private final EventHandler writerSucceeds = new StubEventHandler();
+    private final Event eventThrowsOnWrite = new StubEvent()
+    {
+        @Override
+        public void writeExternal(ObjectOutput out) throws IOException
+        {
+            throw new IOException();
+        }
+    };
     private String spoolPath;
 
     @BeforeMethod(alwaysRun = true)
@@ -64,31 +81,6 @@ public class TestDiskSpoolEventWriter
         spoolDir = new File(spoolPath);
         tmpDir = new File(spoolPath + "/_tmp");
         quarantineDir = new File(spoolPath + "/_quarantine");
-        executor = new StubScheduledExecutorService()
-        {
-            @Override
-            public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)
-            {
-                commandToRun = command;
-                secondsToWait = TimeUnit.SECONDS.convert(delay, unit);
-
-                return null;
-            }
-        };
-
-        writerThrowsIOExceptionOnCommit = new MockEventWriter(true, false, false);
-        writerThrowsIOExceptionOnWrite = new MockEventWriter(false, false, true);
-        writerThrowsIOExceptionOnCommitAndRollback = new MockEventWriter(true, true, false);
-        writerThrowsIOExceptionOnAll = new MockEventWriter(true, true, true);
-        writerSucceeds = new StubEventWriter();
-        eventThrowsOnWrite = new StubEvent()
-        {
-            @Override
-            public void writeExternal(ObjectOutput out) throws IOException
-            {
-                throw new IOException();
-            }
-        };
 
         prepareSpoolDirs();
     }
@@ -206,7 +198,7 @@ public class TestDiskSpoolEventWriter
         testSpoolDirs(0, 0, 1);
     }
 
-    private DiskSpoolEventWriter createWriter(EventWriter persistentWriter)
+    private DiskSpoolEventWriter createWriter(EventHandler persistentWriter)
     {
         return new DiskSpoolEventWriter(persistentWriter, spoolPath, true, 1, executor, SyncType.NONE, 1);
     }

@@ -41,23 +41,23 @@ public class DiskSpoolEventWriter implements EventWriter
     private final AtomicLong fileId = new AtomicLong(System.currentTimeMillis() * 1000000);
     private final AtomicBoolean flushEnabled;
     private final AtomicLong flushIntervalInSeconds;
-    private final EventWriter hadoopEventWriter;
+    private final EventHandler eventHandler;
     private final int rateWindowSizeMinutes;
     private final SyncType syncType;
     private final File spoolDirectory;
     private final ScheduledExecutorService executor;
     private final File tmpSpoolDirectory;
     private final File quarantineDirectory;
-    private final AtomicBoolean flushingToHadoop = new AtomicBoolean(false);
+    private final AtomicBoolean currentlyFlushing = new AtomicBoolean(false);
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
     private final EventRate writeRate;
 
     private volatile ObjectOutputter currentOutputter;
     private volatile File currentOutputFile;
 
-    public DiskSpoolEventWriter(EventWriter hadoopFileEventWriter, String spoolPath, boolean flushEnabled, long flushIntervalInSeconds, ScheduledExecutorService executor, SyncType syncType, int rateWindowSizeMinutes)
+    public DiskSpoolEventWriter(EventHandler eventHandler, String spoolPath, boolean flushEnabled, long flushIntervalInSeconds, ScheduledExecutorService executor, SyncType syncType, int rateWindowSizeMinutes)
     {
-        this.hadoopEventWriter = hadoopFileEventWriter;
+        this.eventHandler = eventHandler;
         this.rateWindowSizeMinutes = rateWindowSizeMinutes;
         this.syncType = syncType;
         this.spoolDirectory = new File(spoolPath);
@@ -99,15 +99,14 @@ public class DiskSpoolEventWriter implements EventWriter
             public void run()
             {
                 try {
-                    flushToPersisentWriter();
+                    flush();
                 }
                 catch (Exception e) {
-                    log.error("failed performing commit to hdfs", e);
+                    log.error("Failed performing commit", e);
                 }
                 finally {
                     long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
-
-                    log.info(String.format("sleeping %d seconds", sleepSeconds));
+                    log.debug(String.format("Sleeping %d seconds before next schedule", sleepSeconds));
                     executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
                 }
             }
@@ -185,10 +184,10 @@ public class DiskSpoolEventWriter implements EventWriter
         }
     }
 
-    @Managed(description = "commit events to hdfs")
-    public void flushToPersisentWriter() throws IOException
+    @Managed(description = "Commit events (forward them to final handler)")
+    public void flush() throws IOException
     {
-        if (!flushingToHadoop.compareAndSet(false, true)) {
+        if (!currentlyFlushing.compareAndSet(false, true)) {
             return;
         }
 
@@ -197,26 +196,18 @@ public class DiskSpoolEventWriter implements EventWriter
                 if (flushEnabled.get()) {
                     boolean fileSucceeded = false;
 
-                    //noinspection NestedTryStatement
                     try {
                         ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
-
-                        while (objectInputStream.read() != -1) {
-                            Event event = (Event) objectInputStream.readObject();
-                            hadoopEventWriter.write(event);
-                        }
-
-                        objectInputStream.close();
-                        hadoopEventWriter.forceCommit();
+                        eventHandler.handle(objectInputStream);
 
                         if (!file.delete()) {
-                            log.warn(String.format("unable to cleanup file %s", file));
+                            log.warn(String.format("Unable to cleanup file %s", file));
                         }
 
                         fileSucceeded = true;
                     }
                     catch (ClassNotFoundException e) {
-                        log.warn(String.format("unable to deserialize objects in file %s and write to serialization (quarantining to %s)", file, quarantineDirectory), e);
+                        log.warn(String.format("Unable to deserialize objects in file %s and write to serialization (quarantining to %s)", file, quarantineDirectory), e);
                     }
                     catch (IOException e) {
                         log.warn(String.format("Error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
@@ -227,14 +218,14 @@ public class DiskSpoolEventWriter implements EventWriter
                     finally {
                         if (!fileSucceeded) {
                             renameFile(file, quarantineDirectory);
-                            hadoopEventWriter.rollback();
+                            eventHandler.rollback();
                         }
                     }
                 }
             }
         }
         finally {
-            flushingToHadoop.set(false);
+            currentlyFlushing.set(false);
         }
     }
 
