@@ -144,12 +144,12 @@ public class DiskSpoolEventWriter implements EventWriter
         catch (RuntimeException e) {
             eventSerializationFailures.incrementAndGet();
             //noinspection AccessToStaticFieldLockedOnInstance
-            log.warn("unable to serialize event", e);
+            throw new IOException("unable to serialize event", e);
         }
         catch (IOException e) {
             eventSerializationFailures.incrementAndGet();
             //noinspection AccessToStaticFieldLockedOnInstance
-            log.warn("unable to serialize event", e);
+            throw new IOException("unable to serialize event", e);
         }
     }
 

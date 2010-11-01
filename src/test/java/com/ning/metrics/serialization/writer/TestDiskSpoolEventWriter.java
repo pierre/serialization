@@ -54,7 +54,6 @@ public class TestDiskSpoolEventWriter
     private EventWriter writerThrowsIOExceptionOnCommitAndRollback = new MockEventWriter(true, true, false);
     private EventWriter writerThrowsIOExceptionOnAll = new MockEventWriter(true, true, true);
     private EventWriter writerSucceeds = new StubEventWriter();
-    private Event eventThrowsOnToBytes;
     private Event eventThrowsOnWrite;
     private String spoolPath;
 
@@ -82,14 +81,6 @@ public class TestDiskSpoolEventWriter
         writerThrowsIOExceptionOnCommitAndRollback = new MockEventWriter(true, true, false);
         writerThrowsIOExceptionOnAll = new MockEventWriter(true, true, true);
         writerSucceeds = new StubEventWriter();
-        eventThrowsOnToBytes = new StubEvent()
-        {
-            @Override
-            public Object getData()
-            {
-                throw new RuntimeException();
-            }
-        };
         eventThrowsOnWrite = new StubEvent()
         {
             @Override
@@ -100,19 +91,6 @@ public class TestDiskSpoolEventWriter
         };
 
         prepareSpoolDirs();
-    }
-
-    @Test(groups = "fast")
-    public void testWriteSerializationFailure() throws Exception
-    {
-        DiskSpoolEventWriter writer = createWriter(writerSucceeds);
-
-        writer.write(eventThrowsOnToBytes);
-        testSpoolDirs(1, 0, 0);
-        Assert.assertEquals(writer.getEventSeralizationFailureCount(), 1);
-        writer.write(new StubEvent());
-        writer.commit();
-        testSpoolDirs(0, 1, 0);
     }
 
     @Test(groups = "fast")
