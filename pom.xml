@@ -62,6 +62,13 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.ning</groupId>
+                <artifactId>metrics.serialization-writer</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>1.6</version>
