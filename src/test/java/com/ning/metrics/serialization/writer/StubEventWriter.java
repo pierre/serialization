@@ -38,6 +38,11 @@ class StubEventWriter implements EventWriter
     }
 
     @Override
+    public void flush() throws IOException
+    {
+    }
+
+    @Override
     public void rollback() throws IOException
     {
     }

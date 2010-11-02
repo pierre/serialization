@@ -28,5 +28,7 @@ public interface EventWriter
 
     public void forceCommit() throws IOException;
 
+    public void flush() throws IOException;
+
     public void rollback() throws IOException;
 }

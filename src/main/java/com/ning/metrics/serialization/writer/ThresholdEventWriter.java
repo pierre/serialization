@@ -104,6 +104,17 @@ public class ThresholdEventWriter implements EventWriter
         delegate.rollback();
     }
 
+    /**
+     * Flush events: invoke the event handler which will process all events from the final spool area
+     *
+     * @throws IOException as thrown by the event handler
+     */
+    @Override
+    public synchronized void flush() throws IOException
+    {
+        delegate.flush();
+    }
+
     private synchronized void commitIfNeeded() throws IOException
     {
         if (uncommittedWriteCount > maxWriteCount.get() || (getNow() - maxFlushPeriodNanos > lastFlushNanos)) {

@@ -268,6 +268,7 @@ public class DiskSpoolEventWriter implements EventWriter
     }
 
     @Managed(description = "size in kilobytes of quarantined data that could not be written to hdfs")
+    // TODO: periodically retry?
     public long getQuarantineSize()
     {
         long size = 0;

@@ -60,6 +60,12 @@ public class MockEventWriter implements EventWriter
     }
 
     @Override
+    public void flush() throws IOException
+    {
+        commit();
+    }
+
+    @Override
     public void rollback() throws IOException
     {
         if (rollbackThrowsException) {
