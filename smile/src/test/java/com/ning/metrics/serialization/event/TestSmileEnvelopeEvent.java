@@ -12,16 +12,18 @@ import java.io.IOException;
 
 public class TestSmileEnvelopeEvent
 {
-    private static final ByteArrayOutputStream stream = new ByteArrayOutputStream();
     private static final DateTime eventDateTime = new DateTime();
     private static final String SCHEMA_NAME = "mySmile";
 
-    private SmileEnvelopeEvent event;
-
+    private byte[] serializedBytes;
+    
+    private String serializedString;
+    
     @BeforeTest
     public void setUp() throws IOException
     {
         SmileFactory f = new SmileFactory();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
         JsonGenerator g = f.createJsonGenerator(stream);
 
         g.writeStartObject();
@@ -36,24 +38,45 @@ public class TestSmileEnvelopeEvent
         g.writeEndObject();
         g.close(); // important: will force flushing of output, close underlying output stream
 
-        event = new SmileEnvelopeEvent(SCHEMA_NAME, stream.toString());
+        serializedBytes = stream.toByteArray();
+        // one sanity check; should be able to round-trip via String (iff using latin-1!)
+        serializedString = stream.toString("ISO-8859-1");
     }
 
+    /**
+     * Unit test that verifies that messy conversions between byte[] and String do not totally
+     * break contents
+     */
+    @Test(groups = "fast")
+    public void testBytesVsString() throws Exception
+    {
+        byte[] fromString = serializedString.getBytes("ISO-8859-1");
+        Assert.assertEquals(fromString, serializedBytes);
+    }
+    
     @Test(groups = "fast")
     public void testGetEventDateTime() throws Exception
     {
+        SmileEnvelopeEvent event = createEvent();
         Assert.assertEquals(event.getEventDateTime(), eventDateTime);
     }
 
     @Test(groups = "fast")
     public void testGetName() throws Exception
     {
+        SmileEnvelopeEvent event = createEvent();
         Assert.assertEquals(event.getName(), SCHEMA_NAME);
     }
 
     @Test(groups = "fast")
     public void testToBytes() throws Exception
     {
-        Assert.assertEquals((byte[]) event.getData(), stream.toByteArray());
+        SmileEnvelopeEvent event = createEvent();
+        Assert.assertEquals((byte[]) event.getData(), serializedBytes);
+    }
+
+    private SmileEnvelopeEvent createEvent() throws IOException
+    {
+        return new SmileEnvelopeEvent(SCHEMA_NAME, serializedString);
     }
 }

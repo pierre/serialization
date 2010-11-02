@@ -3,15 +3,28 @@ package com.ning.metrics.serialization.event;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.smile.SmileFactory;
+import org.codehaus.jackson.smile.SmileGenerator;
+import org.codehaus.jackson.smile.SmileParser;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.nio.charset.Charset;
 
 public class SmileEnvelopeEvent implements Event
 {
-    private final SmileFactory factory = new SmileFactory();
+    private final Charset CHARSET_LATIN1 = Charset.forName("ISO-8859-1");
+    
+    private final static SmileFactory factory = new SmileFactory();
+    static {
+        // yes, full 'compression' by checking for repeating names, short string values:
+        factory.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
+        factory.configure(SmileGenerator.Feature.CHECK_SHARED_STRING_VALUES, true);
+        // and for now let's not mandate header for input
+        factory.configure(SmileParser.Feature.REQUIRE_HEADER, false);
+    }
+
     private JsonParser parser;
 
     public static final String SMILE_EVENT_DATETIME_TOKEN_NAME = "eventDate";
@@ -37,7 +50,7 @@ public class SmileEnvelopeEvent implements Event
     public SmileEnvelopeEvent(String eventName, String message) throws IOException
     {
         this.eventName = eventName;
-        this.payload = message.getBytes();
+        this.payload = message.getBytes(CHARSET_LATIN1);
         parser = factory.createJsonParser(payload);
         parseEvent();
     }
@@ -47,29 +60,32 @@ public class SmileEnvelopeEvent implements Event
         // Go through the stream once
         JsonToken t = parser.nextToken();
         while (t != null && (eventDateTime == null || granularity == null)) {
-            if (parser.getCurrentName() != null && parser.getCurrentName().equals(SMILE_EVENT_DATETIME_TOKEN_NAME)) {
+            if (t == JsonToken.FIELD_NAME) {
+                String name = parser.getCurrentName();
                 t = parser.nextValue();
-                if (!t.isNumeric()) {
-                    throw new IOException(String.format("Invalid JSON: [%s] is not a timestamp", t.asString()));
+                if (SMILE_EVENT_DATETIME_TOKEN_NAME.equals(name)) {
+                    if (!t.isNumeric()) {
+                        throw new IOException(String.format("Invalid JSON: property '%s' has non-numeric value type [%s]", name, t.asString()));
+                    }
+                    try {
+                        eventDateTime = new DateTime(parser.getLongValue());
+                    }
+                    catch (NumberFormatException e) {
+                        throw new IOException(String.format("Invalid JSON: [%s] is not a timestamp", t.asString()));
+                    }
+                } else if (SMILE_EVENT_GRANULARITY_TOKEN_NAME.equals(name)) {
+                    String text = parser.getText();
+                    try {
+                        granularity = Granularity.valueOf(parser.getText());
+                    }
+                    catch (IllegalArgumentException e) {
+                        throw new IOException(String.format("Invalid JSON: property '%s', value '%s' is not a valid granularity",
+                                name, text));
+                    }
                 }
-
-                try {
-                    eventDateTime = new DateTime(parser.getLongValue());
-                }
-                catch (NumberFormatException e) {
-                    throw new IOException(String.format("Invalid JSON: [%s] is not a timestamp", t.asString()));
-                }
+            } else {
+                t = parser.nextToken();
             }
-            else if (parser.getCurrentName() != null && parser.getCurrentName().equals(SMILE_EVENT_GRANULARITY_TOKEN_NAME)) {
-                t = parser.nextValue();
-                try {
-                    granularity = Granularity.valueOf(parser.getText());
-                }
-                catch (IllegalArgumentException e) {
-                    throw new IOException(String.format("Invalid JSON: [%s] is not a valid granularity", t.asString()));
-                }
-            }
-            t = parser.nextToken();
         }
 
         if (granularity == null) {
@@ -110,10 +126,13 @@ public class SmileEnvelopeEvent implements Event
         return pathMapper.getPathForDateTime(getEventDateTime());
     }
 
+    /**
+     * @return byte array (byte[]) that contains Smile event
+     */
     @Override
     public Object getData()
     {
-        return payload; // This is a String representation of a serialized SMILE event
+        return payload; // This is a byte[] representation of a serialized SMILE event
     }
 
     /**
