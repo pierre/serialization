@@ -37,8 +37,9 @@ public class ThriftEnvelopeEvent implements Event
     private transient ThriftEnvelopeSerializer serializer = new ThriftEnvelopeSerializer();
     private transient ThriftEnvelopeDeserializer deserializer = new ThriftEnvelopeDeserializer();
 
-    //required for deserialization
-    @Deprecated
+    /**
+     * Public no-arg constructor, for deserialization
+     */
     public ThriftEnvelopeEvent()
     {
         eventDateTime = null;

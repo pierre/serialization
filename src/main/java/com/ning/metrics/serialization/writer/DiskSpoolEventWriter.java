@@ -102,11 +102,11 @@ public class DiskSpoolEventWriter implements EventWriter
                     flush();
                 }
                 catch (Exception e) {
-                    log.error("Failed performing commit", e);
+                    log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
                 }
                 finally {
                     long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
-                    log.debug(String.format("Sleeping %d seconds before next schedule", sleepSeconds));
+                    log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
                     executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
                 }
             }
