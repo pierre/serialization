@@ -18,6 +18,8 @@ package com.ning.metrics.serialization.schema;
 
 class IpSchemaField extends AbstractSchemaField implements SchemaField
 {
+    private static final long serialVersionUID = 1L;
+
     public IpSchemaField(String name, short id)
     {
         super(name, SchemaFieldType.IP, id);

@@ -26,6 +26,8 @@ import java.util.List;
 
 class GranularityPathMapper implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final String prefix;
     private final Granularity granularity;
 

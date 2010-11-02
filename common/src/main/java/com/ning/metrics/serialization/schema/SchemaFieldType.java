@@ -59,9 +59,9 @@ public enum SchemaFieldType
     IP(TType.I32, Integer.class);
 
     private final byte thriftType;
-    private final Class smileType;
+    private final Class<?> smileType;
 
-    SchemaFieldType(byte thriftType, Class smileType)
+    SchemaFieldType(byte thriftType, Class<?> smileType)
     {
         this.thriftType = thriftType;
         this.smileType = smileType;
@@ -72,7 +72,7 @@ public enum SchemaFieldType
         return thriftType;
     }
 
-    public Class getSmileType()
+    public Class<?> getSmileType()
     {
         return smileType;
     }

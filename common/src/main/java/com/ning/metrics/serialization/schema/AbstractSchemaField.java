@@ -18,6 +18,8 @@ package com.ning.metrics.serialization.schema;
 
 abstract class AbstractSchemaField implements SchemaField
 {
+    private static final long serialVersionUID = 1L;
+
     private final String name;
     private final SchemaFieldType type;
     private final short id;
@@ -61,9 +63,9 @@ abstract class AbstractSchemaField implements SchemaField
     @Override
     public boolean equals(Object obj)
     {
-        return obj instanceof AbstractSchemaField &&
-            ((AbstractSchemaField) obj).name.equals(name) &&
-            ((AbstractSchemaField) obj).type == type &&
-            ((AbstractSchemaField) obj).id == id;
+        if (obj == this) return true;
+        if (obj == null || !(obj instanceof AbstractSchemaField)) return false;
+        AbstractSchemaField other = (AbstractSchemaField) obj;
+        return (other.type == type) && (other.id == id) && other.name.equals(name);
     }
 }

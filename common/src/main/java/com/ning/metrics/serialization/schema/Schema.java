@@ -12,6 +12,8 @@ import java.util.HashMap;
  */
 public class Schema
 {
+    private static final long serialVersionUID = 1L;
+
     private final String name;
     private HashMap<Short, SchemaField> schemaFields = new HashMap<Short, SchemaField>();
 
@@ -52,7 +54,6 @@ public class Schema
      *
      * @return the sorted collection of fields
      */
-    @SuppressWarnings("unused")
     public ArrayList<SchemaField> getSchema()
     {
         ArrayList<SchemaField> items = new ArrayList<SchemaField>(schemaFields.values());
@@ -62,7 +63,7 @@ public class Schema
             @Override
             public int compare(SchemaField left, SchemaField right)
             {
-                return Short.valueOf(left.getId()).compareTo(right.getId());
+                return left.getId() - right.getId();
             }
         });
 
