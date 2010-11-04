@@ -120,7 +120,28 @@
                     <mavenExecutorId>forked-path</mavenExecutorId>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <log4j.configuration>file:${project.basedir}/src/main/resources/log4j.xml</log4j.configuration>
+                    </systemPropertyVariables>
+                    <!-- Note: tests are not thread safe! Do not multi-thread surfire -->
+                </configuration>
+            </plugin>
         </plugins>
+        <resources>
+            <resource><!-- Don't bundle log4j.xml in the final JAR -->
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>
+                        log4j.xml
+                    </exclude>
+                </excludes>
+            </resource>
+        </resources>
     </build>
     <developers>
         <developer>
