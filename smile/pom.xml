@@ -17,6 +17,10 @@
             <groupId>com.ning</groupId>
             <artifactId>metrics.serialization-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
         <dependency><!-- only need this to ensure smile and core have same version-->
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
