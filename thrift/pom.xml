@@ -18,6 +18,10 @@
             <artifactId>metrics.serialization-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>thrift</artifactId>
             <version>0.2.0</version>
