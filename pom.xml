@@ -171,6 +171,23 @@
             <id>pierre</id>
             <name>Pierre-Alexandre Meyer</name>
             <email>pierre@mouraf.org</email>
+            <timezone>-8</timezone>
+            <properties>
+                <picUrl>http://pub.mouraf.org/me/me.jpg</picUrl>
+            </properties>
         </developer>
     </developers>
+    <mailingLists>
+        <mailingList>
+            <name>Dwarf users</name>
+            <subscribe>dwarf-users+subscribe@googlegroups.com</subscribe>
+            <unsubscribe>dwarf-users+unsubscribe@googlegroups.com</unsubscribe>
+            <post>dwarf-users@googlegroups.com</post>
+            <archive>http://groups.google.com/group/dwarf-users</archive>
+        </mailingList>
+    </mailingLists>
+    <issueManagement>
+        <system>Github</system>
+        <url>http://github.com/pierre/serialization/issues</url>
+    </issueManagement>
 </project>
