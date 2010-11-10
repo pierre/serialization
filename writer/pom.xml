@@ -13,15 +13,16 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>com.ning</groupId>
-            <artifactId>metrics.serialization-common</artifactId>
-        </dependency>
+        <!-- HACK, specify test dependency first. See http://jira.codehaus.org/browse/MSITE-432 -->
         <dependency>
             <groupId>com.ning</groupId>
             <artifactId>metrics.serialization-common</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>metrics.serialization-common</artifactId>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
