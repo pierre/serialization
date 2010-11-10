@@ -24,9 +24,13 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Wrapper around another delegate writer.
+ * Wrapper around another delegate writer. Ensures to commit on the delegate writer after a specified number of
+ * uncommitted writes and/or delay.
  * <p/>
- * Ensures to commit on the delegate writer after a specified number of uncommitted writes and/or delay.
+ * This writer passes all events to the underlying, delegate, writer for each write call and keeps stats on the total number
+ * of events passed. It will trigger a commit (not a forced commit) on the delegate writer after the specified number of writes
+ * is reached and/or if the time elapsed since the last commit is greater than the specified flush period.
+ * This writer will never trigger a forceCommit on the delegate writer.
  */
 public class ThresholdEventWriter implements EventWriter
 {
