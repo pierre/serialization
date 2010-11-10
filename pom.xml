@@ -133,6 +133,13 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <configuration>
+                        <siteDirectory>${project.parent.basedir}/src/site</siteDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.6</version>
                     <configuration>
@@ -180,10 +187,43 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <!--<goal>cim</goal>-->
+                            <goal>dependencies</goal>
+                            <goal>dependency-convergence</goal>
+                            <goal>dependency-management</goal>
+                            <goal>help</goal>
+                            <goal>index</goal>
+                            <goal>issue-tracking</goal>
+                            <goal>license</goal>
+                            <goal>mailing-list</goal>
+                            <goal>plugin-management</goal>
+                            <goal>plugins</goal>
+                            <goal>project-team</goal>
+                            <goal>scm</goal>
+                            <goal>summary</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.0-beta-9</version>
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <siteDirectory>${project.basedir}/src/site</siteDirectory>
                 </configuration>
             </plugin>
         </plugins>
