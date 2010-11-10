@@ -34,6 +34,27 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Disk-backed persistent queue. The DiskSpoolEventWriter writes events to disk and pass them to an EventHandler on
+ * a periodic basis.
+ *
+ * This writer writes events to disk in a temporary spool area directly upon receive. Events are stored in flat files.
+ *
+ * One can control the type of writes performed by specifying one of SyncType values. For instance, if data integrity is
+ * important, specify SyncType.SYNC to trigger a sync() of the disk after each write. Note that this will seriously impact
+ * performance.
+ *
+ * Commit and forced commit have the same behavior and will promote the current file to the final spool area. Note that
+ * the DiskSpoolEventWriter will never promote files automatically. To control this behavior programmatically, use ThresholdEventWriter.
+ * There are also JMX knobs available.
+ *
+ * Periodically, events in the final spool area will be flushed to the specified EventHandler. On failure, files are moved
+ * to a quarantine area. Quarantined files are never retried, except on startup.
+ *
+ * The rollback operation moves the current open file to the quarantine area.
+ *
+ * @see com.ning.metrics.serialization.writer.SyncType
+ */
 public class DiskSpoolEventWriter implements EventWriter
 {
     private static final Logger log = Logger.getLogger(DiskSpoolEventWriter.class);
