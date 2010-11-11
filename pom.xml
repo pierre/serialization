@@ -131,12 +131,13 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>1.3.1</version>
                 </plugin>
+                <!-- Won't work, see http://jira.codehaus.org/browse/MSITE-484 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <configuration>
-                        <siteDirectory>${project.parent.basedir}/src/site</siteDirectory>
-                    </configuration>
+                    <!--<configuration>
+                        <siteDirectory>${project.parent.relativePath}/src/site</siteDirectory>
+                    </configuration>-->
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -161,54 +162,6 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <source>1.6</source>
-                    <encoding>UTF-8</encoding>
-                    <maxmemory>1g</maxmemory>
-                    <links>
-                        <link>http://download.oracle.com/javase/6/docs/api/</link>
-                    </links>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>javadoc</goal>
-                            <!-- :( See http://jira.codehaus.org/browse/MSITE-432 -->
-                            <!--<goal>test-javadoc</goal>-->
-                        </goals>
-                        <phase>site</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <!--<goal>cim</goal>-->
-                            <goal>dependencies</goal>
-                            <goal>dependency-convergence</goal>
-                            <goal>dependency-management</goal>
-                            <goal>help</goal>
-                            <goal>index</goal>
-                            <goal>issue-tracking</goal>
-                            <goal>license</goal>
-                            <goal>mailing-list</goal>
-                            <goal>plugin-management</goal>
-                            <goal>plugins</goal>
-                            <goal>project-team</goal>
-                            <goal>scm</goal>
-                            <goal>summary</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -238,6 +191,39 @@
             </resource>
         </resources>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <source>1.6</source>
+                    <encoding>UTF-8</encoding>
+                    <maxmemory>1g</maxmemory>
+                    <links>
+                        <link>http://commons.apache.org/lang/api/</link>
+                        <link>http://download.oracle.com/javase/6/docs/api/</link>
+                    </links>
+                    <linksource>true</linksource>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>html</id>
+                        <reports>
+                            <report>javadoc</report>
+                            <!-- No test-javadoc :( See http://jira.codehaus.org/browse/MSITE-432 -->
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.1</version>
+            </plugin>
+        </plugins>
+    </reporting>
     <developers>
         <developer>
             <id>pierre</id>

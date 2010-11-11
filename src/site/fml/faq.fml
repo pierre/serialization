@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faqs xmlns="http://maven.apache.org/FML/1.0.1"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/FML/1.0.1 http://maven.apache.org/xsd/fml-1.0.1.xsd"
+      title="Frequently Asked Questions"
+      toplink="false">
+
+    <part id="general">
+        <title>General</title>
+
+        <faq id="whats-serialization">
+            <question>
+                What is this Serialization library?
+            </question>
+            <answer>
+                <p>The Serialization library contains all the building blocks of the
+                    <a href="/" target="_blank">Dwarf framework</a>. It is composed of four different modules:
+                    <ul>
+                        <li>serialization-common: describes the Event and Schema concepts</li>
+                        <li>serialization-smile: implements Event using the Smile serialization format</li>
+                        <li>serialization-thrift: implements Event using the Thrift serialization format</li>
+                        <li>serialization-writer: disk-based persistent queue</li>
+                    </ul>
+                    serialization-all is a dummy pom module which depends on all serialization modules, for convenience.
+                    For more details, see the Javadocs in each project.
+                </p>
+            </answer>
+        </faq>
+
+        <faq id="how-use-it">
+            <question>
+                How/Why I want to use it?
+            </question>
+            <answer>
+                <p>Most likely, you will be using it indirectly via the
+                    <a href="/collector" target="_blank">Collector</a>,<a href="/goodwill" target="_blank">Goodwill</a>,
+                    <a href="/hfind" target="_blank">HFind</a>, ... See the <a href="/" target="_blank">Dwarf
+                        framework</a>.
+                </p>
+                <p>
+                    You can also use the library in your code to handle events, i.e. an observable phenomenon (i.e. with
+                    associated data), that
+                    occurred at a given timestamp. Some events examples:
+                    <ul>
+                        <li>log line: data is the log message, the timestamp is the date when the message was logged
+                        </li>
+                        <li>page render: data is "rendered", the timestamp is the date when the page was fully rendered
+                            in the client browser
+                        </li>
+                        <li>request log: data is the Apache log line, the timestamp is the date of the visit</li>
+                    </ul>
+                </p>
+                <p>
+                    <b>Handle</b> can mean different things, like storing the event in HDFS or a DataWarehouse, publishing it to ActiveMQ, ...
+                </p>
+                <p>
+                See the
+                <a href="/serialization/metrics.serialization-common/apidocs/com/ning/metrics/serialization/event/Event.html"
+                   target="_blank">Event Javadoc
+                </a>
+                for in-depth understanding of the concept.
+
+            </p>
+        </answer>
+    </faq>
+
+    <faq id="why-name">
+        <question>
+            Why the name?
+        </question>
+        <answer>
+            <p>The project started as a drop for a collection of Thrift wrappers. As it evolved, we failed finding a
+                better name.
+                Suggestions are welcome!
+            </p>
+        </answer>
+    </faq>
+</part>
+
+        </faqs>
