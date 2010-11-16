@@ -101,4 +101,50 @@ public abstract class ThriftField
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.STRING.getThriftType(), id));
     }
+
+    public static ThriftField createThriftField(Class<?> type, Object o, short id)
+    {
+        if (type.isAssignableFrom(Boolean.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Boolean) o), new TField(String.valueOf(id), SchemaFieldType.BOOLEAN.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(boolean.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Boolean) o), new TField(String.valueOf(id), SchemaFieldType.BOOLEAN.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(Byte.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Byte) o), new TField(String.valueOf(id), SchemaFieldType.BYTE.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(byte.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Byte) o), new TField(String.valueOf(id), SchemaFieldType.BYTE.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(Short.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Short) o), new TField(String.valueOf(id), SchemaFieldType.SHORT.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(short.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Short) o), new TField(String.valueOf(id), SchemaFieldType.SHORT.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(Integer.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Integer) o), new TField(String.valueOf(id), SchemaFieldType.INTEGER.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(int.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Integer) o), new TField(String.valueOf(id), SchemaFieldType.INTEGER.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(Long.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Long) o), new TField(String.valueOf(id), SchemaFieldType.LONG.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(long.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Long) o), new TField(String.valueOf(id), SchemaFieldType.LONG.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(Double.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Double) o), new TField(String.valueOf(id), SchemaFieldType.DOUBLE.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(double.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create((Double) o), new TField(String.valueOf(id), SchemaFieldType.DOUBLE.getThriftType(), id));
+        }
+        else if (type.isAssignableFrom(String.class)) {
+            return new ThriftFieldImpl(DataItemFactory.create(o == null ? "" : (String) o), new TField(String.valueOf(id), SchemaFieldType.STRING.getThriftType(), id));
+        }
+        else {
+            return null;
+        }
+    }
 }
