@@ -182,6 +182,7 @@ public class SmileEnvelopeEvent implements Event
     @Override
     public void writeExternal(ObjectOutput out) throws IOException
     {
+        out.writeInt(payload.length);
         out.write(payload);
     }
 
@@ -201,9 +202,9 @@ public class SmileEnvelopeEvent implements Event
     public void readExternal(ObjectInput in) throws IOException
     {
         int numBytes = in.readInt();
-        byte[] bytes = new byte[numBytes];
+        payload = new byte[numBytes];
 
-        in.readFully(bytes);
+        in.readFully(payload);
         parseEvent(payload);
         // One has to set the name manually
     }

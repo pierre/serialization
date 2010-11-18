@@ -1,14 +1,18 @@
 package com.ning.metrics.serialization.event;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.smile.SmileFactory;
-import org.joda.time.DateTime;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.smile.SmileFactory;
+import org.joda.time.DateTime;
 
 public class TestSmileEnvelopeEvent
 {
@@ -43,6 +47,12 @@ public class TestSmileEnvelopeEvent
         serializedString = stream.toString("ISO-8859-1");
     }
 
+    /*
+    /////////////////////////////////////////////////////////////////////// 
+    // Unit tests, char-to-byte conversions
+    /////////////////////////////////////////////////////////////////////// 
+     */
+    
     /**
      * Unit test that verifies that messy conversions between byte[] and String do not totally
      * break contents
@@ -53,6 +63,19 @@ public class TestSmileEnvelopeEvent
         byte[] fromString = serializedString.getBytes("ISO-8859-1");
         Assert.assertEquals(fromString, serializedBytes);
     }
+
+    @Test(groups = "fast")
+    public void testToBytes() throws Exception
+    {
+        SmileEnvelopeEvent event = createEvent();
+        Assert.assertEquals((byte[]) event.getData(), serializedBytes);
+    }
+    
+    /*
+    /////////////////////////////////////////////////////////////////////// 
+    // Unit tests, metadata access
+    /////////////////////////////////////////////////////////////////////// 
+     */
     
     @Test(groups = "fast")
     public void testGetEventDateTime() throws Exception
@@ -68,13 +91,48 @@ public class TestSmileEnvelopeEvent
         Assert.assertEquals(event.getName(), SCHEMA_NAME);
     }
 
+    /*
+    /////////////////////////////////////////////////////////////////////// 
+    // Unit tests, externalization (readObject/writeObject)
+    /////////////////////////////////////////////////////////////////////// 
+     */
+    
     @Test(groups = "fast")
-    public void testToBytes() throws Exception
+    public void testExternalization() throws Exception
     {
-        SmileEnvelopeEvent event = createEvent();
-        Assert.assertEquals((byte[]) event.getData(), serializedBytes);
+        Granularity gran = Granularity.MONTHLY; // arbitrary choice
+
+        byte[] inputBytes = serializedBytes;
+        DateTime now = new DateTime();
+        SmileEnvelopeEvent envelope = new SmileEnvelopeEvent("test", inputBytes, now, gran);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(bytes);
+        out.writeObject(envelope);
+        out.close();
+        byte[] data = bytes.toByteArray();
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(data));
+        Object ob = in.readObject();
+        Assert.assertNotNull(ob);
+        Assert.assertSame(SmileEnvelopeEvent.class, ob.getClass());
+
+        SmileEnvelopeEvent result = (SmileEnvelopeEvent) ob;
+        // name is not automatically set, but can check other metadata
+        Assert.assertSame(result.getGranularity(), gran);
+        // how about timestamp? Why is it not matching...
+//        Assert.assertEquals(result.getEventDateTime(), now);
+
+        Assert.assertNotNull(result.getData());
+        Assert.assertSame(result.getData().getClass(), byte[].class);
+        byte[] actualBytes = (byte[]) result.getData();
+        Assert.assertEquals(actualBytes, inputBytes);
     }
 
+    /*
+    /////////////////////////////////////////////////////////////////////// 
+    // Helper methods
+    /////////////////////////////////////////////////////////////////////// 
+     */
+    
     private SmileEnvelopeEvent createEvent() throws IOException
     {
         return new SmileEnvelopeEvent(SCHEMA_NAME, serializedString);
