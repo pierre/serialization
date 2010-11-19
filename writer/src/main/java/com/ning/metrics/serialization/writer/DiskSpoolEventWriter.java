@@ -65,6 +65,7 @@ public class DiskSpoolEventWriter implements EventWriter
     private final EventHandler eventHandler;
     private final int rateWindowSizeMinutes;
     private final SyncType syncType;
+    private final int syncBatchSize;
     private final File spoolDirectory;
     private final ScheduledExecutorService executor;
     private final File tmpSpoolDirectory;
@@ -76,11 +77,21 @@ public class DiskSpoolEventWriter implements EventWriter
     private volatile ObjectOutputter currentOutputter;
     private volatile File currentOutputFile;
 
-    public DiskSpoolEventWriter(EventHandler eventHandler, String spoolPath, boolean flushEnabled, long flushIntervalInSeconds, ScheduledExecutorService executor, SyncType syncType, int rateWindowSizeMinutes)
+    public DiskSpoolEventWriter(
+        EventHandler eventHandler,
+        String spoolPath,
+        boolean flushEnabled,
+        long flushIntervalInSeconds,
+        ScheduledExecutorService executor,
+        SyncType syncType,
+        int syncBatchSize,
+        int rateWindowSizeMinutes
+    )
     {
         this.eventHandler = eventHandler;
         this.rateWindowSizeMinutes = rateWindowSizeMinutes;
         this.syncType = syncType;
+        this.syncBatchSize = syncBatchSize;
         this.spoolDirectory = new File(spoolPath);
         this.executor = executor;
         this.tmpSpoolDirectory = new File(spoolDirectory, "_tmp");
@@ -154,7 +165,7 @@ public class DiskSpoolEventWriter implements EventWriter
         if (currentOutputter == null) {
             currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.thrift", fileId.incrementAndGet()));
 
-            currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType);
+            currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType, syncBatchSize);
         }
 
         try {

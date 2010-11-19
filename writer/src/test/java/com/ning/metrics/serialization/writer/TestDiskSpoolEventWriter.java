@@ -105,7 +105,7 @@ public class TestDiskSpoolEventWriter
         final AtomicReference<List<File>> spooledFileList = new AtomicReference<List<File>>(Collections.<File>emptyList());
 
         @SuppressWarnings({"UnusedDeclaration"})
-        DiskSpoolEventWriter writer = new DiskSpoolEventWriter(writerSucceeds, spoolPath, true, 30, executor, SyncType.NONE, 1)
+        DiskSpoolEventWriter writer = new DiskSpoolEventWriter(writerSucceeds, spoolPath, true, 30, executor, SyncType.NONE, 1, 1)
         {
             @Override
             protected List<File> getSpooledFileList()
@@ -196,7 +196,7 @@ public class TestDiskSpoolEventWriter
 
     private DiskSpoolEventWriter createWriter(EventHandler persistentWriter)
     {
-        return new DiskSpoolEventWriter(persistentWriter, spoolPath, true, 1, executor, SyncType.NONE, 1);
+        return new DiskSpoolEventWriter(persistentWriter, spoolPath, true, 1, executor, SyncType.NONE, 1, 1);
     }
 
     private void testSpoolDirs(int tmpCount, int spoolCount, int quarantineCount)

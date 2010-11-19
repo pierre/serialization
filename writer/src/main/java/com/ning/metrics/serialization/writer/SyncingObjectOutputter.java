@@ -24,11 +24,14 @@ class SyncingObjectOutputter implements ObjectOutputter
 {
     private final FileOutputStream out;
     private final ObjectOutputStream objectOut;
+    private final int batchSize;
+    private int objectsWritten = 0;
 
-    public SyncingObjectOutputter(FileOutputStream out) throws IOException
+    public SyncingObjectOutputter(FileOutputStream out, int batchSize) throws IOException
     {
         this.out = out;
         this.objectOut = new ObjectOutputStream(out);
+        this.batchSize = batchSize;
     }
 
     @Override
@@ -36,9 +39,14 @@ class SyncingObjectOutputter implements ObjectOutputter
     {
         objectOut.write(1);
         objectOut.writeObject(obj);
-        objectOut.flush();
-        out.getFD().sync();
+        objectsWritten++;
 
+        // TODO unit test (mock out)
+        if (objectsWritten >= batchSize) {
+            objectOut.flush();
+            out.getFD().sync();
+            objectsWritten = 0;
+        }
     }
 
     @Override

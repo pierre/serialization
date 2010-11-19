@@ -21,15 +21,15 @@ import java.io.IOException;
 
 public class ObjectOutputterFactory
 {
-    public static ObjectOutputter createObjectOutputter(FileOutputStream out, SyncType type) throws IOException
+    public static ObjectOutputter createObjectOutputter(FileOutputStream out, SyncType type, int batchSize) throws IOException
     {
         switch (type) {
             case NONE:
                 return new DefaultObjectOutputter(out);
             case FLUSH:
-                return new FlushingObjectOutputter(out);
+                return new FlushingObjectOutputter(out, batchSize);
             case SYNC:
-                return new SyncingObjectOutputter(out);
+                return new SyncingObjectOutputter(out, batchSize);
         }
 
         throw new IllegalArgumentException("unable to construct ObjectOutputter given type");

@@ -23,10 +23,13 @@ import java.io.ObjectOutputStream;
 class FlushingObjectOutputter implements ObjectOutputter
 {
     private final ObjectOutputStream objectOut;
+    private final int batchSize;
+    private int objectsWritten = 0;
 
-    public FlushingObjectOutputter(FileOutputStream out) throws IOException
+    public FlushingObjectOutputter(FileOutputStream out, int batchSize) throws IOException
     {
         this.objectOut = new ObjectOutputStream(out);
+        this.batchSize = batchSize;
     }
 
     @Override
@@ -34,7 +37,12 @@ class FlushingObjectOutputter implements ObjectOutputter
     {
         objectOut.write(1);
         objectOut.writeObject(obj);
-        objectOut.flush();
+        objectsWritten++;
+
+        if (objectsWritten >= batchSize) {
+            objectOut.flush();
+            objectsWritten = 0;
+        }
     }
 
     @Override
