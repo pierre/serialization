@@ -104,6 +104,10 @@ public abstract class ThriftField
 
     public static ThriftField createThriftField(Class<?> type, Object o, short id)
     {
+        if (o == null) {
+            return null;
+        }
+
         if (type.isAssignableFrom(Boolean.class)) {
             return new ThriftFieldImpl(DataItemFactory.create((Boolean) o), new TField(String.valueOf(id), SchemaFieldType.BOOLEAN.getThriftType(), id));
         }
@@ -141,7 +145,7 @@ public abstract class ThriftField
             return new ThriftFieldImpl(DataItemFactory.create((Double) o), new TField(String.valueOf(id), SchemaFieldType.DOUBLE.getThriftType(), id));
         }
         else if (type.isAssignableFrom(String.class)) {
-            return new ThriftFieldImpl(DataItemFactory.create(o == null ? "" : (String) o), new TField(String.valueOf(id), SchemaFieldType.STRING.getThriftType(), id));
+            return new ThriftFieldImpl(DataItemFactory.create((String) o), new TField(String.valueOf(id), SchemaFieldType.STRING.getThriftType(), id));
         }
         else {
             return null;
