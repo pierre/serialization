@@ -36,4 +36,12 @@ public interface Event extends Externalizable
      * @return Object representing the data (ThriftEnvelope, ...)
      */
     public Object getData();
+
+    /**
+     * Serialize an event to a byte array.
+     * This method is optional, methods relying on this call should handle gracefully null.
+     *
+     * @return byte array representation of an event, can return null
+     */
+    public byte[] getSerializedEvent();
 }

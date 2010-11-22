@@ -31,6 +31,12 @@ public class StubEvent implements Event
     }
 
     @Override
+    public byte[] getSerializedEvent()
+    {
+        return null;
+    }
+
+    @Override
     public String getName()
     {
         return "bar";

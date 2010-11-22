@@ -98,6 +98,12 @@ public class ThriftEnvelopeEvent implements Event
     }
 
     @Override
+    public byte[] getSerializedEvent()
+    {
+        return null;
+    }
+
+    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
         int numBytes = in.readInt();

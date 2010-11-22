@@ -165,6 +165,12 @@ public class SmileEnvelopeEvent implements Event
         return payload; // This is a byte[] representation of a serialized SMILE event
     }
 
+    @Override
+    public byte[] getSerializedEvent()
+    {
+        return null;
+    }
+
     /**
      * The object implements the writeExternal method to save its contents
      * by calling the methods of DataOutput for its primitive values or
