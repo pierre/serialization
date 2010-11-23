@@ -33,9 +33,10 @@
             </question>
             <answer>
                 <p>Most likely, you will be using it indirectly via the
-                    <a href="/collector" target="_blank">Collector</a>,<a href="/goodwill" target="_blank">Goodwill</a>,
-                    <a href="/hfind" target="_blank">HFind</a>, ... See the <a href="/" target="_blank">Dwarf
-                        framework</a>.
+                    <a href="/dwarf/collector" target="_blank">Collector</a>,
+                    <a href="/dwarf/goodwill" target="_blank">Goodwill</a>,
+                    <a href="/dwarf/hfind" target="_blank">HFind</a>, ... See the
+                    <a href="/dwarf" target="_blank">Dwarf framework</a>.
                 </p>
                 <p>
                     You can also use the library in your code to handle events, i.e. an observable phenomenon (i.e. with
@@ -51,30 +52,32 @@
                     </ul>
                 </p>
                 <p>
-                    <b>Handle</b> can mean different things, like storing the event in HDFS or a DataWarehouse, publishing it to ActiveMQ, ...
+                    <b>Handle</b>
+                    can mean different things, like storing the event in HDFS or a DataWarehouse, publishing it to
+                    ActiveMQ, ...
                 </p>
                 <p>
-                See the
-                <a href="/serialization/metrics.serialization-common/apidocs/com/ning/metrics/serialization/event/Event.html"
-                   target="_blank">Event Javadoc
-                </a>
-                for in-depth understanding of the concept.
+                    See the
+                    <a href="/dwarf/serialization/metrics.serialization-common/apidocs/com/ning/metrics/serialization/event/Event.html"
+                       target="_blank">Event Javadoc
+                    </a>
+                    for in-depth understanding of the concept.
 
-            </p>
-        </answer>
-    </faq>
+                </p>
+            </answer>
+        </faq>
 
-    <faq id="why-name">
-        <question>
-            Why the name?
-        </question>
-        <answer>
-            <p>The project started as a drop for a collection of Thrift wrappers. As it evolved, we failed finding a
-                better name.
-                Suggestions are welcome!
-            </p>
-        </answer>
-    </faq>
-</part>
+        <faq id="why-name">
+            <question>
+                Why the name?
+            </question>
+            <answer>
+                <p>The project started as a drop for a collection of Thrift wrappers. As it evolved, we failed finding a
+                    better name.
+                    Suggestions are welcome!
+                </p>
+            </answer>
+        </faq>
+    </part>
 
-        </faqs>
+</faqs>

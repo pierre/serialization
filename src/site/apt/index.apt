@@ -1,4 +1,4 @@
 Welcome to the Dwarf Serialization library
 
     The Serialization library contains a set of utilities to handle collection of events and implements various serialization protocols.
-    See the {{{faq.html}FAQ}} to get started.
+    See the {{{/dwarf/serialization/faq.html}FAQ}} to get started.
