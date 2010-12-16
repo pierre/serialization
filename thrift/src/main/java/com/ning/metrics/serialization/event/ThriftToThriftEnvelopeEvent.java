@@ -59,7 +59,8 @@ public class ThriftToThriftEnvelopeEvent
         Field[] fields = thriftObject.getClass().getFields();
         for (int i = 0; i < fields.length; i++) {
             try {
-                ThriftField field = ThriftField.createThriftField(fields[i].getType(), fields[i].get(thriftObject), (short) i);
+                // Thrift fields start at 1, not 0
+                ThriftField field = ThriftField.createThriftField(fields[i].getType(), fields[i].get(thriftObject), (short) (i + 1));
 
                 // null for the Thrift metaData map and potential other non-supported attributes added by the caller in the thriftObject
                 if (field != null) {

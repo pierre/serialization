@@ -16,6 +16,8 @@
 
 package com.ning.metrics.serialization.event;
 
+import com.ning.metrics.serialization.thrift.ThriftEnvelope;
+import com.ning.metrics.serialization.thrift.ThriftField;
 import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -50,5 +52,10 @@ public class TestThriftToThriftEnvelopeEvent
 
         Assert.assertEquals(finalEvent.getEventDate(), event.getEventDate());
         Assert.assertEquals(finalEvent.getEventDate(), eventDateTime.getMillis());
+
+        // Make sure fields start at 1, not 0 (Thrift convention)
+        for (ThriftField field : ((ThriftEnvelope) envelopeEvent.getData()).getPayload()) {
+            Assert.assertTrue(field.getId() > 0);
+        }
     }
 }
