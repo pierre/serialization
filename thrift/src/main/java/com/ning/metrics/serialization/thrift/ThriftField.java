@@ -39,6 +39,8 @@ public abstract class ThriftField
                 return booleanToByteArray(getDataItem().getBoolean());
             case TType.BYTE:
                 return numberToByteArray(Byte.toString(getDataItem().getByte()));
+            case TType.DOUBLE:
+                return numberToByteArray(Double.toString(getDataItem().getDouble()));
             case TType.I16:
                 return numberToByteArray(Short.toString(getDataItem().getShort()));
             case TType.I32:
