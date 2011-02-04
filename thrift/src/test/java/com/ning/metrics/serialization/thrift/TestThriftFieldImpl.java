@@ -139,7 +139,6 @@ public class TestThriftFieldImpl
 
     private void testPrimitiveShipment(ThriftField field, int type) throws Exception
     {
-
         ThriftField result = shipPrimitive(field);
 
         switch (type) {
@@ -186,5 +185,13 @@ public class TestThriftFieldImpl
         return result;
     }
 
+    @Test
+    public void testToByteArray() throws Exception
+    {
+        ThriftField field = new ThriftFieldImpl(DataItemFactory.create(true), (short) 0);
+        Assert.assertEquals(field.toByteArray()[0], (byte) '1');
 
+        field = new ThriftFieldImpl(DataItemFactory.create(false), (short) 0);
+        Assert.assertEquals(field.toByteArray()[0], (byte) '0');
+    }
 }

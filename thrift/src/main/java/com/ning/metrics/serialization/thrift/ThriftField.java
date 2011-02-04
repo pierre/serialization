@@ -64,9 +64,12 @@ public abstract class ThriftField
         return bytes;
     }
 
+    private final static byte[] TRUE = {(byte) '1'};
+    private final static byte[] FALSE = {(byte) '0'};
+
     private static byte[] booleanToByteArray(boolean b)
     {
-        return numberToByteArray(b ? "0" : "1");
+        return (b ? TRUE : FALSE);
     }
 
     public static ThriftField createThriftField(Boolean value, short id)
