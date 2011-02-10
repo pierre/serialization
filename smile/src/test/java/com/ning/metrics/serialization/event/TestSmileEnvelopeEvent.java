@@ -1,37 +1,46 @@
 package com.ning.metrics.serialization.event;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.smile.SmileFactory;
+import org.codehaus.jackson.smile.SmileGenerator;
+import org.codehaus.jackson.smile.SmileParser;
+import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.smile.SmileFactory;
-import org.joda.time.DateTime;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 
 public class TestSmileEnvelopeEvent
 {
+    private static Granularity eventGranularity = Granularity.MONTHLY;
     private static final DateTime eventDateTime = new DateTime();
     private static final String SCHEMA_NAME = "mySmile";
 
     private byte[] serializedBytes;
-    
+
     private String serializedString;
-    
+    private static final String CHARSET_ISO_1 = "ISO-8859-1";
+
     @BeforeTest
     public void setUp() throws IOException
     {
+        // Use same configuration as SmileEnvelopeEvent
         SmileFactory f = new SmileFactory();
+        f.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
+        f.configure(SmileGenerator.Feature.CHECK_SHARED_STRING_VALUES, true);
+        f.configure(SmileParser.Feature.REQUIRE_HEADER, false);
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         JsonGenerator g = f.createJsonGenerator(stream);
 
         g.writeStartObject();
-        g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, "MONTHLY");
+        g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, eventGranularity.toString());
         g.writeObjectFieldStart("name");
         g.writeStringField("first", "Joe");
         g.writeStringField("last", "Sixpack");
@@ -44,39 +53,34 @@ public class TestSmileEnvelopeEvent
 
         serializedBytes = stream.toByteArray();
         // one sanity check; should be able to round-trip via String (iff using latin-1!)
-        serializedString = stream.toString("ISO-8859-1");
+        serializedString = stream.toString(CHARSET_ISO_1);
     }
 
     /*
-    /////////////////////////////////////////////////////////////////////// 
+    ///////////////////////////////////////////////////////////////////////
     // Unit tests, char-to-byte conversions
-    /////////////////////////////////////////////////////////////////////// 
+    ///////////////////////////////////////////////////////////////////////
      */
-    
+
     /**
      * Unit test that verifies that messy conversions between byte[] and String do not totally
      * break contents
+     *
+     * @throws Exception generic serialization exception
      */
     @Test(groups = "fast")
     public void testBytesVsString() throws Exception
     {
-        byte[] fromString = serializedString.getBytes("ISO-8859-1");
+        byte[] fromString = serializedString.getBytes(CHARSET_ISO_1);
         Assert.assertEquals(fromString, serializedBytes);
     }
 
-    @Test(groups = "fast")
-    public void testToBytes() throws Exception
-    {
-        SmileEnvelopeEvent event = createEvent();
-        Assert.assertEquals((byte[]) event.getData(), serializedBytes);
-    }
-    
     /*
-    /////////////////////////////////////////////////////////////////////// 
-    // Unit tests, metadata access
-    /////////////////////////////////////////////////////////////////////// 
-     */
-    
+   ///////////////////////////////////////////////////////////////////////
+   // Unit tests, metadata access
+   ///////////////////////////////////////////////////////////////////////
+    */
+
     @Test(groups = "fast")
     public void testGetEventDateTime() throws Exception
     {
@@ -92,19 +96,17 @@ public class TestSmileEnvelopeEvent
     }
 
     /*
-    /////////////////////////////////////////////////////////////////////// 
+    ///////////////////////////////////////////////////////////////////////
     // Unit tests, externalization (readObject/writeObject)
-    /////////////////////////////////////////////////////////////////////// 
+    ///////////////////////////////////////////////////////////////////////
      */
-    
+
     @Test(groups = "fast")
     public void testExternalization() throws Exception
     {
-        Granularity gran = Granularity.MONTHLY; // arbitrary choice
+        SmileEnvelopeEvent envelope = createEvent();
 
         byte[] inputBytes = serializedBytes;
-        DateTime now = new DateTime();
-        SmileEnvelopeEvent envelope = new SmileEnvelopeEvent("test", inputBytes, now, gran);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(bytes);
         out.writeObject(envelope);
@@ -112,29 +114,47 @@ public class TestSmileEnvelopeEvent
         byte[] data = bytes.toByteArray();
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(data));
         Object ob = in.readObject();
+
         Assert.assertNotNull(ob);
         Assert.assertSame(SmileEnvelopeEvent.class, ob.getClass());
 
         SmileEnvelopeEvent result = (SmileEnvelopeEvent) ob;
         // name is not automatically set, but can check other metadata
-        Assert.assertSame(result.getGranularity(), gran);
-        // how about timestamp? Why is it not matching...
-//        Assert.assertEquals(result.getEventDateTime(), now);
+        Assert.assertSame(result.getGranularity(), eventGranularity);
+        Assert.assertEquals(result.getEventDateTime(), eventDateTime);
 
         Assert.assertNotNull(result.getData());
-        Assert.assertSame(result.getData().getClass(), byte[].class);
-        byte[] actualBytes = (byte[]) result.getData();
-        Assert.assertEquals(actualBytes, inputBytes);
+        // TODO Looks like there are multiple JsonNode classes?
+        //Assert.assertSame(result.getData().getClass(), JsonNode.class);
+        Assert.assertEquals(result.getSerializedEvent(), inputBytes);
+    }
+
+    @Test
+    public void testReadWriteExternal() throws Exception
+    {
+        SmileEnvelopeEvent event = createEvent();
+
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        ObjectOutput out = new ObjectOutputStream(outStream);
+        event.writeExternal(out);
+        out.close();
+
+        SmileEnvelopeEvent event2 = new SmileEnvelopeEvent();
+        event2.readExternal(new ObjectInputStream(new ByteArrayInputStream(outStream.toByteArray())));
+
+        Assert.assertEquals(event2.getName(), event.getName());
+        Assert.assertEquals(event2.getGranularity(), event.getGranularity());
+        Assert.assertEquals(event2.getName(), event.getName());
     }
 
     /*
-    /////////////////////////////////////////////////////////////////////// 
+    ///////////////////////////////////////////////////////////////////////
     // Helper methods
-    /////////////////////////////////////////////////////////////////////// 
+    ///////////////////////////////////////////////////////////////////////
      */
-    
+
     private SmileEnvelopeEvent createEvent() throws IOException
     {
-        return new SmileEnvelopeEvent(SCHEMA_NAME, serializedString);
+        return new SmileEnvelopeEvent(SCHEMA_NAME, serializedBytes, eventDateTime, eventGranularity);
     }
 }

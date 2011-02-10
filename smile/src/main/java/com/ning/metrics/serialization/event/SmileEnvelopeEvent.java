@@ -1,26 +1,24 @@
 package com.ning.metrics.serialization.event;
 
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
 import org.joda.time.DateTime;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.nio.charset.Charset;
 
 public class SmileEnvelopeEvent implements Event
 {
-    /**
-     * We will use bogus charset to do truncation from char[] to byte[]; latin-1
-     * works since it is 8-bit subset of Unicode.
-     */
-    protected final static Charset CHARSET_LATIN1 = Charset.forName("ISO-8859-1");
-    
     protected final static SmileFactory factory = new SmileFactory();
+
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
         factory.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
@@ -29,98 +27,35 @@ public class SmileEnvelopeEvent implements Event
         factory.configure(SmileParser.Feature.REQUIRE_HEADER, false);
     }
 
+    private static final ObjectMapper objectMapper = new ObjectMapper(factory);
+
     public static final String SMILE_EVENT_DATETIME_TOKEN_NAME = "eventDate";
     public static final String SMILE_EVENT_GRANULARITY_TOKEN_NAME = "eventGranularity";
 
     protected DateTime eventDateTime = null;
     protected String eventName;
     protected Granularity granularity = null;
-    protected byte[] payload;
+    protected JsonNode root;
 
     @Deprecated
     public SmileEnvelopeEvent()
     {
     }
 
-    /**
-     * Create an event from a binary JSON format
-     *
-     * @param eventName name the event schema
-     * @param message   String representation of a SMILE-serialized event
-     * @throws IOException if the payload is invalid
-     */
-    public SmileEnvelopeEvent(String eventName, String message) throws IOException
+    public SmileEnvelopeEvent(String eventName, JsonNode node)
     {
         this.eventName = eventName;
-        parseEvent(bytesFromString(message));
+        this.root = node;
+
+        setEventPropertiesFromNode(node);
     }
 
-    public SmileEnvelopeEvent(String eventName, byte[] payload) throws IOException
+    public SmileEnvelopeEvent(String eventName, byte[] inputBytes, DateTime eventDateTime, Granularity granularity) throws IOException
     {
         this.eventName = eventName;
-        this.eventDateTime = null;
-        parseEvent(payload);
-    }
-
-    /**
-     * Constructor that will not (have to) parse payload, but is instead directly
-     * given metadata that accompanies (and should be included in) serialized payload
-     */
-    public SmileEnvelopeEvent(String eventName, byte[] payload,
-            DateTime eventDateTime, Granularity granularity)
-    {
-        this.eventName = eventName;
-        this.payload = payload;
         this.eventDateTime = eventDateTime;
         this.granularity = granularity;
-    }
-    
-    private void parseEvent(byte[] payload) throws IOException
-    {
-        if (payload == null) {
-            throw new IllegalArgumentException("Missing payload for parseEvent()");
-        }
-        
-        this.payload = payload;
-        granularity = null;
-        eventDateTime = null;
-
-        JsonParser parser = factory.createJsonParser(payload);
-
-        // Go through the stream once
-        JsonToken t = parser.nextToken();
-        while (t != null && (eventDateTime == null || granularity == null)) {
-            if (t == JsonToken.FIELD_NAME) {
-                String name = parser.getCurrentName();
-                t = parser.nextValue();
-                if (SMILE_EVENT_DATETIME_TOKEN_NAME.equals(name)) {
-                    if (!t.isNumeric()) {
-                        throw new IOException(String.format("Invalid JSON: property '%s' has non-numeric value type [%s]", name, t.asString()));
-                    }
-                    try {
-                        eventDateTime = new DateTime(parser.getLongValue());
-                    }
-                    catch (NumberFormatException e) {
-                        throw new IOException(String.format("Invalid JSON: [%s] is not a timestamp", t.asString()));
-                    }
-                } else if (SMILE_EVENT_GRANULARITY_TOKEN_NAME.equals(name)) {
-                    String text = parser.getText();
-                    try {
-                        granularity = Granularity.valueOf(parser.getText());
-                    }
-                    catch (IllegalArgumentException e) {
-                        throw new IOException(String.format("Invalid JSON: property '%s', value '%s' is not a valid granularity",
-                                name, text));
-                    }
-                }
-            } else {
-                t = parser.nextToken();
-            }
-        }
-        if (granularity == null) {
-            granularity = Granularity.HOURLY;
-        }
-        parser.close();
+        setPayloadFromByteArray(inputBytes);
     }
 
     @Override
@@ -162,13 +97,24 @@ public class SmileEnvelopeEvent implements Event
     @Override
     public Object getData()
     {
-        return payload; // This is a byte[] representation of a serialized SMILE event
+        return root; // This is a JsonNode representation of a SMILE event (json)
     }
 
     @Override
     public byte[] getSerializedEvent()
     {
-        return null;
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        try {
+            JsonGenerator gen = objectMapper.getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
+            objectMapper.writeTree(gen, root);
+            gen.close();
+        }
+        catch (IOException e) {
+            return null;
+        }
+
+        return outStream.toByteArray();
     }
 
     /**
@@ -188,8 +134,17 @@ public class SmileEnvelopeEvent implements Event
     @Override
     public void writeExternal(ObjectOutput out) throws IOException
     {
-        out.writeInt(payload.length);
-        out.write(payload);
+        // Name of the event
+        byte[] eventNameBytes = eventName.getBytes();
+        out.writeInt(eventNameBytes.length);
+        out.write(eventNameBytes);
+
+        byte[] payloadBytes = getSerializedEvent();
+
+        // Size of Smile payload. Needed for deserialization, see below
+        out.writeInt(payloadBytes.length);
+
+        out.write(payloadBytes);
     }
 
     /**
@@ -207,43 +162,56 @@ public class SmileEnvelopeEvent implements Event
     @Override
     public void readExternal(ObjectInput in) throws IOException
     {
-        int numBytes = in.readInt();
-        payload = new byte[numBytes];
+        // Name of the event first
+        int smileEventNameBytesSize = in.readInt();
+        byte[] eventNameBytes = new byte[smileEventNameBytesSize];
+        in.readFully(eventNameBytes);
+        eventName = new String(eventNameBytes);
 
-        in.readFully(payload);
-        parseEvent(payload);
-        // One has to set the name manually
+        // Then payload
+        int smilePayloadSize = in.readInt();
+        byte[] smilePayload = new byte[smilePayloadSize];
+        in.readFully(smilePayload);
+
+        setPayloadFromByteArray(smilePayload);
+
+        setEventPropertiesFromNode(root);
     }
 
-    public void setEventName(String eventName)
+    private void setEventPropertiesFromNode(JsonNode node)
     {
-        this.eventName = eventName;
+        JsonNode eventDateTimeNode = node.path(SMILE_EVENT_DATETIME_TOKEN_NAME);
+        if (eventDateTimeNode.isMissingNode()) {
+            eventDateTime = new DateTime();
+        }
+        else {
+            eventDateTime = new DateTime(eventDateTimeNode.getLongValue());
+        }
+
+        JsonNode granularityNode = node.path(SMILE_EVENT_GRANULARITY_TOKEN_NAME);
+        if (!eventDateTimeNode.isMissingNode()) {
+            try {
+                granularity = Granularity.valueOf(granularityNode.getValueAsText());
+            }
+            catch (IllegalArgumentException e) {
+                granularity = null;
+            }
+        }
+        if (granularity == null) {
+            granularity = Granularity.HOURLY;
+        }
+    }
+
+    private void setPayloadFromByteArray(byte[] smilePayload) throws IOException
+    {
+        JsonParser jp = objectMapper.getJsonFactory().createJsonParser(smilePayload);
+        root = objectMapper.readTree(jp);
+        jp.close();
     }
 
     @Override
     public String toString()
     {
-        return "SmileEnvelopeEvent{" +
-            "eventDateTime=" + eventDateTime +
-            ", eventName='" + eventName + '\'' +
-            ", granularity=" + granularity +
-            ", payloadLength=" + payload.length +
-            '}';
-    }
-
-    /*
-    /////////////////////////////////////////////////////////////////////// 
-    // Helper methods for sub-classes
-    /////////////////////////////////////////////////////////////////////// 
-     */
-
-    protected static byte[] bytesFromString(String str)
-    { 
-        return str.getBytes(CHARSET_LATIN1); 
-    }
-
-    protected String stringFromBytes(byte[] raw)
-    {
-        return new String(raw, CHARSET_LATIN1);
+        return root.toString();
     }
 }
