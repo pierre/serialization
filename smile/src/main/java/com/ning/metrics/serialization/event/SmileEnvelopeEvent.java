@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.nio.charset.Charset;
 
 public class SmileEnvelopeEvent implements Event
 {
@@ -92,12 +93,12 @@ public class SmileEnvelopeEvent implements Event
     }
 
     /**
-     * @return byte array (byte[]) that contains Smile event
+     * @return a JsonNode representation of a SMILE event (json)
      */
     @Override
     public Object getData()
     {
-        return root; // This is a JsonNode representation of a SMILE event (json)
+        return root;
     }
 
     @Override
@@ -135,7 +136,7 @@ public class SmileEnvelopeEvent implements Event
     public void writeExternal(ObjectOutput out) throws IOException
     {
         // Name of the event
-        byte[] eventNameBytes = eventName.getBytes();
+        byte[] eventNameBytes = eventName.getBytes(Charset.forName("UTF-8"));
         out.writeInt(eventNameBytes.length);
         out.write(eventNameBytes);
 
@@ -180,26 +181,37 @@ public class SmileEnvelopeEvent implements Event
 
     private void setEventPropertiesFromNode(JsonNode node)
     {
+        eventDateTime = getEventDateTimeFromJson(node);
+        granularity = getGranularityFromJson(node);
+    }
+
+    public static DateTime getEventDateTimeFromJson(JsonNode node)
+    {
         JsonNode eventDateTimeNode = node.path(SMILE_EVENT_DATETIME_TOKEN_NAME);
-        if (eventDateTimeNode.isMissingNode()) {
-            eventDateTime = new DateTime();
-        }
-        else {
-            eventDateTime = new DateTime(eventDateTimeNode.getLongValue());
+
+        DateTime nodeDateTime = new DateTime();
+        if (!eventDateTimeNode.isMissingNode()) {
+            nodeDateTime = new DateTime(eventDateTimeNode.getLongValue());
         }
 
+        return nodeDateTime;
+    }
+
+    public static Granularity getGranularityFromJson(JsonNode node)
+    {
         JsonNode granularityNode = node.path(SMILE_EVENT_GRANULARITY_TOKEN_NAME);
-        if (!eventDateTimeNode.isMissingNode()) {
+
+        Granularity nodeGranularity = Granularity.HOURLY;
+        if (!node.isMissingNode()) {
             try {
-                granularity = Granularity.valueOf(granularityNode.getValueAsText());
+                nodeGranularity = Granularity.valueOf(granularityNode.getValueAsText());
             }
             catch (IllegalArgumentException e) {
-                granularity = null;
+                nodeGranularity = null;
             }
         }
-        if (granularity == null) {
-            granularity = Granularity.HOURLY;
-        }
+
+        return nodeGranularity;
     }
 
     private void setPayloadFromByteArray(byte[] smilePayload) throws IOException

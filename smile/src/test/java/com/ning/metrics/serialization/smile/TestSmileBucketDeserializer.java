@@ -28,7 +28,6 @@ import java.io.InputStream;
 
 public class TestSmileBucketDeserializer
 {
-    private SmileBucketDeserializer deserializer;
     private InputStream in;
 
     //{ "foo": "bar", "baz": 1242, "meh": [1,2,3] }
@@ -38,16 +37,13 @@ public class TestSmileBucketDeserializer
     @BeforeTest
     public void setUp() throws FileNotFoundException
     {
-        deserializer = new SmileBucketDeserializer();
         in = new FileInputStream(fileData);
     }
 
     @Test
     public void testDeserialize() throws Exception
     {
-        deserializer.open(in);
-        SmileBucket bucket = deserializer.deserialize();
-        deserializer.close();
+        SmileBucket bucket = SmileBucketDeserializer.deserialize(in);
 
         Assert.assertEquals(bucket.size(), 2);
 

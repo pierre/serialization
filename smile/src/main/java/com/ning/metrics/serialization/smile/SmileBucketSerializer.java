@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ning, Inc.
+ * Copyright 2010 Ning, Inc.
  *
  * Ning licenses this file to you under the Apache License, version 2.0
  * (the "License"); you may not use this file except in compliance with the
@@ -16,20 +16,18 @@
 
 package com.ning.metrics.serialization.smile;
 
+import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+import java.io.OutputStream;
 
-public class SmileBucketDeserializer
+public class SmileBucketSerializer
 {
     protected final static SmileFactory smileFactory = new SmileFactory();
     protected final static JsonFactory jsonFactory = new JsonFactory();
@@ -44,45 +42,27 @@ public class SmileBucketDeserializer
 
     private static final ObjectMapper smileObjectMapper = new ObjectMapper(smileFactory);
     private static final ObjectMapper jsonObjectMapper = new ObjectMapper(jsonFactory);
-    private static final byte SMILE_MARKER = ':';
 
-    public static SmileBucket deserialize(InputStream in) throws IOException
+
+    public static void serialize(SmileBucket bucket, OutputStream outStream) throws IOException
     {
-        PushbackInputStream pbIn = new PushbackInputStream(in);
-
-        byte firstByte = (byte) pbIn.read();
-        pbIn.unread(firstByte);
-
-        if (firstByte == SMILE_MARKER) {
-            return deserialize(pbIn, smileObjectMapper);
-        }
-        else {
-            return deserialize(pbIn, jsonObjectMapper);
-        }
+        serializeSmile(bucket, outStream);
     }
 
-    public static SmileBucket deserialize(InputStream in, ObjectMapper objectMapper) throws IOException
+    public static void serializeSmile(SmileBucket bucket, OutputStream outStream) throws IOException
     {
-        SmileBucket bucket = new SmileBucket();
+        serialize(bucket, outStream, smileObjectMapper);
+    }
 
-        JsonParser jp = objectMapper.getJsonFactory().createJsonParser(in);
-        JsonNode root = objectMapper.readValue(jp, JsonNode.class);
+    public static void serializeJson(SmileBucket bucket, OutputStream outStream) throws IOException
+    {
+        serialize(bucket, outStream, jsonObjectMapper);
+    }
 
-        if (root instanceof ArrayNode) {
-            ArrayNode nodes = (ArrayNode) root;
-            for (JsonNode node : nodes) {
-                bucket.add(node);
-            }
-        }
-        else {
-            bucket.add(root);
-            while (jp.nextToken() != null) {
-                bucket.add(objectMapper.readValue(jp, JsonNode.class));
-            }
-        }
-
-        jp.close();
-
-        return bucket;
+    public static void serialize(SmileBucket bucket, OutputStream outStream, ObjectMapper objectMapper) throws IOException
+    {
+        JsonGenerator gen = objectMapper.getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
+        objectMapper.writeValue(gen, bucket);
+        gen.close();
     }
 }

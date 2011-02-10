@@ -1,0 +1,2 @@
+{ "eventDate": "1242", "granularity": "hourly", "meh": [1,2,3] }
+{ "eventDate": "1243", "granularity": "hourly", "meh": [1,2,3], "bleh": "user-agent" }
