@@ -92,7 +92,8 @@ public class SmileBucketEvent implements Event
     public Object getData()
     {
         if (eventStream == null) {
-            eventStream = new ByteArrayOutputStream();
+            // Start with 16kB buffer
+            eventStream = new ByteArrayOutputStream(16384);
 
             try {
                 SmileBucketSerializer.serialize(bucket, eventStream);
