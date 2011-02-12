@@ -53,6 +53,11 @@ public class SmileBucketEvent implements Event
     {
     }
 
+    public SmileBucket getBucket()
+    {
+        return bucket;
+    }
+
     @Override
     public DateTime getEventDateTime()
     {
