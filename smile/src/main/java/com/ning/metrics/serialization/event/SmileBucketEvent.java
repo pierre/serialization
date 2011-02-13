@@ -34,23 +34,30 @@ import java.nio.charset.Charset;
  */
 public class SmileBucketEvent implements Event
 {
-    private SmileBucket bucket;
-    private Granularity granularity;
     private String eventName;
+    private Granularity granularity;
+    private String suffixOutputPath = null;
+    private SmileBucket bucket;
 
     private ByteArrayOutputStream eventStream = null;
     private static final Charset CHARSET = Charset.forName("UTF-8");
 
     public SmileBucketEvent(String eventName, Granularity granularity, SmileBucket bucket)
     {
-        this.eventName = eventName;
-        this.granularity = granularity;
-        this.bucket = bucket;
+        this(eventName, granularity, null, bucket);
     }
 
     @Deprecated
     public SmileBucketEvent()
     {
+    }
+
+    public SmileBucketEvent(String eventName, Granularity granularity, String baseOutputDir, SmileBucket bucket)
+    {
+        this.eventName = eventName;
+        this.granularity = granularity;
+        this.suffixOutputPath = baseOutputDir;
+        this.bucket = bucket;
     }
 
     public SmileBucket getBucket()
@@ -85,9 +92,13 @@ public class SmileBucketEvent implements Event
     @Override
     public String getOutputDir(String prefix)
     {
-        GranularityPathMapper pathMapper = new GranularityPathMapper(String.format("%s/%s", prefix, eventName), granularity);
-
-        return pathMapper.getPathForDateTime(getEventDateTime());
+        if (suffixOutputPath == null) {
+            // Add a safeguard here - if it's not set, the caller must be doing something wrong
+            throw new RuntimeException("suffixOutputPath not set, events not properly grouped. See SmileEnvelopeEventsToSmileBucketEvents class.");
+        }
+        else {
+            return String.format("%s%s", prefix, suffixOutputPath);
+        }
     }
 
     /**

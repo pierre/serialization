@@ -35,20 +35,78 @@ import java.util.Collection;
 
 public class TestSmileEnvelopeEventsToSmileBucketEvents
 {
-    private static Granularity eventGranularity = Granularity.MONTHLY;
-    private static final DateTime eventDateTime = new DateTime();
-
-    private byte[] serializedBytes;
+    private SmileFactory f;
+    private static Granularity eventGranularity = Granularity.MINUTE;
+    private static final String EVENT1_NAME = "event1";
+    private static final String EVENT2_NAME = "event2";
 
     @BeforeTest
     public void setUp() throws IOException
     {
         // Use same configuration as SmileEnvelopeEvent
-        SmileFactory f = new SmileFactory();
+        f = new SmileFactory();
         f.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
         f.configure(SmileGenerator.Feature.CHECK_SHARED_STRING_VALUES, true);
         f.configure(SmileParser.Feature.REQUIRE_HEADER, false);
+    }
 
+    @Test(groups = "fast")
+    public void testExtractEvents() throws Exception
+    {
+        DateTime eventDateTime = new DateTime(2010, 10, 12, 4, 10, 0, 0);
+        // Granularity is by minutes, this forces a new output dir
+        DateTime eventDateTime2 = eventDateTime.plusMinutes(3);
+        SmileEnvelopeEvent event1 = createEvent(EVENT1_NAME, eventDateTime);
+        SmileEnvelopeEvent event2 = createEvent(EVENT2_NAME, eventDateTime2);
+        SmileEnvelopeEvent event3 = createEvent(EVENT1_NAME, eventDateTime2);
+
+        ArrayList<SmileEnvelopeEvent> envelopes = new ArrayList<SmileEnvelopeEvent>();
+        for (int i = 0; i < 10; i++) {
+            envelopes.add(event1);
+        }
+        for (int i = 0; i < 5; i++) {
+            envelopes.add(event2);
+        }
+        envelopes.add(event3);
+
+        Collection<SmileBucketEvent> events = SmileEnvelopeEventsToSmileBucketEvents.extractEvents(envelopes);
+
+        // We should have 3 buckets:
+        //  * event1 at eventDateTime
+        //  * event1 at eventDateTime2
+        //  * event2 at eventDateTime2
+        Assert.assertEquals(events.size(), 3);
+
+        boolean firstBucketSeen = false;
+        for (SmileBucketEvent event : events) {
+            // We don't really know the order
+            if (event.getName().equals(EVENT1_NAME)) {
+                if (event.getNumberOfEvent() == 10) {
+                    firstBucketSeen = true;
+                    Assert.assertEquals(event.getOutputDir("/hello/world"), String.format("/hello/world/%s/2010/10/12/04/10", EVENT1_NAME));
+                }
+                else {
+                    Assert.assertEquals(event.getNumberOfEvent(), 1);
+                    Assert.assertEquals(event.getOutputDir("/hello/world"), String.format("/hello/world/%s/2010/10/12/04/13", EVENT1_NAME));
+                }
+            }
+            else {
+                Assert.assertEquals(event.getName(), EVENT2_NAME);
+                Assert.assertEquals(event.getNumberOfEvent(), 5);
+                Assert.assertEquals(event.getOutputDir("/hello/world"), String.format("/hello/world/%s/2010/10/12/04/13", EVENT2_NAME));
+            }
+        }
+
+        Assert.assertTrue(firstBucketSeen);
+    }
+
+    private SmileEnvelopeEvent createEvent(String schema, DateTime eventDateTime) throws IOException
+    {
+        return new SmileEnvelopeEvent(schema, createSmilePayload(eventDateTime), eventDateTime, eventGranularity);
+    }
+
+    private byte[] createSmilePayload(DateTime eventDateTime) throws IOException
+    {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         JsonGenerator g = f.createJsonGenerator(stream);
 
@@ -64,31 +122,6 @@ public class TestSmileEnvelopeEventsToSmileBucketEvents
         g.writeEndObject();
         g.close(); // important: will force flushing of output, close underlying output stream
 
-        serializedBytes = stream.toByteArray();
-    }
-
-    @Test
-    public void testExtractEvents() throws Exception
-    {
-        SmileEnvelopeEvent event1 = createEvent("event1");
-        SmileEnvelopeEvent event2 = createEvent("event2");
-
-        ArrayList<SmileEnvelopeEvent> envelopes = new ArrayList<SmileEnvelopeEvent>();
-        envelopes.add(event1);
-        envelopes.add(event2);
-
-        Collection<SmileBucketEvent> events = SmileEnvelopeEventsToSmileBucketEvents.extractEvents(envelopes);
-
-        Assert.assertEquals(events.size(), 2);
-        Assert.assertEquals(((SmileBucketEvent) events.toArray()[0]).getName(), event1.getName());
-        Assert.assertEquals(((SmileBucketEvent) events.toArray()[1]).getName(), event2.getName());
-
-        Assert.assertNotSame(((SmileBucketEvent) events.toArray()[0]).getSerializedEvent(), event1.getSerializedEvent());
-        Assert.assertNotSame(((SmileBucketEvent) events.toArray()[1]).getSerializedEvent(), event1.getSerializedEvent());
-    }
-
-    private SmileEnvelopeEvent createEvent(String schema) throws IOException
-    {
-        return new SmileEnvelopeEvent(schema, serializedBytes, eventDateTime, eventGranularity);
+        return stream.toByteArray();
     }
 }
