@@ -36,7 +36,7 @@ public class SmileBucketEvent implements Event
 {
     private String eventName;
     private Granularity granularity;
-    private String suffixOutputPath = null;
+    private String suffixOutputPath = ""; // Not necessarily set, and avoid triggering an NPE in serialization methods
     private SmileBucket bucket;
 
     private ByteArrayOutputStream eventStream = null;
@@ -44,7 +44,7 @@ public class SmileBucketEvent implements Event
 
     public SmileBucketEvent(String eventName, Granularity granularity, SmileBucket bucket)
     {
-        this(eventName, granularity, null, bucket);
+        this(eventName, granularity, "", bucket);
     }
 
     @Deprecated
@@ -92,7 +92,7 @@ public class SmileBucketEvent implements Event
     @Override
     public String getOutputDir(String prefix)
     {
-        if (suffixOutputPath == null) {
+        if (suffixOutputPath.length() == 0) {
             // Add a safeguard here - if it's not set, the caller must be doing something wrong
             throw new RuntimeException("suffixOutputPath not set, events not properly grouped. See SmileEnvelopeEventsToSmileBucketEvents class.");
         }
@@ -145,6 +145,9 @@ public class SmileBucketEvent implements Event
         objectOutput.writeInt(granularityLength);
         objectOutput.write(granularity.toString().getBytes(CHARSET));
 
+        objectOutput.writeInt(suffixOutputPath.length());
+        objectOutput.write(suffixOutputPath.getBytes(CHARSET));
+
         byte[] data = getSerializedEvent();
         int dataLen = data.length;
 
@@ -169,6 +172,11 @@ public class SmileBucketEvent implements Event
         catch (IllegalArgumentException e) {
             granularity = Granularity.HOURLY;
         }
+
+        int suffixOutputPathLength = objectInput.readInt();
+        byte[] suffixOuputPathData = new byte[suffixOutputPathLength];
+        objectInput.readFully(suffixOuputPathData);
+        suffixOutputPath = new String(suffixOuputPathData, CHARSET);
 
         int dataLen = objectInput.readInt();
         byte[] data = new byte[dataLen];
