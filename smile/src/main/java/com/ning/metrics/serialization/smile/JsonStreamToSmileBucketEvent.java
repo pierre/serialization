@@ -32,14 +32,18 @@ public class JsonStreamToSmileBucketEvent
      * construct SmileBucketEvent wrappers. We return a collection here because events are grouped by
      * output path.
      *
-     * @param eventName   events type (all events in the stream are supposed to be of this type)
-     * @param in          Json (smile or plain) stream of events
+     * @param eventName events type (all events in the stream are supposed to be of this type)
+     * @param in        Json (smile or plain) stream of events
      * @return Event wrappers around these events
      * @throws IOException generic serialization exception
      */
     public static Collection<SmileBucketEvent> extractEvent(String eventName, InputStream in) throws IOException
     {
         SmileBucket bucket = SmileBucketDeserializer.deserialize(in);
+
+        if (bucket == null) {
+            return null;
+        }
 
         ArrayList<SmileEnvelopeEvent> events = new ArrayList<SmileEnvelopeEvent>();
         for (JsonNode node : bucket) {

@@ -51,6 +51,12 @@ public class SmileBucketDeserializer
         PushbackInputStream pbIn = new PushbackInputStream(in);
 
         byte firstByte = (byte) pbIn.read();
+
+        // EOF?
+        if (firstByte == -1) {
+            return null;
+        }
+
         pbIn.unread(firstByte);
 
         if (firstByte == SMILE_MARKER) {
