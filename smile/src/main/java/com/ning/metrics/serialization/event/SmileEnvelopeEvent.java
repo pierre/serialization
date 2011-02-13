@@ -205,7 +205,7 @@ public class SmileEnvelopeEvent implements Event
         JsonNode granularityNode = node.path(SMILE_EVENT_GRANULARITY_TOKEN_NAME);
 
         Granularity nodeGranularity = Granularity.HOURLY;
-        if (!node.isMissingNode()) {
+        if (!granularityNode.isMissingNode()) {
             try {
                 nodeGranularity = Granularity.valueOf(granularityNode.getValueAsText());
             }

@@ -1,6 +1,7 @@
 package com.ning.metrics.serialization.event;
 
 import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
@@ -128,7 +129,7 @@ public class TestSmileEnvelopeEvent
         Assert.assertEquals(result.getSerializedEvent(), inputBytes);
     }
 
-    @Test
+    @Test(groups = "fast")
     public void testReadWriteExternal() throws Exception
     {
         SmileEnvelopeEvent event = createEvent();
@@ -146,11 +147,19 @@ public class TestSmileEnvelopeEvent
         Assert.assertEquals(event2.getName(), event.getName());
     }
 
+    @Test(groups = "fast")
+    public void testStaticUtils() throws Exception
+    {
+        SmileEnvelopeEvent event = createEvent();
+        Assert.assertEquals(SmileEnvelopeEvent.getEventDateTimeFromJson((JsonNode) event.getData()), eventDateTime);
+        Assert.assertEquals(SmileEnvelopeEvent.getGranularityFromJson((JsonNode) event.getData()), eventGranularity);
+    }
+
     /*
-    ///////////////////////////////////////////////////////////////////////
-    // Helper methods
-    ///////////////////////////////////////////////////////////////////////
-     */
+   ///////////////////////////////////////////////////////////////////////
+   // Helper methods
+   ///////////////////////////////////////////////////////////////////////
+    */
 
     private SmileEnvelopeEvent createEvent() throws IOException
     {
