@@ -18,41 +18,51 @@ package com.ning.metrics.serialization.smile;
 
 import com.ning.metrics.serialization.event.Granularity;
 import com.ning.metrics.serialization.event.SmileBucketEvent;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
+import org.codehaus.jackson.JsonNode;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class JsonStreamToSmileBucketEvent
 {
     /**
      * Given a stream of Json (smile or plain Json) events of specified type,
      * construct a SmileBucketEvent wrapper. Granularity is set to HOURLY.
+     * We return a collection here because events are grouped by output path.
      *
      * @param eventName events type (all events in the stream are supposed to be of this type)
      * @param in        Json (smile or plain) stream of events
-     * @return Event wrapper around these events
+     * @return Event wrappers around these events
      * @throws IOException generic serialization exception
      */
-    public static SmileBucketEvent extractEvent(String eventName, InputStream in) throws IOException
+    public static Collection<SmileBucketEvent> extractEvent(String eventName, InputStream in) throws IOException
     {
         return extractEvent(eventName, Granularity.HOURLY, in);
     }
 
     /**
      * Given a stream of Json (smile or plain Json) events of specified type and granularity,
-     * construct a SmileBucketEvent wrapper.
+     * construct SmileBucketEvent wrappers. We return a collection here because events are grouped by
+     * output path.
      *
      * @param eventName   events type (all events in the stream are supposed to be of this type)
      * @param granularity events granularity
      * @param in          Json (smile or plain) stream of events
-     * @return Event wrapper around these events
+     * @return Event wrappers around these events
      * @throws IOException generic serialization exception
      */
-    public static SmileBucketEvent extractEvent(String eventName, Granularity granularity, InputStream in) throws IOException
+    public static Collection<SmileBucketEvent> extractEvent(String eventName, Granularity granularity, InputStream in) throws IOException
     {
         SmileBucket bucket = SmileBucketDeserializer.deserialize(in);
-        return new SmileBucketEvent(eventName, granularity, bucket);
+
+        ArrayList<SmileEnvelopeEvent> events = new ArrayList<SmileEnvelopeEvent>();
+        for (JsonNode node : bucket) {
+            events.add(new SmileEnvelopeEvent(eventName, granularity, node));
+        }
+
+        return SmileEnvelopeEventsToSmileBucketEvents.extractEvents(events);
     }
 }

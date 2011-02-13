@@ -48,8 +48,14 @@ public class SmileEnvelopeEvent implements Event
 
     public SmileEnvelopeEvent(String eventName, JsonNode node)
     {
+        this(eventName, null, node);
+    }
+
+    public SmileEnvelopeEvent(String eventName, Granularity granularity, JsonNode node)
+    {
         this.eventName = eventName;
         this.root = node;
+        this.granularity = granularity;
 
         setEventPropertiesFromNode(node);
     }
@@ -185,7 +191,10 @@ public class SmileEnvelopeEvent implements Event
     private void setEventPropertiesFromNode(JsonNode node)
     {
         eventDateTime = getEventDateTimeFromJson(node);
-        granularity = getGranularityFromJson(node);
+
+        if (granularity == null) {
+            granularity = getGranularityFromJson(node);
+        }
     }
 
     public static DateTime getEventDateTimeFromJson(JsonNode node)
