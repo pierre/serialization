@@ -33,12 +33,15 @@ public interface Event extends Externalizable
     public String getOutputDir(String prefix);
 
     /**
+     * Object representing the payload. This is used for instance when writing to Hadoop in the collector
+     * (object serialized into sequence files).
+     *
      * @return Object representing the data (ThriftEnvelope, ...)
      */
     public Object getData();
 
     /**
-     * Serialize an event to a byte array.
+     * Serialize an event to a byte array. This is used for instance when sending data on the wire.
      * This method is optional, methods relying on this call should handle gracefully null.
      *
      * @return byte array representation of an event, can return null
