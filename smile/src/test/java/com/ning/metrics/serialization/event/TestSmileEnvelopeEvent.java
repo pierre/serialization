@@ -25,7 +25,6 @@ public class TestSmileEnvelopeEvent
     private byte[] serializedBytes;
 
     private String serializedString;
-    private static final String CHARSET_ISO_1 = "ISO-8859-1";
 
     @BeforeTest
     public void setUp() throws IOException
@@ -53,7 +52,7 @@ public class TestSmileEnvelopeEvent
 
         serializedBytes = stream.toByteArray();
         // one sanity check; should be able to round-trip via String (iff using latin-1!)
-        serializedString = stream.toString(CHARSET_ISO_1);
+        serializedString = stream.toString(SmileEnvelopeEvent.CHARSET.toString());
     }
 
     /*
@@ -71,7 +70,7 @@ public class TestSmileEnvelopeEvent
     @Test(groups = "fast")
     public void testBytesVsString() throws Exception
     {
-        byte[] fromString = serializedString.getBytes(CHARSET_ISO_1);
+        byte[] fromString = serializedString.getBytes(SmileEnvelopeEvent.CHARSET);
         Assert.assertEquals(fromString, serializedBytes);
     }
 

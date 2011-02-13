@@ -65,7 +65,14 @@ public class TestSmileBucketEvent
     @Test
     public void testGetData() throws Exception
     {
-        Assert.assertEquals(((ByteArrayOutputStream) bucketEvent.getData()).toByteArray(), finalStream.toByteArray());
+        byte[] bytes = ((ByteArrayOutputStream) bucketEvent.getData()).toByteArray();
+
+        Assert.assertEquals(bytes, finalStream.toByteArray());
+
+        // Test we get Smile back
+        Assert.assertEquals(bytes[0], ':');
+        Assert.assertEquals(bytes[1], ')');
+        Assert.assertEquals(bytes[2], '\n');
     }
 
     @Test

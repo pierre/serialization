@@ -18,6 +18,9 @@ import java.nio.charset.Charset;
 
 public class SmileEnvelopeEvent implements Event
 {
+    // UTF-8 won't work!
+    public static final Charset CHARSET = Charset.forName("ISO-8859-1");
+
     protected final static SmileFactory factory = new SmileFactory();
 
     static {
