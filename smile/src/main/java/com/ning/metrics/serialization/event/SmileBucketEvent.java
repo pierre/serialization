@@ -19,6 +19,7 @@ package com.ning.metrics.serialization.event;
 import com.ning.metrics.serialization.smile.SmileBucket;
 import com.ning.metrics.serialization.smile.SmileBucketDeserializer;
 import com.ning.metrics.serialization.smile.SmileBucketSerializer;
+import com.ning.metrics.serialization.smile.SmileOutputStream;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +40,7 @@ public class SmileBucketEvent implements Event
     private String suffixOutputPath = ""; // Not necessarily set, and avoid triggering an NPE in serialization methods
     private SmileBucket bucket;
 
-    private ByteArrayOutputStream eventStream = null;
+    private SmileOutputStream eventStream = null;
     private static final Charset CHARSET = Charset.forName("UTF-8");
 
     public SmileBucketEvent(String eventName, Granularity granularity, SmileBucket bucket)
@@ -102,6 +103,8 @@ public class SmileBucketEvent implements Event
     }
 
     /**
+     * Create a Hadoop-friendly serializable object representing this bucket event.
+     *
      * @return Object representing the data, compressed Smile version of the events
      */
     @Override
@@ -109,7 +112,7 @@ public class SmileBucketEvent implements Event
     {
         if (eventStream == null) {
             // Start with 16kB buffer
-            eventStream = new ByteArrayOutputStream(16384);
+            eventStream = new SmileOutputStream(eventName, 16384);
 
             try {
                 SmileBucketSerializer.serialize(bucket, eventStream);
