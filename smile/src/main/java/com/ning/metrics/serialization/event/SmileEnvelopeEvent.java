@@ -16,6 +16,14 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.nio.charset.Charset;
 
+/**
+ * Event representation of a single Smile event. This class is useful to send Json trees
+ * to the collector via the eventtracker library.
+ * Under the cover though, we use SmileBucketEvent on the wire (when sending to the collector) and in
+ * Hadoop sequencefiles (to leverage Smile back-references).
+ *
+ * @see com.ning.metrics.serialization.event.SmileBucketEvent
+ */
 public class SmileEnvelopeEvent implements Event
 {
     // UTF-8 won't work!

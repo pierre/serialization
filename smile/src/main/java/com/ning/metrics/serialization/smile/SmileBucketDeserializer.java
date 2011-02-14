@@ -46,6 +46,13 @@ public class SmileBucketDeserializer
     private static final ObjectMapper jsonObjectMapper = new ObjectMapper(jsonFactory);
     private static final byte SMILE_MARKER = ':';
 
+    /**
+     * Given a stream of Json or Smile, create a SmileBucket representation (vector of JsonNodes).
+     *
+     * @param in data stream (Json or Smile)
+     * @return SmileBucket representation
+     * @throws IOException generic serialization error
+     */
     public static SmileBucket deserialize(InputStream in) throws IOException
     {
         PushbackInputStream pbIn = new PushbackInputStream(in);
@@ -67,6 +74,14 @@ public class SmileBucketDeserializer
         }
     }
 
+    /**
+     * Given a stream of Json or Smile, create a SmileBucket representation (vector of JsonNodes).
+     *
+     * @param in           data stream (Json or Smile)
+     * @param objectMapper objectMapper with the correct factory (Json or Smile)
+     * @return SmileBucket representation
+     * @throws IOException generic serialization error
+     */
     public static SmileBucket deserialize(InputStream in, ObjectMapper objectMapper) throws IOException
     {
         SmileBucket bucket = new SmileBucket();
@@ -80,7 +95,7 @@ public class SmileBucketDeserializer
                 bucket.add(node);
             }
         }
-        else {
+        else if (root != null) { // Don't add null values in the bucket
             bucket.add(root);
             while (jp.nextToken() != null) {
                 bucket.add(objectMapper.readValue(jp, JsonNode.class));
