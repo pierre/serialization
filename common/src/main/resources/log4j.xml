@@ -9,7 +9,7 @@
     </appender>
 
     <logger name="com.ning.metrics.serialization">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <root>
