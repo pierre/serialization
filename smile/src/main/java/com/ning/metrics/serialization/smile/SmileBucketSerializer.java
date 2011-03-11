@@ -63,6 +63,7 @@ public class SmileBucketSerializer
     {
         JsonGenerator gen = objectMapper.getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
         objectMapper.writeValue(gen, bucket);
+        gen.flush();
         gen.close();
     }
 }
