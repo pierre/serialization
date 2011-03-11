@@ -1,11 +1,11 @@
 /*
- * Copyright 2010 Ning, Inc.
+ * Copyright 2010-2011 Ning, Inc.
  *
  * Ning licenses this file to you under the Apache License, version 2.0
  * (the "License"); you may not use this file except in compliance with the
  * License.  You may obtain a copy of the License at:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -37,20 +37,20 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Disk-backed persistent queue. The DiskSpoolEventWriter writes events to disk and pass them to an EventHandler on
  * a periodic basis.
- *
+ * <p/>
  * This writer writes events to disk in a temporary spool area directly upon receive. Events are stored in flat files.
- *
+ * <p/>
  * One can control the type of writes performed by specifying one of SyncType values. For instance, if data integrity is
  * important, specify SyncType.SYNC to trigger a sync() of the disk after each write. Note that this will seriously impact
  * performance.
- *
+ * <p/>
  * Commit and forced commit have the same behavior and will promote the current file to the final spool area. Note that
  * the DiskSpoolEventWriter will never promote files automatically. To control this behavior programmatically, use ThresholdEventWriter.
  * There are also JMX knobs available.
- *
+ * <p/>
  * Periodically, events in the final spool area will be flushed to the specified EventHandler. On failure, files are moved
  * to a quarantine area. Quarantined files are never retried, except on startup.
- *
+ * <p/>
  * The rollback operation moves the current open file to the quarantine area.
  *
  * @see com.ning.metrics.serialization.writer.SyncType
