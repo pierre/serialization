@@ -39,7 +39,7 @@ public class ThriftEnvelopeEventToThrift
 
                 // Thrift fields start at 1, not 0
                 Field field = fields[tField.getId() - 1];
-                Class type = field.getType();
+                Class<?> type = field.getType();
                 if (type.isAssignableFrom(Boolean.class)) {
                     field.setBoolean(thriftObject, tField.getDataItem().getBoolean());
                 }

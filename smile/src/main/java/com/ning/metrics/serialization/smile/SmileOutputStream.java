@@ -17,9 +17,6 @@
 package com.ning.metrics.serialization.smile;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 
 /**
  * Wrapper for Smile events payload. This is useful for Hadoop serialization.

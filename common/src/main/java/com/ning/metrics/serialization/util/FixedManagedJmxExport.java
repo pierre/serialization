@@ -78,7 +78,7 @@ public class FixedManagedJmxExport
         return annotation.description();
     }
 
-    private static ModelMBeanInfo buildInfo(Class clazz)
+    private static ModelMBeanInfo buildInfo(Class<?> clazz)
         throws IntrospectionException
     {
         List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();

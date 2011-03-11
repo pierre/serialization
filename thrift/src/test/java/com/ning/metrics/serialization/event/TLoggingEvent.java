@@ -5,24 +5,18 @@ package com.ning.metrics.serialization.event;
  *
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  */
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.thrift.*;
 import org.apache.thrift.meta_data.*;
 import org.apache.thrift.protocol.*;
 
+@SuppressWarnings("serial")
 public class TLoggingEvent implements TBase<TLoggingEvent._Fields>, java.io.Serializable, Cloneable, Comparable<TLoggingEvent> {
   private static final TStruct STRUCT_DESC = new TStruct("TLoggingEvent");
 

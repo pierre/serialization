@@ -29,6 +29,8 @@ public class SmileEnvelopeEvent implements Event
     // UTF-8 won't work!
     public static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
+    public static final Charset NAME_CHARSET = Charset.forName("UTF-8");
+    
     protected final static SmileFactory factory = new SmileFactory();
 
     static {
@@ -153,7 +155,7 @@ public class SmileEnvelopeEvent implements Event
     public void writeExternal(ObjectOutput out) throws IOException
     {
         // Name of the event
-        byte[] eventNameBytes = eventName.getBytes(Charset.forName("UTF-8"));
+        byte[] eventNameBytes = eventName.getBytes(NAME_CHARSET);
         out.writeInt(eventNameBytes.length);
         out.write(eventNameBytes);
 
@@ -184,7 +186,7 @@ public class SmileEnvelopeEvent implements Event
         int smileEventNameBytesSize = in.readInt();
         byte[] eventNameBytes = new byte[smileEventNameBytesSize];
         in.readFully(eventNameBytes);
-        eventName = new String(eventNameBytes);
+        eventName = new String(eventNameBytes, NAME_CHARSET);
 
         // Then payload
         int smilePayloadSize = in.readInt();
