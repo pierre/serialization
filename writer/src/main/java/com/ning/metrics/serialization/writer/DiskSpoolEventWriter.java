@@ -224,19 +224,33 @@ public class DiskSpoolEventWriter implements EventWriter
         }
 
         try {
-            for (File file : getSpooledFileList()) {
+            for (final File file : getSpooledFileList()) {
                 if (flushEnabled.get()) {
-                    boolean fileSucceeded = false;
-
                     try {
                         ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
-                        eventHandler.handle(objectInputStream);
+                        eventHandler.handle(objectInputStream, new CallbackHandler()
+                        {
+                            @Override
+                            public void onError(Throwable t, Event event)
+                            {
+                                log.warn("Error trying to flush event: " + t.getLocalizedMessage());
+                                renameFile(file, quarantineDirectory);
+                                try {
+                                    eventHandler.rollback();
+                                }
+                                catch (IOException e) {
+                                    log.warn(e);
+                                }
+                            }
 
-                        if (!file.delete()) {
-                            log.warn(String.format("Unable to cleanup file %s", file));
-                        }
-
-                        fileSucceeded = true;
+                            @Override
+                            public void onSuccess(Event event)
+                            {
+                                if (!file.delete()) {
+                                    log.warn(String.format("Unable to cleanup file %s", file));
+                                }
+                            }
+                        });
                     }
                     catch (ClassNotFoundException e) {
                         log.warn(String.format("Unable to deserialize objects in file %s and write to serialization (quarantining to %s)", file, quarantineDirectory), e);
@@ -246,12 +260,6 @@ public class DiskSpoolEventWriter implements EventWriter
                     }
                     catch (RuntimeException e) {
                         log.warn(String.format("Unknown error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
-                    }
-                    finally {
-                        if (!fileSucceeded) {
-                            renameFile(file, quarantineDirectory);
-                            eventHandler.rollback();
-                        }
                     }
                 }
             }

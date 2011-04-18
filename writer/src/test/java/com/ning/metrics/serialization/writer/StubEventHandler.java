@@ -36,15 +36,26 @@ public class StubEventHandler implements EventHandler
     }
 
     @Override
-    public void handle(ObjectInputStream objectInputStream) throws ClassNotFoundException, IOException
+    public void handle(ObjectInputStream objectInputStream, CallbackHandler handler)
     {
-        while (objectInputStream.read() != -1) {
-            Event event = (Event) objectInputStream.readObject();
-            eventWriter.write(event);
-        }
+        Event event = null;
+        try {
+            while (objectInputStream.read() != -1) {
+                event = (Event) objectInputStream.readObject();
+                eventWriter.write(event);
+            }
 
-        objectInputStream.close();
-        eventWriter.forceCommit();
+            objectInputStream.close();
+            eventWriter.forceCommit();
+
+            handler.onSuccess(event);
+        }
+        catch (IOException e) {
+            handler.onError(new Throwable(e), event);
+        }
+        catch (ClassNotFoundException e) {
+            handler.onError(new Throwable(e), event);
+        }
     }
 
     @Override
