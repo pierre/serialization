@@ -70,6 +70,7 @@ public class DiskSpoolEventWriter implements EventWriter
     private final ScheduledExecutorService executor;
     private final File tmpSpoolDirectory;
     private final File quarantineDirectory;
+    private final File lockDirectory;
     private final AtomicBoolean currentlyFlushing = new AtomicBoolean(false);
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
     private final EventRate writeRate;
@@ -96,6 +97,7 @@ public class DiskSpoolEventWriter implements EventWriter
         this.executor = executor;
         this.tmpSpoolDirectory = new File(spoolDirectory, "_tmp");
         this.quarantineDirectory = new File(spoolDirectory, "_quarantine");
+        this.lockDirectory = new File(spoolDirectory, "_lock");
         this.flushEnabled = new AtomicBoolean(flushEnabled);
         this.flushIntervalInSeconds = new AtomicLong(flushIntervalInSeconds);
 
@@ -104,6 +106,7 @@ public class DiskSpoolEventWriter implements EventWriter
         createSpoolDir(spoolDirectory);
         createSpoolDir(tmpSpoolDirectory);
         createSpoolDir(quarantineDirectory);
+        createSpoolDir(lockDirectory);
         scheduleFlush();
         recoverFiles();
     }
@@ -226,17 +229,34 @@ public class DiskSpoolEventWriter implements EventWriter
         try {
             for (File file : getSpooledFileList()) {
                 if (flushEnabled.get()) {
-                    boolean fileSucceeded = false;
-
                     try {
                         ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
-                        eventHandler.handle(objectInputStream);
 
-                        if (!file.delete()) {
-                            log.warn(String.format("Unable to cleanup file %s", file));
-                        }
+                        // Move files asides, to avoid sending dups (the handler can take longer than the flushing period)
+                        final File lockedFile = renameFile(file, lockDirectory);
+                        eventHandler.handle(objectInputStream, new CallbackHandler()
+                        {
+                            @Override
+                            public void onError(Throwable t, Event event)
+                            {
+                                log.warn("Error trying to flush event: " + t.getLocalizedMessage());
+                                renameFile(lockedFile, quarantineDirectory);
+                                try {
+                                    eventHandler.rollback();
+                                }
+                                catch (IOException e) {
+                                    log.warn(e);
+                                }
+                            }
 
-                        fileSucceeded = true;
+                            @Override
+                            public void onSuccess(Event event)
+                            {
+                                if (!lockedFile.delete()) {
+                                    log.warn(String.format("Unable to cleanup file %s", lockedFile));
+                                }
+                            }
+                        });
                     }
                     catch (ClassNotFoundException e) {
                         log.warn(String.format("Unable to deserialize objects in file %s and write to serialization (quarantining to %s)", file, quarantineDirectory), e);
@@ -246,12 +266,6 @@ public class DiskSpoolEventWriter implements EventWriter
                     }
                     catch (RuntimeException e) {
                         log.warn(String.format("Unknown error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
-                    }
-                    finally {
-                        if (!fileSucceeded) {
-                            renameFile(file, quarantineDirectory);
-                            eventHandler.rollback();
-                        }
                     }
                 }
             }
@@ -338,7 +352,7 @@ public class DiskSpoolEventWriter implements EventWriter
         return eventSerializationFailures.get();
     }
 
-    private void renameFile(File srcFile, File destDir)
+    private File renameFile(File srcFile, File destDir)
     {
         File destinationOutputFile = new File(destDir, srcFile.getName());
 
@@ -346,5 +360,7 @@ public class DiskSpoolEventWriter implements EventWriter
             String msg = String.format("unable to rename spool file %s to %s", srcFile, destinationOutputFile);
             log.error(msg);
         }
+
+        return destinationOutputFile;
     }
 }

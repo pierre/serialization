@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 
 /**
  * Event representation of a single Smile event. This class is useful to send Json trees
@@ -71,6 +72,35 @@ public class SmileEnvelopeEvent implements Event
     @Deprecated
     public SmileEnvelopeEvent()
     {
+    }
+
+    /**
+     * Given a map ("json-like"), create an event with hourly granularity
+     *
+     * @param eventName     name of the event
+     * @param eventDateTime event timestamp
+     * @param map           event data
+     * @throws IOException generic serialization exception
+     */
+    public SmileEnvelopeEvent(String eventName, DateTime eventDateTime, HashMap<String, Object> map) throws IOException
+    {
+        this.eventName = eventName;
+        this.eventDateTime = eventDateTime;
+        this.granularity = Granularity.HOURLY;
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        JsonGenerator g = factory.createJsonGenerator(stream);
+
+        g.writeStartObject();
+        g.writeNumberField(SmileEnvelopeEvent.SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
+        g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
+        for (String key : map.keySet()) {
+            g.writeObjectField(key, map.get(key)); // will hopefully do the right thing (e.g. take care of numerics)
+        }
+        g.writeEndObject();
+        g.close(); // important: will force flushing of output, close underlying output stream
+
+        setPayloadFromByteArray(stream.toByteArray());
     }
 
     public SmileEnvelopeEvent(String eventName, JsonNode node)
