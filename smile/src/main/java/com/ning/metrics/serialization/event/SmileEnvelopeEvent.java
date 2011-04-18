@@ -89,7 +89,7 @@ public class SmileEnvelopeEvent implements Event
         this.granularity = Granularity.HOURLY;
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JsonGenerator g = factory.createJsonGenerator(stream);
+        JsonGenerator g = smileFactory.createJsonGenerator(stream);
 
         g.writeStartObject();
         g.writeNumberField(SmileEnvelopeEvent.SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
@@ -243,8 +243,6 @@ public class SmileEnvelopeEvent implements Event
      *
      * @param in the stream to read data from in order to restore the object
      * @throws java.io.IOException    if I/O errors occur
-     * @throws ClassNotFoundException If the class for an object being
-     *                                restored cannot be found.
      */
     @Override
     public void readExternal(ObjectInput in) throws IOException

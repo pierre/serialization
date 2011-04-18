@@ -69,7 +69,7 @@ public class SmileBucketEvent implements Event
     @Override
     public DateTime getEventDateTime()
     {
-        throw new RuntimeException("Events in SmileBucket have different timestamps!");
+        return null;
     }
 
     @Override

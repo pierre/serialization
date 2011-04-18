@@ -166,7 +166,7 @@ public class DiskSpoolEventWriter implements EventWriter
     public synchronized void write(Event event) throws IOException
     {
         if (currentOutputter == null) {
-            currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.thrift", fileId.incrementAndGet()));
+            currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.bin", fileId.incrementAndGet()));
 
             currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType, syncBatchSize);
         }
