@@ -29,6 +29,7 @@ public class MockEventWriter implements EventWriter
     private boolean commitThrowsException;
     private boolean rollbackThrowsException;
     private boolean writeThrowsException;
+    private int numberOfFlushedEvents = 0;
 
     public MockEventWriter()
     {
@@ -62,7 +63,8 @@ public class MockEventWriter implements EventWriter
     @Override
     public void flush() throws IOException
     {
-        commit();
+        committedEventList.clear();
+        numberOfFlushedEvents++;
     }
 
     @Override
@@ -108,5 +110,10 @@ public class MockEventWriter implements EventWriter
     public List<Event> getWrittenEventList()
     {
         return writtenEventList;
+    }
+
+    public int getNumberOfFlushedEvents()
+    {
+        return numberOfFlushedEvents;
     }
 }
