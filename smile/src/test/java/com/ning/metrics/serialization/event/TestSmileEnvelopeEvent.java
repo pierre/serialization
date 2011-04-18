@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 public class TestSmileEnvelopeEvent
 {
@@ -169,6 +170,21 @@ public class TestSmileEnvelopeEvent
         SmileEnvelopeEvent event = createEvent();
         Assert.assertEquals(SmileEnvelopeEvent.getEventDateTimeFromJson((JsonNode) event.getData()), eventDateTime);
         Assert.assertEquals(SmileEnvelopeEvent.getGranularityFromJson((JsonNode) event.getData()), eventGranularity);
+    }
+
+    @Test(groups = "fast")
+    public void testConstructorFromMap() throws Exception
+    {
+        HashMap<String, Object> eventMap = new HashMap<String, Object>();
+        eventMap.put("foo", "bar");
+        eventMap.put("bleh", 12);
+        SmileEnvelopeEvent event = new SmileEnvelopeEvent("myEvent", eventDateTime, eventMap);
+
+        Assert.assertEquals(event.getName(), "myEvent");
+        Assert.assertEquals(SmileEnvelopeEvent.getEventDateTimeFromJson((JsonNode) event.getData()), eventDateTime);
+        Assert.assertEquals(SmileEnvelopeEvent.getGranularityFromJson((JsonNode) event.getData()), Granularity.HOURLY);
+        Assert.assertEquals(((JsonNode) event.getData()).get("foo").getValueAsText(), "bar");
+        Assert.assertEquals(((JsonNode) event.getData()).get("bleh").getValueAsInt(), 12);
     }
 
     /*
