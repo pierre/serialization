@@ -149,6 +149,7 @@ public class DiskSpoolEventWriter implements EventWriter
     }
 
     //protected for overriding during unit tests
+
     protected List<File> getSpooledFileList()
     {
         List<File> spooledFileList = new ArrayList<File>();
