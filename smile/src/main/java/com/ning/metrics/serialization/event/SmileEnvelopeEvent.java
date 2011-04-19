@@ -16,10 +16,7 @@
 
 package com.ning.metrics.serialization.event;
 
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
@@ -48,17 +45,19 @@ public class SmileEnvelopeEvent implements Event
 
     public static final Charset NAME_CHARSET = Charset.forName("UTF-8");
 
-    protected final static SmileFactory factory = new SmileFactory();
+    protected final static SmileFactory smileFactory = new SmileFactory();
+    protected final static JsonFactory jsonFactory = new JsonFactory();
 
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
-        factory.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
-        factory.configure(SmileGenerator.Feature.CHECK_SHARED_STRING_VALUES, true);
+        smileFactory.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
+        smileFactory.configure(SmileGenerator.Feature.CHECK_SHARED_STRING_VALUES, true);
         // and for now let's not mandate header for input
-        factory.configure(SmileParser.Feature.REQUIRE_HEADER, false);
+        smileFactory.configure(SmileParser.Feature.REQUIRE_HEADER, false);
     }
 
-    private static final ObjectMapper objectMapper = new ObjectMapper(factory);
+    private static final ObjectMapper smileObjectMapper = new ObjectMapper(smileFactory);
+    private static final ObjectMapper jsonObjectMapper = new ObjectMapper(jsonFactory);
 
     public static final String SMILE_EVENT_DATETIME_TOKEN_NAME = "eventDate";
     public static final String SMILE_EVENT_GRANULARITY_TOKEN_NAME = "eventGranularity";
@@ -67,6 +66,8 @@ public class SmileEnvelopeEvent implements Event
     protected String eventName;
     protected Granularity granularity = null;
     protected JsonNode root;
+
+    private boolean isPlainJson = false;
 
     @Deprecated
     public SmileEnvelopeEvent()
@@ -166,14 +167,34 @@ public class SmileEnvelopeEvent implements Event
         return root;
     }
 
+    public boolean isPlainJson()
+    {
+        return isPlainJson;
+    }
+
+    public void setPlainJson(boolean plainJson)
+    {
+        isPlainJson = plainJson;
+    }
+
+    public ObjectMapper getObjectMapper()
+    {
+        if (isPlainJson()) {
+            return jsonObjectMapper;
+        }
+        else {
+            return smileObjectMapper;
+        }
+    }
+
     @Override
     public byte[] getSerializedEvent()
     {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
         try {
-            JsonGenerator gen = objectMapper.getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
-            objectMapper.writeTree(gen, root);
+            JsonGenerator gen = getObjectMapper().getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
+            getObjectMapper().writeTree(gen, root);
             gen.close();
         }
         catch (IOException e) {
@@ -284,8 +305,8 @@ public class SmileEnvelopeEvent implements Event
 
     private void setPayloadFromByteArray(byte[] smilePayload) throws IOException
     {
-        JsonParser jp = objectMapper.getJsonFactory().createJsonParser(smilePayload);
-        root = objectMapper.readTree(jp);
+        JsonParser jp = getObjectMapper().getJsonFactory().createJsonParser(smilePayload);
+        root = getObjectMapper().readTree(jp);
         jp.close();
     }
 
