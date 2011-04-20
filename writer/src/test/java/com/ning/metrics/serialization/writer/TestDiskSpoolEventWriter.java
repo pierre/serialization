@@ -201,9 +201,9 @@ public class TestDiskSpoolEventWriter
 
     private void testSpoolDirs(int tmpCount, int spoolCount, int quarantineCount)
     {
-        Assert.assertEquals(listThriftFiles(tmpDir).length, tmpCount);
-        Assert.assertEquals(listThriftFiles(spoolDir).length, spoolCount);
-        Assert.assertEquals(listThriftFiles(quarantineDir).length, quarantineCount);
+        Assert.assertEquals(listBinFiles(tmpDir).length, tmpCount);
+        Assert.assertEquals(listBinFiles(spoolDir).length, spoolCount);
+        Assert.assertEquals(listBinFiles(quarantineDir).length, quarantineCount);
     }
 
     private void prepareSpoolDirs()
@@ -213,14 +213,14 @@ public class TestDiskSpoolEventWriter
         cleanDirectory(quarantineDir);
     }
 
-    private File[] listThriftFiles(File dir)
+    private File[] listBinFiles(File dir)
     {
         return dir.listFiles(new FileFilter()
         {
             @Override
             public boolean accept(File pathname)
             {
-                return pathname.getName().endsWith(".thrift");
+                return pathname.getName().endsWith(".bin");
             }
         });
     }

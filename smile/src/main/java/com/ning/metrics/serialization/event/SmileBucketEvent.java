@@ -129,6 +129,8 @@ public class SmileBucketEvent implements Event
      * Serialize an event to a byte array.
      * This method is optional, methods relying on this call should handle gracefully null.
      *
+     * Only serializes the data, not the event metadata.
+     *
      * @return byte array representation of an event, can return null
      */
     @Override
@@ -137,6 +139,11 @@ public class SmileBucketEvent implements Event
         return ((ByteArrayOutputStream) getData()).toByteArray();
     }
 
+    /*
+     * Use writeExternal when writing to a file (before sending to the collector) to preserve metadata
+     * so that we can reconstruct the event. When POSTing, use getSerializedEvent() to generate the POST body
+     * because we don't want to duplicate the metadata in both the URI and the post body.
+     */
     @Override
     public void writeExternal(ObjectOutput objectOutput) throws IOException
     {
