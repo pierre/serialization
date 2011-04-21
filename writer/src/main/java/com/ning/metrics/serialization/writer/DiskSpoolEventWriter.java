@@ -231,16 +231,15 @@ public class DiskSpoolEventWriter implements EventWriter
             for (File file : getSpooledFileList()) {
                 if (flushEnabled.get()) {
                     try {
-                        ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
-
                         // Move files asides, to avoid sending dups (the handler can take longer than the flushing period)
                         final File lockedFile = renameFile(file, lockDirectory);
+                        ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(lockedFile)));
                         eventHandler.handle(objectInputStream, new CallbackHandler()
                         {
                             @Override
                             public void onError(Throwable t, Event event)
                             {
-                                log.warn("Error trying to flush event: " + t.getLocalizedMessage());
+                                log.warn("Error trying to flush event. " + t.getLocalizedMessage());
                                 renameFile(lockedFile, quarantineDirectory);
                                 try {
                                     eventHandler.rollback();
@@ -253,8 +252,11 @@ public class DiskSpoolEventWriter implements EventWriter
                             @Override
                             public void onSuccess(Event event)
                             {
+                                // We leave the files in the lock directory
+                                // We don't want to move them into quarantine, because the events have already been sent
+                                // and we don't want to send dups
                                 if (!lockedFile.delete()) {
-                                    log.warn(String.format("Unable to cleanup file %s", lockedFile));
+                                    log.warn(String.format("Event(s) sent, but unable to cleanup file %s", lockedFile));
                                 }
                             }
                         });
