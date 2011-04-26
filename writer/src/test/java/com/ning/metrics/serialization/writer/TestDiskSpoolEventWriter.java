@@ -20,13 +20,11 @@ import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.StubEvent;
 import org.apache.log4j.Logger;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.io.ObjectOutput;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +53,7 @@ public class TestDiskSpoolEventWriter
     private File spoolDir;
     private File tmpDir;
     private File quarantineDir;
+    private File lockDir;
     private final EventHandler writerThrowsIOExceptionOnCommit = new StubEventHandler(new MockEventWriter(true, false, false));
     private final EventHandler writerThrowsIOExceptionOnWrite = new StubEventHandler(new MockEventWriter(false, false, true));
     private final EventHandler writerThrowsIOExceptionOnCommitAndRollback = new StubEventHandler(new MockEventWriter(true, true, false));
@@ -73,10 +72,11 @@ public class TestDiskSpoolEventWriter
     @BeforeMethod(alwaysRun = true)
     void setup()
     {
-        spoolPath = "/var/tmp/serialization/test/disk-spool-event-writer-" + System.currentTimeMillis();
+        spoolPath = System.getProperty("java.io.tmpdir") + "/diskspooleventwriter-" + System.currentTimeMillis();
         spoolDir = new File(spoolPath);
         tmpDir = new File(spoolPath + "/_tmp");
         quarantineDir = new File(spoolPath + "/_quarantine");
+        lockDir = new File(spoolPath + "/_lock");
 
         prepareSpoolDirs();
     }
@@ -117,17 +117,18 @@ public class TestDiskSpoolEventWriter
         commandToRun.run();
         Assert.assertEquals(secondsToWait, 30);
 
-        spooledFileList.set(Arrays.asList(new File("/tmp/fuu")));
+        spooledFileList.set(Arrays.asList(new File(tmpDir,"fuu")));
         commandToRun.run();
         Assert.assertEquals(secondsToWait, 0);
     }
 
     @Test(groups = "fast")
-    public void testDiskSpoolPersistentWriterSucceeds() throws Exception
+    public void testPersistentWriterSucceeds() throws Exception
     {
         DiskSpoolEventWriter writer = createWriter(writerSucceeds);
 
         testSpoolDirs(0, 0, 0);
+        writer.write(createEvent());
         writer.write(createEvent());
         testSpoolDirs(1, 0, 0);
         writer.commit();
@@ -137,7 +138,7 @@ public class TestDiskSpoolEventWriter
     }
 
     @Test(groups = "fast")
-    public void testPerisistentWriteFails() throws Exception
+    public void testPersistentWriteFails() throws Exception
     {
         DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnWrite);
 
@@ -150,7 +151,7 @@ public class TestDiskSpoolEventWriter
     }
 
     @Test(groups = "fast")
-    public void testPersisentCommitFails() throws Exception
+    public void testPersistentCommitFails() throws Exception
     {
         DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnCommit);
 
@@ -179,8 +180,41 @@ public class TestDiskSpoolEventWriter
         testSpoolDirs(0, 0, 1);
     }
 
+    // FIXME make one event that fails, one that succeeds. This is a lousy test.
+    // the trouble: StubEvent isn't easy to extend to do this.
     @Test(groups = "fast")
-    public void testPersisentMassiveFail() throws Exception
+    public void testQuarantineByEvent() throws Exception
+    {
+        // create a writer that fails for events with the name "fail"
+        DiskSpoolEventWriter writer = createWriter(new StubEventHandler(new MockEventWriter(false, false, false)
+        {
+            private boolean hasFailedOneEvent = false;
+
+            @Override
+            public void write(Event event) throws IOException
+            {
+                if (!hasFailedOneEvent) {
+                    hasFailedOneEvent = true;
+                    throw new IOException("Failing an event!");
+                }
+            }
+        }));
+
+        testSpoolDirs(0, 0, 0);
+        writer.write(createEvent()); // this event will succeed and be deleted from the files
+        writer.write(createEvent()); // this event will fail and be quarantined
+        testSpoolDirs(1, 0, 0);
+        writer.commit();
+        testSpoolDirs(0, 1, 0);
+        commandToRun.run();
+        testSpoolDirs(0, 0, 1);
+
+        // this isn't a comprehensive test at all. it doesn't tell us if some events have succeeded!
+        Assert.assertEquals(quarantineDir.listFiles().length,1);
+    }
+
+    @Test(groups = "fast")
+    public void testPersistentMassiveFail() throws Exception
     {
         DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnAll);
 
@@ -204,6 +238,7 @@ public class TestDiskSpoolEventWriter
         Assert.assertEquals(listBinFiles(tmpDir).length, tmpCount);
         Assert.assertEquals(listBinFiles(spoolDir).length, spoolCount);
         Assert.assertEquals(listBinFiles(quarantineDir).length, quarantineCount);
+        Assert.assertEquals(listBinFiles(lockDir).length, 0); // lockDir should never have files lying around in it
     }
 
     private void prepareSpoolDirs()
@@ -211,6 +246,7 @@ public class TestDiskSpoolEventWriter
         cleanDirectory(spoolDir);
         cleanDirectory(tmpDir);
         cleanDirectory(quarantineDir);
+        cleanDirectory(lockDir);
     }
 
     private File[] listBinFiles(File dir)

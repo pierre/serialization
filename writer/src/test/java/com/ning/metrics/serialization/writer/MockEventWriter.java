@@ -25,7 +25,7 @@ import java.util.List;
 public class MockEventWriter implements EventWriter
 {
     private final List<Event> writtenEventList = new ArrayList<Event>();
-    private final List<Event> committedEventList = new ArrayList<Event>();
+    protected final List<Event> committedEventList = new ArrayList<Event>();
     private boolean commitThrowsException;
     private boolean rollbackThrowsException;
     private boolean writeThrowsException;

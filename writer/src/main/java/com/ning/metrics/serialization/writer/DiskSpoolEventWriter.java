@@ -21,12 +21,7 @@ import com.ning.metrics.serialization.util.Managed;
 import org.apache.log4j.Logger;
 import org.joda.time.Period;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -227,55 +222,81 @@ public class DiskSpoolEventWriter implements EventWriter
             return;
         }
 
-        try {
-            for (File file : getSpooledFileList()) {
-                if (flushEnabled.get()) {
-                    try {
-                        // Move files asides, to avoid sending dups (the handler can take longer than the flushing period)
-                        final File lockedFile = renameFile(file, lockDirectory);
-                        ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(lockedFile)));
-                        eventHandler.handle(objectInputStream, new CallbackHandler()
+        for (File file : getSpooledFileList()) {
+            if (flushEnabled.get()) {
+                final File lockedFile = renameFile(file, lockDirectory);
+                try {
+                    // Move files aside, to avoid sending dups (the handler can take longer than the flushing period)
+                    ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(lockedFile)));
+
+                    eventHandler.handle(objectInputStream, new CallbackHandler()
+                    {
+                        // This handler quarantines individual failed events
+
+                        File quarantineFile = null;
+
+                        // Called if the file was read just fine but there's an error reading a single event.
+                        @Override
+                        public synchronized void onError(Throwable t, Event event)
                         {
-                            @Override
-                            public void onError(Throwable t, Event event)
-                            {
-                                log.warn("Error trying to flush event. " + t.getLocalizedMessage());
-                                renameFile(lockedFile, quarantineDirectory);
+                            log.warn(String.format("Error trying to flush event [%s]", event), t);
+
+                            if (event != null) {
+                                // write the failed event to the quarantine file
                                 try {
-                                    eventHandler.rollback();
+                                    // if no events have failed yet, open up a quarantine file
+                                    if (quarantineFile == null) {
+                                        quarantineFile = new File(quarantineDirectory, lockedFile.getName());
+                                    }
+
+                                    // open a new stream to write to the file.
+                                    // TODO if we had an onComplete method we wouldn't need to keep opening and closing streams.
+                                    ObjectOutputStream quarantineStream = new ObjectOutputStream(new FileOutputStream(quarantineFile));
+                                    event.writeExternal(quarantineStream);
+                                    quarantineStream.flush();
+                                    quarantineStream.close();
                                 }
                                 catch (IOException e) {
-                                    log.warn(e);
+                                    log.warn(String.format("Unable to write event to quarantine file: %s", event), e);
                                 }
                             }
+                        }
 
-                            @Override
-                            public void onSuccess(Event event)
-                            {
-                                // We leave the files in the lock directory
-                                // We don't want to move them into quarantine, because the events have already been sent
-                                // and we don't want to send dups
-                                if (!lockedFile.delete()) {
-                                    log.warn(String.format("Event(s) sent, but unable to cleanup file %s", lockedFile));
-                                }
-                            }
-                        });
-                    }
-                    catch (ClassNotFoundException e) {
-                        log.warn(String.format("Unable to deserialize objects in file %s and write to serialization (quarantining to %s)", file, quarantineDirectory), e);
-                    }
-                    catch (IOException e) {
-                        log.warn(String.format("Error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
-                    }
-                    catch (RuntimeException e) {
-                        log.warn(String.format("Unknown error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
-                    }
+                        @Override
+                        public void onSuccess(Event event)
+                        {
+                            // no-op
+                        }
+                    });
+                }
+                catch (ClassNotFoundException e) {
+                    log.warn(String.format("Unable to deserialize objects in file %s and write to serialization (quarantining to %s)", file, quarantineDirectory), e);
+                    quarantineFile(lockedFile);
+                }
+                catch (IOException e) {
+                    log.warn(String.format("Error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
+                    quarantineFile(lockedFile);
+                }
+                catch (RuntimeException e) {
+                    log.warn(String.format("Unknown error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
+                    quarantineFile(lockedFile);
+                }
+
+                // if lockedFile hasn't been moved yet, delete it
+                if (lockedFile.exists() && !lockedFile.delete()) {
+                    log.warn(String.format("Unable to cleanup file %s", lockedFile));
                 }
             }
         }
-        finally {
-            currentlyFlushing.set(false);
-        }
+
+        currentlyFlushing.set(false);
+    }
+
+    private void quarantineFile(File file)
+    {
+        renameFile(file, quarantineDirectory);
+
+        // TODO we never even try to roll back.
     }
 
     @Managed(description = "enable/disable flushing to hdfs")

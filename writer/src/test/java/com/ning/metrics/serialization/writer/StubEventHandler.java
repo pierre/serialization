@@ -20,6 +20,7 @@ import com.ning.metrics.serialization.event.Event;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 
 public class StubEventHandler implements EventHandler
 {
@@ -36,26 +37,28 @@ public class StubEventHandler implements EventHandler
     }
 
     @Override
-    public void handle(ObjectInputStream objectInputStream, CallbackHandler handler)
+    public void handle(ObjectInputStream objectInputStream, CallbackHandler handler) throws ClassNotFoundException, IOException
     {
-        Event event = null;
-        try {
-            while (objectInputStream.read() != -1) {
-                event = (Event) objectInputStream.readObject();
+        ArrayList<Event> events = new ArrayList<Event>();
+
+        while (objectInputStream.read() != -1) {
+            Event e = (Event) objectInputStream.readObject();
+            events.add(e);
+        }
+        objectInputStream.close();
+
+
+        for (Event event : events) {
+            try {
                 eventWriter.write(event);
+                handler.onSuccess(event); // no-op
             }
+            catch (Exception e) {
+                handler.onError(e, event);
+            }
+        }
 
-            objectInputStream.close();
-            eventWriter.forceCommit();
-
-            handler.onSuccess(event);
-        }
-        catch (IOException e) {
-            handler.onError(new Throwable(e), event);
-        }
-        catch (ClassNotFoundException e) {
-            handler.onError(new Throwable(e), event);
-        }
+        eventWriter.forceCommit();
     }
 
     @Override
