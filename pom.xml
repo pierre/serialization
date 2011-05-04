@@ -47,6 +47,12 @@
         <!-- The Cloudera profile is enabled by default, see below -->
         <hadoop.version>0.20.2</hadoop.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/content/repositories/releases/</url>
+        </repository>
+    </repositories>
     <modules>
         <module>all</module>
         <module>common</module>
@@ -287,6 +293,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+                <version>2.1.1</version>
                 <inherited>false</inherited>
                 <configuration>
                     <siteDirectory>${project.basedir}/src/site</siteDirectory>
