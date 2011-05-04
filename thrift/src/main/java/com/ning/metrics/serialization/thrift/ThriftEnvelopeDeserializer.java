@@ -53,7 +53,7 @@ public class ThriftEnvelopeDeserializer
                     typeName = protocol.readString();
                 }
                 else if (currentField.id == ThriftEnvelopeSerialization.PAYLOAD_ID) {
-                    thriftFieldList.addAll(payloadDeserializer.readPayload(protocol.readBinary()));
+                    thriftFieldList.addAll(payloadDeserializer.readPayload(protocol.readBinary().array()));
                 }
                 else if (currentField.id == ThriftEnvelopeSerialization.NAME_ID) {
                     name = protocol.readString();

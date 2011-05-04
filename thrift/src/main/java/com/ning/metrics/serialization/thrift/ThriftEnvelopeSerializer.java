@@ -26,6 +26,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 public class ThriftEnvelopeSerializer
 {
@@ -60,7 +61,7 @@ public class ThriftEnvelopeSerializer
             byte[] payload = payloadSerializer.createPayload(thriftEnvelope.getPayload());
 
             protocol.writeFieldBegin(PAYLOAD_FIELD);
-            protocol.writeBinary(payload);
+            protocol.writeBinary(ByteBuffer.wrap(payload));
             protocol.writeFieldEnd();
 
             protocol.writeFieldStop();

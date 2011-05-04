@@ -30,11 +30,24 @@ import org.apache.thrift.protocol.TProtocolUtil;
 import org.apache.thrift.protocol.TStruct;
 import org.apache.thrift.protocol.TType;
 
-class TBoolean implements TBase, java.io.Serializable
+import java.io.Serializable;
+
+class TBoolean implements TBase, Serializable
 {
     public boolean value;
 
     public final Isset __isset = new Isset();
+
+    @Override
+    public int compareTo(Object o)
+    {
+        if (o instanceof Boolean && __isset.value) {
+            return (Boolean) o == value ? 1 : 0;
+        }
+        else {
+            throw new NoSuchMethodError("Not implemented");
+        }
+    }
 
     public static final class Isset
     {
@@ -45,8 +58,7 @@ class TBoolean implements TBase, java.io.Serializable
     {
     }
 
-    public TBoolean(
-        boolean value)
+    public TBoolean(boolean value)
     {
         this();
         this.value = value;
@@ -93,11 +105,8 @@ class TBoolean implements TBase, java.io.Serializable
         oprot.writeStructEnd();
     }
 
-    /**
-     * @deprecated
-     */
     @Override
-    public boolean isSet(int i)
+    public TFieldIdEnum fieldForId(int i)
     {
         throw new NoSuchMethodError("Not implemented");
     }
@@ -108,26 +117,8 @@ class TBoolean implements TBase, java.io.Serializable
         throw new NoSuchMethodError("Not implemented");
     }
 
-    /**
-     * @deprecated
-     */
-    @Override
-    public Object getFieldValue(int i)
-    {
-        throw new NoSuchMethodError("Not implemented");
-    }
-
     @Override
     public Object getFieldValue(TFieldIdEnum tFieldIdEnum)
-    {
-        throw new NoSuchMethodError("Not implemented");
-    }
-
-    /**
-     * @deprecated
-     */
-    @Override
-    public void setFieldValue(int i, Object o)
     {
         throw new NoSuchMethodError("Not implemented");
     }
@@ -142,6 +133,12 @@ class TBoolean implements TBase, java.io.Serializable
     public TBase deepCopy()
     {
         throw new NoSuchMethodError("Not implemented");
+    }
+
+    @Override
+    public void clear()
+    {
+        this.__isset.value = false;
     }
 
     public String toString()
