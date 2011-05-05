@@ -17,11 +17,17 @@
 package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
-import com.ning.metrics.serialization.util.Managed;
 import org.apache.log4j.Logger;
 import org.joda.time.Period;
+import org.weakref.jmx.Managed;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;

@@ -47,7 +47,7 @@ public class MockEventWriter implements EventWriter
     public void commit() throws IOException
     {
         if (commitThrowsException) {
-            throw new IOException();
+            throw new IOException("IGNORE - Expected exception for tests");
         }
 
         committedEventList.addAll(writtenEventList);
@@ -71,7 +71,7 @@ public class MockEventWriter implements EventWriter
     public void rollback() throws IOException
     {
         if (rollbackThrowsException) {
-            throw new IOException();
+            throw new IOException("IGNORE - Expected exception for tests");
         }
 
         writtenEventList.clear();
@@ -81,7 +81,7 @@ public class MockEventWriter implements EventWriter
     public void write(Event event) throws IOException
     {
         if (writeThrowsException) {
-            throw new IOException();
+            throw new IOException("IGNORE - Expected exception for tests");
         }
 
         writtenEventList.add(event);
