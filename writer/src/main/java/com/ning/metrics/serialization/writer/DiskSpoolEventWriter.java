@@ -127,6 +127,12 @@ public class DiskSpoolEventWriter implements EventWriter
         }
     }
 
+    public void shutdown() throws InterruptedException
+    {
+        executor.shutdown();
+        executor.awaitTermination(15, TimeUnit.SECONDS);
+    }
+
     private void scheduleFlush()
     {
         executor.schedule(new Runnable()
