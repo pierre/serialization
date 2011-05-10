@@ -26,10 +26,12 @@ public class MockEventWriter implements EventWriter
 {
     private final List<Event> writtenEventList = new ArrayList<Event>();
     protected final List<Event> committedEventList = new ArrayList<Event>();
+    protected final List<Event> flushedEventList = new ArrayList<Event>();
+    protected final List<Event> quarantinedEventList = new ArrayList<Event>();
+
     private boolean commitThrowsException;
     private boolean rollbackThrowsException;
     private boolean writeThrowsException;
-    private int numberOfFlushedEvents = 0;
 
     public MockEventWriter()
     {
@@ -44,9 +46,10 @@ public class MockEventWriter implements EventWriter
     }
 
     @Override
-    public void commit() throws IOException
+    public synchronized void commit() throws IOException
     {
         if (commitThrowsException) {
+            rollback();
             throw new IOException("IGNORE - Expected exception for tests");
         }
 
@@ -61,24 +64,25 @@ public class MockEventWriter implements EventWriter
     }
 
     @Override
-    public void flush() throws IOException
+    public synchronized void flush() throws IOException
     {
+        flushedEventList.addAll(committedEventList);
         committedEventList.clear();
-        numberOfFlushedEvents++;
     }
 
     @Override
-    public void rollback() throws IOException
+    public synchronized void rollback() throws IOException
     {
         if (rollbackThrowsException) {
             throw new IOException("IGNORE - Expected exception for tests");
         }
 
+        quarantinedEventList.addAll(writtenEventList);
         writtenEventList.clear();
     }
 
     @Override
-    public void write(Event event) throws IOException
+    public synchronized void write(Event event) throws IOException
     {
         if (writeThrowsException) {
             throw new IOException("IGNORE - Expected exception for tests");
@@ -102,18 +106,23 @@ public class MockEventWriter implements EventWriter
         this.writeThrowsException = writeThrowsException;
     }
 
-    public List<Event> getCommittedEventList()
-    {
-        return committedEventList;
-    }
-
     public List<Event> getWrittenEventList()
     {
         return writtenEventList;
     }
 
-    public int getNumberOfFlushedEvents()
+    public List<Event> getCommittedEventList()
     {
-        return numberOfFlushedEvents;
+        return committedEventList;
+    }
+
+    public List<Event> getFlushedEventList()
+    {
+        return flushedEventList;
+    }
+
+    public List<Event> getQuarantinedEventList()
+    {
+        return quarantinedEventList;
     }
 }

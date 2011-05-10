@@ -22,6 +22,20 @@ import java.io.IOException;
 
 public interface EventWriter
 {
+    /**
+     * Write an event to disk. This can throw an exception if:
+     * <UL>
+     * <LI>We cannot open the outputter
+     * <LI>If the Java serialization library throws a RuntimeException
+     * <LI>Generic IOException from the serialization library
+     * </UL>
+     * <p/>
+     * There is no good reason to put the file in quarantine (rollback) on error. Either the event is bad (RuntimeException)
+     * or the write failed, in that case, it's suboptimal to quarantine all events currently in the file.
+     *
+     * @param event Event to write
+     * @throws IOException See above
+     */
     public void write(Event event) throws IOException;
 
     public void commit() throws IOException;
@@ -30,5 +44,10 @@ public interface EventWriter
 
     public void flush() throws IOException;
 
+    /**
+     * Used in case the commit fails (the current output files is moved to quarantined).
+     *
+     * @throws IOException generic IOException
+     */
     public void rollback() throws IOException;
 }

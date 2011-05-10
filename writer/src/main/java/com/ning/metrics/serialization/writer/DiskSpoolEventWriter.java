@@ -228,7 +228,7 @@ public class DiskSpoolEventWriter implements EventWriter
     }
 
     @Managed(description = "Commit events (forward them to final handler)")
-    public void flush() throws IOException
+    public void flush()
     {
         if (!currentlyFlushing.compareAndSet(false, true)) {
             return;
@@ -241,6 +241,7 @@ public class DiskSpoolEventWriter implements EventWriter
                     // Move files aside, to avoid sending dups (the handler can take longer than the flushing period)
                     ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(lockedFile)));
 
+                    // Blocking call on the stream
                     eventHandler.handle(objectInputStream, new CallbackHandler()
                     {
                         // This handler quarantines individual failed events
