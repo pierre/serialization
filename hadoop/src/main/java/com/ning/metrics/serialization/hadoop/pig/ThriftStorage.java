@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.log4j.Logger;
 import org.apache.pig.LoadFunc;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigSplit;
@@ -99,7 +99,7 @@ public class ThriftStorage extends LoadFunc
     @Override
     public InputFormat getInputFormat() throws IOException
     {
-        return new TextInputFormat();
+        return new SequenceFileInputFormat();
     }
 
     /**
