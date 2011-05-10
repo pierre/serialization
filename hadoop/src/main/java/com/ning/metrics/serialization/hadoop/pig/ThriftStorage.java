@@ -33,7 +33,6 @@ public class ThriftStorage extends LoadFunc
     private final TupleFactory factory = TupleFactory.getInstance();
     private final GoodwillSchema schema;
 
-    private Configuration conf;
     private Object value;
     private RecordReader reader;
     private PigSplit split;
@@ -55,12 +54,6 @@ public class ThriftStorage extends LoadFunc
         catch (ExecutionException e) {
             throw new IOException("Exception while trying to fetch Thrfit schema", e);
         }
-
-        this.conf = new Configuration();
-        conf.setStrings("io.serializations",
-            HadoopThriftWritableSerialization.class.getName(),
-            HadoopThriftEnvelopeSerialization.class.getName(),
-            "org.apache.hadoop.io.serializer.WritableSerialization");
     }
 
     /**
@@ -116,6 +109,19 @@ public class ThriftStorage extends LoadFunc
     {
         this.reader = reader;
         this.split = split;
+
+        Configuration conf = split.getConf();
+        String[] configuredSerializations = conf.getStrings("io.serializations");
+        String[] allSerializations = new String[configuredSerializations.length + 3];
+        System.arraycopy(configuredSerializations, 0, allSerializations, 0, configuredSerializations.length);
+
+        int i = configuredSerializations.length;
+        allSerializations[i] = HadoopThriftWritableSerialization.class.getName();
+        allSerializations[i + 1] = HadoopThriftEnvelopeSerialization.class.getName();
+        allSerializations[i + 2] = "org.apache.hadoop.io.serializer.WritableSerialization";
+
+        conf.setStrings("io.serializations", allSerializations);
+        this.split.setConf(conf);
     }
 
     @Override
