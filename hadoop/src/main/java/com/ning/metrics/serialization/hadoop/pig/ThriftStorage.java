@@ -48,6 +48,11 @@ public class ThriftStorage extends LoadFunc
         try {
             GoodwillAccessor goodwillAccessor = new GoodwillAccessor(goodwillHost, goodwillPort);
             schema = goodwillAccessor.getSchema(schemaName).get();
+
+            if (schema == null) {
+                throw new IOException(String.format("Unable to find schema %s in Goodwill (%s:%d)",
+                    schemaName, goodwillHost, goodwillPort));
+            }
         }
         catch (InterruptedException e) {
             throw new IOException("Interrupted while trying to fetch Thrift schema", e);
