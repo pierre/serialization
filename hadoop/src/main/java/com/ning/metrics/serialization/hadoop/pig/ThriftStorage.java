@@ -8,6 +8,7 @@ import com.ning.metrics.serialization.hadoop.HadoopThriftWritableSerialization;
 import com.ning.metrics.serialization.schema.SchemaFieldType;
 import com.ning.metrics.serialization.thrift.ThriftEnvelope;
 import com.ning.metrics.serialization.thrift.ThriftField;
+import com.ning.metrics.serialization.thrift.hadoop.ThriftWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -76,6 +77,7 @@ public class ThriftStorage extends LoadFunc
     @Override
     public void setLocation(String location, Job job) throws IOException
     {
+        setIOSerializations(job.getConfiguration());
         FileInputFormat.setInputPaths(job, location);
     }
 
@@ -92,7 +94,7 @@ public class ThriftStorage extends LoadFunc
     @Override
     public InputFormat getInputFormat() throws IOException
     {
-        return new SequenceFileInputFormat();
+        return new SequenceFileInputFormat<ThriftWritable, ThriftEnvelope>();
     }
 
     /**
@@ -109,19 +111,22 @@ public class ThriftStorage extends LoadFunc
     {
         this.reader = reader;
         this.split = split;
+        setIOSerializations(split.getConf());
+    }
 
-        Configuration conf = split.getConf();
+    private void setIOSerializations(Configuration conf)
+    {
         String[] configuredSerializations = conf.getStrings("io.serializations");
-        String[] allSerializations = new String[configuredSerializations.length + 3];
-        System.arraycopy(configuredSerializations, 0, allSerializations, 0, configuredSerializations.length);
-
         int i = configuredSerializations.length;
+
+        String[] allSerializations = new String[i + 3];
+        System.arraycopy(configuredSerializations, 0, allSerializations, 0, i);
+
         allSerializations[i] = HadoopThriftWritableSerialization.class.getName();
         allSerializations[i + 1] = HadoopThriftEnvelopeSerialization.class.getName();
         allSerializations[i + 2] = "org.apache.hadoop.io.serializer.WritableSerialization";
 
         conf.setStrings("io.serializations", allSerializations);
-        this.split.setConf(conf);
     }
 
     @Override
