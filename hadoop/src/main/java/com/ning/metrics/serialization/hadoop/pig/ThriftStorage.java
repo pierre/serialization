@@ -9,6 +9,7 @@ import com.ning.metrics.serialization.schema.SchemaFieldType;
 import com.ning.metrics.serialization.thrift.ThriftEnvelope;
 import com.ning.metrics.serialization.thrift.ThriftField;
 import com.ning.metrics.serialization.thrift.hadoop.ThriftWritable;
+import com.ning.metrics.serialization.thrift.item.DataItem;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -18,7 +19,6 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.log4j.Logger;
 import org.apache.pig.LoadFunc;
 import org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigSplit;
-import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 
@@ -148,6 +148,7 @@ public class ThriftStorage extends LoadFunc
 
             if (value instanceof ThriftEnvelope) {
                 ThriftEnvelope envelope = (ThriftEnvelope) value;
+                Tuple tuple = factory.newTuple(envelope.getPayload().size());
                 for (ThriftField thriftField : envelope.getPayload()) {
                     GoodwillSchemaField schemaField = schema.getFieldByPosition(thriftField.getId());
 
@@ -155,10 +156,11 @@ public class ThriftStorage extends LoadFunc
                         throw new IOException(String.format("got a thrift ID [%d] that is not part of the schema", thriftField.getId()));
                     }
 
-                    tupleList.add(getPigType(schemaField.getType()));
+                    // Thrift starts at 1
+                    tuple.set(thriftField.getId() - 1, convertToObject(thriftField.getDataItem(), schemaField.getType()));
                 }
 
-                return factory.newTuple(tupleList);
+                return tuple;
             }
             else {
                 throw new IOException(String.format("Expected ThriftEnvelope, not %s", value.getClass()));
@@ -171,25 +173,26 @@ public class ThriftStorage extends LoadFunc
         return null;
     }
 
-    private byte getPigType(SchemaFieldType type)
+    private Object convertToObject(DataItem dataItem, SchemaFieldType type)
     {
         switch (type) {
+            // Pig does not support a boolean type (yet), so convert to integer
             case BOOLEAN:
-                return DataType.INTEGER;
+                return dataItem.getBoolean() ? 1 : 0;
             case BYTE:
-                return DataType.BYTE;
+                return dataItem.getByte();
             case SHORT:
             case INTEGER:
-                return DataType.INTEGER;
+                return dataItem.getInteger();
             case LONG:
-                return DataType.LONG;
+                return dataItem.getLong();
             case DOUBLE:
-                return DataType.DOUBLE;
+                return dataItem.getDouble();
             case DATE:
             case IP:
             case STRING:
             default:
-                return DataType.CHARARRAY;
+                return dataItem.getString();
         }
     }
 }
