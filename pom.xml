@@ -66,7 +66,7 @@
             <dependency>
                 <groupId>com.ning</groupId>
                 <artifactId>metrics.goodwill-access</artifactId>
-                <version>0.0.10-SNAPSHOT</version>
+                <version>0.0.11-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.ning</groupId>
