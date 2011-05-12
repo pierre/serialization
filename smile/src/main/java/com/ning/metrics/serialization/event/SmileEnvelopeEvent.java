@@ -125,6 +125,20 @@ public class SmileEnvelopeEvent implements Event
         setPayloadFromByteArray(inputBytes);
     }
 
+    // this constructor needs a node arg generated via writeToJsonGenerator()
+    // can throw RuntimeExceptions very easily, because any JsonNode.get() call return null
+    public SmileEnvelopeEvent(JsonNode node) throws IOException
+    {
+        try {
+            eventName = node.get("eventName").getTextValue();
+            this.root = node.get("payload");
+        }
+        catch (NullPointerException e) {
+            throw new IOException("Cannot construct a SmileEnvelopeEvent from just a JsonNode unless JsonNode has eventName and payload properties.");
+        }
+        setEventPropertiesFromNode(root);
+    }
+
     @Override
     public DateTime getEventDateTime()
     {
@@ -261,6 +275,21 @@ public class SmileEnvelopeEvent implements Event
         setPayloadFromByteArray(smilePayload);
 
         setEventPropertiesFromNode(root);
+    }
+
+    // By using the same JsonGenerator for writing multiple events, we can do streaming smile compression
+    // So we can compress multiple events into a single smile stream w/ back-references and everything WITHOUT
+    // having to know all the events ahead of time.
+    public void writeToJsonGenerator(JsonGenerator gen) throws IOException
+    {
+        // writes '{eventName:<name>,payload:{<data>}}' --it's kind of silly but ultimately inconsequential to nest them like this. 
+        gen.writeStartObject();
+        gen.writeStringField("eventName", eventName);
+        gen.writeFieldName("payload");
+        // TODO for some reason this works regardless of whether JsonObjectMapper or SmileObjectMapper is used
+        // which is super convenient, but also mysterious
+        getObjectMapper().writeTree(gen, root);
+        gen.writeEndObject();
     }
 
     private void setEventPropertiesFromNode(JsonNode node)
