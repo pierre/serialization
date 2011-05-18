@@ -17,10 +17,7 @@ package com.ning.metrics.serialization.smile;
 
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.*;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
@@ -52,37 +49,82 @@ public class TestSmileEnvelopeEventExtractor
         smileFactory.configure(SmileParser.Feature.REQUIRE_HEADER, false);
     }
 
-    @BeforeTest
-    private void init() throws IOException
+    @Test
+    public void testJsonExtractAll() throws IOException
     {
+        testExtractAll(jsonFactory);
     }
 
     @Test
-    public void testJson() throws IOException
+    public void testSmileExtractAll() throws IOException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JsonGenerator jsonGen = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
-        test(jsonGen, out);
+        testExtractAll(smileFactory);
     }
 
     @Test
-    public void testSmile() throws IOException
+    public void testJsonIncrementalExtract() throws IOException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        SmileGenerator smileGen = smileFactory.createJsonGenerator(out, JsonEncoding.UTF8);
-        test(smileGen, out);
+        testIncrementalExtract(true);
     }
 
-    // arg gen should be tied to arg out
-    private void test(JsonGenerator gen, ByteArrayOutputStream out) throws IOException
+    @Test
+    public void testSmileIncrementalExtract() throws IOException
     {
+        testIncrementalExtract(false);
+    }
+
+    private void testIncrementalExtract(boolean plainJson) throws IOException
+    {
+        JsonFactory factory;
+        if (plainJson) {
+            factory = jsonFactory;
+        }
+        else {
+            factory = smileFactory;
+        }
+
         final int numEvents = 5;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        JsonGenerator gen = factory.createJsonGenerator(out, JsonEncoding.UTF8);
 
         SmileEnvelopeEvent event = makeSampleEvent();
 //        event.setPlainJson(false); why does it work regardless of whether SmileObjectMapper or JsonObjectMapper is used?
 
         gen.writeStartArray();
-        for (int i=0; i<numEvents; i++) {
+        for (int i = 0; i < numEvents; i++) {
+            event.writeToJsonGenerator(gen);
+        }
+        gen.writeEndArray();
+        gen.close();
+
+        InputStream in = new ByteArrayInputStream(out.toByteArray());
+        String jsonString = out.toString();
+        System.out.println(jsonString); // TODO
+
+        SmileEnvelopeEventExtractor extractor = new SmileEnvelopeEventExtractor(in, plainJson);
+
+        int numExtracted = 0;
+        SmileEnvelopeEvent extractedEvent = extractor.extractNextEvent();
+        while (extractedEvent != null) {
+            numExtracted++;
+            assertEventsMatch(extractedEvent, event);
+            extractedEvent = extractor.extractNextEvent();
+        }
+
+        Assert.assertEquals(numExtracted, numEvents);
+    }
+
+    private void testExtractAll(JsonFactory factory) throws IOException
+    {
+        final int numEvents = 5;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        JsonGenerator gen = factory.createJsonGenerator(out, JsonEncoding.UTF8);
+
+        SmileEnvelopeEvent event = makeSampleEvent();
+//        event.setPlainJson(false); why does it work regardless of whether SmileObjectMapper or JsonObjectMapper is used?
+
+        gen.writeStartArray();
+        for (int i = 0; i < numEvents; i++) {
             event.writeToJsonGenerator(gen);
         }
         gen.writeEndArray();
@@ -91,15 +133,15 @@ public class TestSmileEnvelopeEventExtractor
         InputStream in = new ByteArrayInputStream(out.toByteArray());
         List<SmileEnvelopeEvent> extractedEvents = SmileEnvelopeEventExtractor.extractEvents(in);
 
-        Assert.assertEquals(extractedEvents.size(),numEvents);
-        assertEventsMatch(extractedEvents.get(0),event);
+        Assert.assertEquals(extractedEvents.size(), numEvents);
+        assertEventsMatch(extractedEvents.get(0), event);
     }
 
     private void assertEventsMatch(SmileEnvelopeEvent a, SmileEnvelopeEvent b)
     {
-        Assert.assertEquals(a.getName(),b.getName());
-        Assert.assertEquals(a.getGranularity(),b.getGranularity());
-        Assert.assertEquals(a.getEventDateTime().getMillis(),b.getEventDateTime().getMillis());
+        Assert.assertEquals(a.getName(), b.getName());
+        Assert.assertEquals(a.getGranularity(), b.getGranularity());
+        Assert.assertEquals(a.getEventDateTime().getMillis(), b.getEventDateTime().getMillis());
 
         JsonNode aData = (JsonNode) a.getData();
         JsonNode bData = (JsonNode) b.getData();
@@ -110,12 +152,12 @@ public class TestSmileEnvelopeEventExtractor
 
     private SmileEnvelopeEvent makeSampleEvent() throws IOException
     {
-        HashMap<String, Object> map = new HashMap<String,Object>();
+        HashMap<String, Object> map = new HashMap<String, Object>();
 
-        map.put("firstName","joe");
-        map.put("lastName","sixPack");
+        map.put("firstName", "joe");
+        map.put("lastName", "sixPack");
         map.put("theNumberFive", 5);
 
-        return new SmileEnvelopeEvent("sample",new DateTime(), map);
+        return new SmileEnvelopeEvent("sample", new DateTime(), map);
     }
 }

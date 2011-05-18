@@ -48,12 +48,61 @@ public class SmileEnvelopeEventExtractor
     private static final ObjectMapper jsonObjectMapper = new ObjectMapper(jsonFactory);
     private static final byte SMILE_MARKER = ':';
 
+    private final JsonParser parser;
+    private final ObjectMapper mapper;
+
     /**
-     * Given a stream of Json or Smile, create a SmileBucket representation (vector of JsonNodes).
+     * SmileEnvelopeEventExtractor should be instantiated (using this constructor) if and only if
+     * you plan on using it to incrementally extract events (rather than extracting them all at once)
      *
-     * @param in data stream (Json or Smile)
-     * @return SmileBucket representation
-     * @throws IOException generic serialization error
+     * @param in
+     * @param plainJson
+     * @throws IOException
+     */
+    public SmileEnvelopeEventExtractor(InputStream in, boolean plainJson) throws IOException
+    {
+        // TODO bug when using pushbackInputStream like extractEvents does. very strange.
+
+        if (!plainJson) {
+            parser = smileFactory.createJsonParser(in);
+            mapper = smileObjectMapper;
+        }
+        else {
+            parser = jsonFactory.createJsonParser(in);
+            mapper = jsonObjectMapper;
+        }
+
+        // check that
+        if (!parser.nextToken().toString().equals("START_ARRAY")) {
+            throw new IOException("I can't find a START_ARRAY. The inputStream is supposed to be a list!");
+        }
+    }
+
+    /**
+     * Extracts the next event in the stream.
+     * Note: Stream must be formatted as an array of (serialized) SmileEnvelopeEvents.
+     *
+     * @return nextEvent. return null if it reaches the end of the list
+     * @throws IOException if there's a parsing issue
+     */
+    public SmileEnvelopeEvent extractNextEvent() throws IOException
+    {
+        // move parser along to the start of the next object & make sure next object's not an END_ARRAY
+        if (parser.nextToken().toString().equals("END_ARRAY")) {
+            return null;
+        }
+
+        JsonNode node = mapper.readValue(parser, JsonNode.class);
+        return new SmileEnvelopeEvent(node);
+    }
+
+    /**
+     * Extracts all events in the stream
+     * Note: Stream must be formatted as an array of (serialized) SmileEnvelopeEvents.
+     *
+     * @param in
+     * @return A list of SmileEnvelopeEvents
+     * @throws IOException
      */
     public static List<SmileEnvelopeEvent> extractEvents(InputStream in) throws IOException
     {
@@ -76,15 +125,7 @@ public class SmileEnvelopeEventExtractor
         }
     }
 
-    /**
-     * Given a stream of Json or Smile, create a SmileBucket representation (vector of JsonNodes).
-     *
-     * @param in           data stream (Json or Smile)
-     * @param objectMapper objectMapper with the correct factory (Json or Smile)
-     * @return SmileBucket representation
-     * @throws IOException generic serialization error
-     */
-    public static List<SmileEnvelopeEvent> deserialize(InputStream in, ObjectMapper objectMapper) throws IOException
+    private static List<SmileEnvelopeEvent> deserialize(InputStream in, ObjectMapper objectMapper) throws IOException
     {
         List<SmileEnvelopeEvent> events = new LinkedList<SmileEnvelopeEvent>();
 
@@ -99,13 +140,15 @@ public class SmileEnvelopeEventExtractor
                     SmileEnvelopeEvent event = new SmileEnvelopeEvent(node);
                     events.add(event);
                 }
-                catch (RuntimeException e) {
+                catch (IOException e) {
                     log.warn("unable to extract an event. Expect an array of {eventName=<foo>,payload=<bar>} objects.");
+                    // keep trying. there might only be one malformed tree?
                 }
             }
         }
         else {
             log.warn("unable to extract an event. Expect an array of {eventName=<foo>,payload=<bar>} objects.");
+            throw new IOException("root JsonNode must be an ArrayNode");
         }
 
         jp.close();
