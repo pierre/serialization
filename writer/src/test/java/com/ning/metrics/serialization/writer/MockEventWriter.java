@@ -26,10 +26,12 @@ public class MockEventWriter implements EventWriter
 {
     private final List<Event> writtenEventList = new ArrayList<Event>();
     protected final List<Event> committedEventList = new ArrayList<Event>();
+    protected final List<Event> flushedEventList = new ArrayList<Event>();
+    protected final List<Event> quarantinedEventList = new ArrayList<Event>();
+
     private boolean commitThrowsException;
     private boolean rollbackThrowsException;
     private boolean writeThrowsException;
-    private int numberOfFlushedEvents = 0;
 
     public MockEventWriter()
     {
@@ -44,10 +46,11 @@ public class MockEventWriter implements EventWriter
     }
 
     @Override
-    public void commit() throws IOException
+    public synchronized void commit() throws IOException
     {
         if (commitThrowsException) {
-            throw new IOException("IGNORE. This is an expected commit exception for testing.");
+            rollback();
+            throw new IOException("IGNORE - Expected exception for tests");
         }
 
         committedEventList.addAll(writtenEventList);
@@ -61,27 +64,28 @@ public class MockEventWriter implements EventWriter
     }
 
     @Override
-    public void flush() throws IOException
+    public synchronized void flush() throws IOException
     {
+        flushedEventList.addAll(committedEventList);
         committedEventList.clear();
-        numberOfFlushedEvents++;
     }
 
     @Override
-    public void rollback() throws IOException
+    public synchronized void rollback() throws IOException
     {
         if (rollbackThrowsException) {
-            throw new IOException("IGNORE. This is an expected rollback exception for testing.");
+            throw new IOException("IGNORE - Expected exception for tests");
         }
 
+        quarantinedEventList.addAll(writtenEventList);
         writtenEventList.clear();
     }
 
     @Override
-    public void write(Event event) throws IOException
+    public synchronized void write(Event event) throws IOException
     {
         if (writeThrowsException) {
-            throw new IOException("IGNORE. This is an expected write exception for testing.");
+            throw new IOException("IGNORE - Expected exception for tests");
         }
 
         writtenEventList.add(event);
@@ -102,18 +106,23 @@ public class MockEventWriter implements EventWriter
         this.writeThrowsException = writeThrowsException;
     }
 
-    public List<Event> getCommittedEventList()
-    {
-        return committedEventList;
-    }
-
     public List<Event> getWrittenEventList()
     {
         return writtenEventList;
     }
 
-    public int getNumberOfFlushedEvents()
+    public List<Event> getCommittedEventList()
     {
-        return numberOfFlushedEvents;
+        return committedEventList;
+    }
+
+    public List<Event> getFlushedEventList()
+    {
+        return flushedEventList;
+    }
+
+    public List<Event> getQuarantinedEventList()
+    {
+        return quarantinedEventList;
     }
 }

@@ -17,11 +17,17 @@
 package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
-import com.ning.metrics.serialization.util.Managed;
 import org.apache.log4j.Logger;
 import org.joda.time.Period;
+import org.weakref.jmx.Managed;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -121,6 +127,12 @@ public class DiskSpoolEventWriter implements EventWriter
         }
     }
 
+    public void shutdown() throws InterruptedException
+    {
+        executor.shutdown();
+        executor.awaitTermination(15, TimeUnit.SECONDS);
+    }
+
     private void scheduleFlush()
     {
         executor.schedule(new Runnable()
@@ -216,7 +228,7 @@ public class DiskSpoolEventWriter implements EventWriter
     }
 
     @Managed(description = "Commit events (forward them to final handler)")
-    public void flush() throws IOException
+    public void flush()
     {
         if (!currentlyFlushing.compareAndSet(false, true)) {
             return;
@@ -229,6 +241,7 @@ public class DiskSpoolEventWriter implements EventWriter
                     // Move files aside, to avoid sending dups (the handler can take longer than the flushing period)
                     ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(lockedFile)));
 
+                    // Blocking call on the stream
                     eventHandler.handle(objectInputStream, new CallbackHandler()
                     {
                         // This handler quarantines individual failed events

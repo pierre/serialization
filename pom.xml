@@ -15,8 +15,7 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -25,7 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ning</groupId>
     <artifactId>metrics.serialization</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0-pre2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>serialization</name>
     <description>Serialization library for the Dwarf framework</description>
@@ -63,6 +62,11 @@
     </modules>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.ning</groupId>
+                <artifactId>metrics.goodwill-access</artifactId>
+                <version>0.1.0</version>
+            </dependency>
             <dependency>
                 <groupId>com.ning</groupId>
                 <artifactId>metrics.serialization-common</artifactId>
@@ -164,6 +168,11 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.apache.pig</groupId>
+                <artifactId>pig</artifactId>
+                <version>0.8.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.thrift</groupId>
                 <artifactId>libthrift</artifactId>
                 <version>0.6.1</version>
@@ -198,6 +207,11 @@
                 <artifactId>testng</artifactId>
                 <version>6.0</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.weakref</groupId>
+                <artifactId>jmxutils</artifactId>
+                <version>1.8</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

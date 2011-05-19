@@ -17,7 +17,7 @@
 package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
-import com.ning.metrics.serialization.util.Managed;
+import org.weakref.jmx.Managed;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
