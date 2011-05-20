@@ -13,41 +13,35 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-
 package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
-class SyncingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
+public class ObjectOutputEventSerializer<T extends Event> implements EventSerializer<T>
 {
-    private final FileOutputStream out;
-    private final int batchSize;
-    private int objectsWritten = 0;
+    private ObjectOutputStream objectOut;
 
-    public SyncingObjectOutputter(FileOutputStream out, EventSerializer<T> eventSerializer, final int batchSize) throws IOException
+    @Override
+    public void open(OutputStream out) throws IOException
     {
-        super(out, eventSerializer);
-        this.out = out;
-        this.batchSize = batchSize;
+        objectOut = new ObjectOutputStream(out);
     }
 
     @Override
-    public void writeObject(T event) throws IOException
+    public void serialize(T obj) throws IOException
     {
-        super.writeObject(event);
-        objectsWritten++;
-
-        // TODO unit test (mock out)
-        if (objectsWritten >= batchSize) {
-            out.flush();
-            out.getFD().sync();
-            objectsWritten = 0;
-        }
+        objectOut.write(1);
+        objectOut.writeObject(obj);
     }
 
-    // TODO should we sync() on close as well?
+    @Override
+    public void close() throws IOException
+    {
+        objectOut.close();
+    }
 }

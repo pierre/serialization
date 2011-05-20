@@ -13,16 +13,16 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-
-package com.ning.metrics.serialization.writer;
-
-import com.ning.metrics.serialization.event.Event;
+package com.ning.metrics.serialization.event;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
-interface ObjectOutputter<T extends Event>
+public interface EventSerializer<T extends Event>
 {
-    public void writeObject(T event) throws IOException;
+    void open(OutputStream out) throws IOException;
 
-    public void close() throws IOException;
+    void serialize(T event) throws IOException;
+
+    void close() throws IOException;
 }
