@@ -16,42 +16,38 @@
 
 package com.ning.metrics.serialization.writer;
 
+import com.ning.metrics.serialization.event.Event;
+import com.ning.metrics.serialization.event.EventSerializer;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 
-class SyncingObjectOutputter implements ObjectOutputter
+class SyncingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
 {
     private final FileOutputStream out;
-    private final ObjectOutputStream objectOut;
     private final int batchSize;
     private int objectsWritten = 0;
 
-    public SyncingObjectOutputter(FileOutputStream out, int batchSize) throws IOException
+    public SyncingObjectOutputter(FileOutputStream out, EventSerializer<T> eventSerializer, final int batchSize) throws IOException
     {
+        super(out, eventSerializer);
         this.out = out;
-        this.objectOut = new ObjectOutputStream(out);
         this.batchSize = batchSize;
     }
 
     @Override
-    public void writeObject(Object obj) throws IOException
+    public void writeObject(T event) throws IOException
     {
-        objectOut.write(1);
-        objectOut.writeObject(obj);
+        super.writeObject(event);
         objectsWritten++;
 
         // TODO unit test (mock out)
         if (objectsWritten >= batchSize) {
-            objectOut.flush();
+            out.flush();
             out.getFD().sync();
             objectsWritten = 0;
         }
     }
 
-    @Override
-    public void close() throws IOException
-    {
-        objectOut.close();
-    }
+    // TODO should we sync() on close as well?
 }

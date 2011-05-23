@@ -17,6 +17,7 @@
 package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
+import com.ning.metrics.serialization.event.EventSerializer;
 import org.apache.log4j.Logger;
 import org.joda.time.Period;
 import org.weakref.jmx.Managed;
@@ -56,7 +57,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @see com.ning.metrics.serialization.writer.SyncType
  */
-public class DiskSpoolEventWriter implements EventWriter
+public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
 {
     private static final Logger log = Logger.getLogger(DiskSpoolEventWriter.class);
 
@@ -75,8 +76,9 @@ public class DiskSpoolEventWriter implements EventWriter
     private final AtomicBoolean currentlyFlushing = new AtomicBoolean(false);
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
     private final EventRate writeRate;
+    private final EventSerializer<T> eventSerializer;
 
-    private volatile ObjectOutputter currentOutputter;
+    private volatile ObjectOutputter<T> currentOutputter;
     private volatile File currentOutputFile;
 
     public DiskSpoolEventWriter(
@@ -90,6 +92,21 @@ public class DiskSpoolEventWriter implements EventWriter
         int rateWindowSizeMinutes
     )
     {
+        this(eventHandler, spoolPath, flushEnabled, flushIntervalInSeconds, executor, syncType, syncBatchSize, rateWindowSizeMinutes, null);
+    }
+
+    public DiskSpoolEventWriter(
+            EventHandler eventHandler,
+            String spoolPath,
+            boolean flushEnabled,
+            long flushIntervalInSeconds,
+            ScheduledExecutorService executor,
+            SyncType syncType,
+            int syncBatchSize,
+            int rateWindowSizeMinutes,
+            EventSerializer<T> eventSerializer
+    )
+    {
         this.eventHandler = eventHandler;
         this.rateWindowSizeMinutes = rateWindowSizeMinutes;
         this.syncType = syncType;
@@ -101,6 +118,7 @@ public class DiskSpoolEventWriter implements EventWriter
         this.lockDirectory = new File(spoolDirectory, "_lock");
         this.flushEnabled = new AtomicBoolean(flushEnabled);
         this.flushIntervalInSeconds = new AtomicLong(flushIntervalInSeconds);
+        this.eventSerializer = eventSerializer;
 
         writeRate = new EventRate(Period.minutes(rateWindowSizeMinutes));
 
@@ -171,12 +189,17 @@ public class DiskSpoolEventWriter implements EventWriter
     }
 
     @Override
-    public synchronized void write(Event event) throws IOException
+    public synchronized void write(T event) throws IOException
     {
         if (currentOutputter == null) {
             currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.bin", fileId.incrementAndGet()));
 
-            currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType, syncBatchSize);
+            if (eventSerializer == null) {
+                currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType, syncBatchSize);
+            }
+            else {
+                currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType, syncBatchSize, eventSerializer);
+            }
         }
 
         try {
@@ -236,68 +259,40 @@ public class DiskSpoolEventWriter implements EventWriter
 
         for (File file : getSpooledFileList()) {
             if (flushEnabled.get()) {
+                // Move files aside, to avoid sending dups (the handler can take longer than the flushing period)
                 final File lockedFile = renameFile(file, lockDirectory);
-                try {
-                    // Move files aside, to avoid sending dups (the handler can take longer than the flushing period)
-                    ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(lockedFile)));
-
-                    // Blocking call on the stream
-                    eventHandler.handle(objectInputStream, new CallbackHandler()
+                CallbackHandler callbackHandler = new CallbackHandler()
+                {
+                    @Override
+                    public synchronized void onError(Throwable t, File file)
                     {
-                        // This handler quarantines individual failed events
+                        log.warn(String.format("Error trying to flush file %s", file), t);
 
-                        File quarantineFile = null;
+                        if (file != null && file.exists()) {
 
-                        // Called if the file was read just fine but there's an error reading a single event.
-                        @Override
-                        public synchronized void onError(Throwable t, Event event)
-                        {
-                            log.warn(String.format("Error trying to flush event [%s]", event), t);
-
-                            if (event != null) {
-                                // write the failed event to the quarantine file
-                                try {
-                                    // if no events have failed yet, open up a quarantine file
-                                    if (quarantineFile == null) {
-                                        quarantineFile = new File(quarantineDirectory, lockedFile.getName());
-                                    }
-
-                                    // open a new stream to write to the file.
-                                    // TODO if we had an onComplete method we wouldn't need to keep opening and closing streams.
-                                    ObjectOutputStream quarantineStream = new ObjectOutputStream(new FileOutputStream(quarantineFile));
-                                    event.writeExternal(quarantineStream);
-                                    quarantineStream.flush();
-                                    quarantineStream.close();
-                                }
-                                catch (IOException e) {
-                                    log.warn(String.format("Unable to write event to quarantine file: %s", event), e);
-                                }
-                            }
+                            quarantineFile(lockedFile);
                         }
+                    }
 
-                        @Override
-                        public void onSuccess(Event event)
-                        {
-                            // no-op
+                    @Override
+                    public void onSuccess(File file)
+                    {
+                        // delete the file
+                        if (!file.exists()) {
+                            log.warn(String.format("Trying to delete a file that does not exist: %s", file));
                         }
-                    });
-                }
-                catch (ClassNotFoundException e) {
-                    log.warn(String.format("Unable to deserialize objects in file %s and write to serialization (quarantining to %s)", file, quarantineDirectory), e);
-                    quarantineFile(lockedFile);
-                }
-                catch (IOException e) {
-                    log.warn(String.format("Error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
-                    quarantineFile(lockedFile);
+                        else if (!file.delete()) {
+                            log.warn(String.format("Unable to delete file %s", file));
+                        }
+                    }
+                };
+
+                try {
+                    eventHandler.handle(lockedFile, callbackHandler);
                 }
                 catch (RuntimeException e) {
                     log.warn(String.format("Unknown error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
-                    quarantineFile(lockedFile);
-                }
-
-                // if lockedFile hasn't been moved yet, delete it
-                if (lockedFile.exists() && !lockedFile.delete()) {
-                    log.warn(String.format("Unable to cleanup file %s", lockedFile));
+                    callbackHandler.onError(e, lockedFile);
                 }
             }
         }

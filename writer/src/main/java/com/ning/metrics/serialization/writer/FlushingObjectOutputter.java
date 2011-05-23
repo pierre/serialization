@@ -16,38 +16,35 @@
 
 package com.ning.metrics.serialization.writer;
 
+import com.ning.metrics.serialization.event.Event;
+import com.ning.metrics.serialization.event.EventSerializer;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
-class FlushingObjectOutputter implements ObjectOutputter
+class FlushingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
 {
-    private final ObjectOutputStream objectOut;
+    private final OutputStream out;
     private final int batchSize;
     private int objectsWritten = 0;
 
-    public FlushingObjectOutputter(FileOutputStream out, int batchSize) throws IOException
+    public FlushingObjectOutputter(FileOutputStream out, EventSerializer<T> serializer, int batchSize) throws IOException
     {
-        this.objectOut = new ObjectOutputStream(out);
+        super(out, serializer);
+        this.out = out;
         this.batchSize = batchSize;
     }
 
     @Override
-    public void writeObject(Object obj) throws IOException
+    public void writeObject(T event) throws IOException
     {
-        objectOut.write(1);
-        objectOut.writeObject(obj);
+        super.writeObject(event);
         objectsWritten++;
 
         if (objectsWritten >= batchSize) {
-            objectOut.flush();
+            out.flush();
             objectsWritten = 0;
         }
-    }
-
-    @Override
-    public void close() throws IOException
-    {
-        objectOut.close();
     }
 }

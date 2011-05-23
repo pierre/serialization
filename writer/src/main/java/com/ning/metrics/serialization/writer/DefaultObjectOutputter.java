@@ -16,29 +16,31 @@
 
 package com.ning.metrics.serialization.writer;
 
+import com.ning.metrics.serialization.event.Event;
+import com.ning.metrics.serialization.event.EventSerializer;
+
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-class DefaultObjectOutputter implements ObjectOutputter
+class DefaultObjectOutputter<T extends Event> implements ObjectOutputter<T>
 {
-    private final ObjectOutputStream objectOut;
+    protected final EventSerializer<T> eventSerializer;
 
-    public DefaultObjectOutputter(OutputStream out) throws IOException
+    public DefaultObjectOutputter(OutputStream out, EventSerializer<T> eventSerializer) throws IOException
     {
-        this.objectOut = new ObjectOutputStream(out);
+        this.eventSerializer = eventSerializer;
+        eventSerializer.open(out);
     }
 
     @Override
-    public void writeObject(Object obj) throws IOException
+    public void writeObject(T event) throws IOException
     {
-        objectOut.write(1);
-        objectOut.writeObject(obj);
+        eventSerializer.serialize(event);
     }
 
     @Override
     public void close() throws IOException
     {
-        objectOut.close();
+        eventSerializer.close();
     }
 }

@@ -16,11 +16,13 @@
 
 package com.ning.metrics.serialization.writer;
 
+import com.ning.metrics.serialization.event.Event;
+
 import java.io.IOException;
 
-interface ObjectOutputter
+interface ObjectOutputter<T extends Event>
 {
-    public void writeObject(Object obj) throws IOException;
+    public void writeObject(T event) throws IOException;
 
     public void close() throws IOException;
 }
