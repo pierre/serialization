@@ -24,23 +24,27 @@ import java.io.IOException;
 
 public class ObjectOutputterFactory
 {
-    // TODO Does this actually work!? This is using generics in crazy ways!
-    public static <T extends Event> ObjectOutputter<T> createObjectOutputter(FileOutputStream out, SyncType type, int batchSize) throws IOException
+    public static <T extends Event> ObjectOutputter<T> createObjectOutputter(final FileOutputStream out, final SyncType type, final int batchSize) throws IOException
     {
         return createObjectOutputter(out, type, batchSize, new ObjectOutputEventSerializer<T>());
     }
 
     /**
-     * @param out
-     * @param type
-     * @param batchSize
+     * @param out             underlying FileOutputStream
+     * @param type            type of outputter (flush, sync, ...)
+     * @param batchSize       number of events between flushes or syncs
      * @param eventSerializer does not have to be tied to 'out'. We will call eventSerializer.open(out) later.
-     * If eventSerializer == null, it's the same as calling the default createObjectOutputter()
-     * @param <T>
-     * @return
-     * @throws IOException
+     *                        If eventSerializer == null, it's the same as calling the default createObjectOutputter()
+     * @param <T>             Event type (e.g. ThriftEnvelopeEvent)
+     * @return a new outputter object of type type
+     * @throws IOException when unable to open the FileOutputStream out
      */
-    public static <T extends Event> ObjectOutputter<T> createObjectOutputter(FileOutputStream out, SyncType type, int batchSize, EventSerializer<T> eventSerializer) throws IOException
+    public static <T extends Event> ObjectOutputter<T> createObjectOutputter(
+        final FileOutputStream out,
+        final SyncType type,
+        final int batchSize,
+        final EventSerializer<T> eventSerializer
+    ) throws IOException
     {
         if (eventSerializer == null) {
             return createObjectOutputter(out, type, batchSize);
@@ -55,6 +59,6 @@ public class ObjectOutputterFactory
                 return new SyncingObjectOutputter<T>(out, eventSerializer, batchSize);
         }
 
-        throw new IllegalArgumentException("unable to construct ObjectOutputter given type");
+        throw new IllegalArgumentException("Unable to construct ObjectOutputter given type" + type);
     }
 }
