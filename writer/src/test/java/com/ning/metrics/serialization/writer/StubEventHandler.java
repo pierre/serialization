@@ -56,9 +56,8 @@ public class StubEventHandler implements EventHandler
                 eventWriter.write(event);
             }
 
-            handler.onSuccess(file);
-
             eventWriter.forceCommit();
+            handler.onSuccess(file);
         }
         catch (IOException e) {
             handler.onError(e, file);

@@ -268,7 +268,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
                     {
                         log.warn(String.format("Error trying to flush file %s", file), t);
 
-                        if (file != null && !file.exists()) {
+                        if (file != null && file.exists()) {
 
                             quarantineFile(lockedFile);
                         }
