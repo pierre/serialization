@@ -32,7 +32,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /*
-    Tests both SmileEnvelopeEventExtractor & SmileEnvelopeEvent(JsonNode) constructor
+    Tests SmileEnvelopeEventSerializer, SmileEnvelopeEventExtractor, & SmileEnvelopeEvent(JsonNode) constructor
  */
 public class TestSmileEnvelopeEventExtractor
 {
@@ -52,13 +52,13 @@ public class TestSmileEnvelopeEventExtractor
     @Test
     public void testJsonExtractAll() throws IOException
     {
-        testExtractAll(jsonFactory);
+        testExtractAll(true);
     }
 
     @Test
     public void testSmileExtractAll() throws IOException
     {
-        testExtractAll(smileFactory);
+        testExtractAll(false);
     }
 
     @Test
@@ -75,27 +75,17 @@ public class TestSmileEnvelopeEventExtractor
 
     private void testIncrementalExtract(boolean plainJson) throws IOException
     {
-        JsonFactory factory;
-        if (plainJson) {
-            factory = jsonFactory;
-        }
-        else {
-            factory = smileFactory;
-        }
-
         final int numEvents = 5;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JsonGenerator gen = factory.createJsonGenerator(out, JsonEncoding.UTF8);
 
         SmileEnvelopeEvent event = makeSampleEvent();
-//        event.setPlainJson(false); why does it work regardless of whether SmileObjectMapper or JsonObjectMapper is used?
 
-        gen.writeStartArray();
+        SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(plainJson);
+        serializer.open(out);
         for (int i = 0; i < numEvents; i++) {
-            event.writeToJsonGenerator(gen);
+            serializer.serialize(event);
         }
-        gen.writeEndArray();
-        gen.close();
+        serializer.close();
 
         InputStream in = new ByteArrayInputStream(out.toByteArray());
         String jsonString = out.toString();
@@ -114,21 +104,19 @@ public class TestSmileEnvelopeEventExtractor
         Assert.assertEquals(numExtracted, numEvents);
     }
 
-    private void testExtractAll(JsonFactory factory) throws IOException
+    private void testExtractAll(boolean plainJson) throws IOException
     {
         final int numEvents = 5;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JsonGenerator gen = factory.createJsonGenerator(out, JsonEncoding.UTF8);
 
         SmileEnvelopeEvent event = makeSampleEvent();
-//        event.setPlainJson(false); why does it work regardless of whether SmileObjectMapper or JsonObjectMapper is used?
 
-        gen.writeStartArray();
+        SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(plainJson);
+        serializer.open(out);
         for (int i = 0; i < numEvents; i++) {
-            event.writeToJsonGenerator(gen);
+            serializer.serialize(event);
         }
-        gen.writeEndArray();
-        gen.close();
+        serializer.close();
 
         InputStream in = new ByteArrayInputStream(out.toByteArray());
         List<SmileEnvelopeEvent> extractedEvents = SmileEnvelopeEventExtractor.extractEvents(in);
