@@ -18,6 +18,8 @@ package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -37,33 +39,32 @@ public class StubEventHandler implements EventHandler
     }
 
     @Override
-    public void handle(ObjectInputStream objectInputStream, CallbackHandler handler) throws ClassNotFoundException, IOException
+    public void handle(File file, CallbackHandler handler)
     {
-        ArrayList<Event> events = new ArrayList<Event>();
+        try {
+            ArrayList<Event> events = new ArrayList<Event>();
 
-        while (objectInputStream.read() != -1) {
-            Event e = (Event) objectInputStream.readObject();
-            events.add(e);
-        }
-        objectInputStream.close();
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
 
+            while (objectInputStream.read() != -1) {
+                Event e = (Event) objectInputStream.readObject();
+                events.add(e);
+            }
+            objectInputStream.close();
 
-        for (Event event : events) {
-            try {
+            for (Event event : events) {
                 eventWriter.write(event);
-                handler.onSuccess(event); // no-op
             }
-            catch (Exception e) {
-                handler.onError(e, event);
-            }
+
+            handler.onSuccess(file);
+
+            eventWriter.forceCommit();
         }
-
-        eventWriter.forceCommit();
-    }
-
-    @Override
-    public void rollback() throws IOException
-    {
-        eventWriter.rollback();
+        catch (IOException e) {
+            handler.onError(e, file);
+        }
+        catch (ClassNotFoundException e) {
+            handler.onError(e, file);
+        }
     }
 }

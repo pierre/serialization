@@ -16,12 +16,11 @@
 
 package com.ning.metrics.serialization.writer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
 public interface EventHandler
 {
-    public void handle(ObjectInputStream in, CallbackHandler handler) throws ClassNotFoundException, IOException;
-
-    public void rollback() throws IOException;
+    public void handle(File file, CallbackHandler handler);
 }
