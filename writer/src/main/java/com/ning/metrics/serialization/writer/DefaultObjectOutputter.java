@@ -26,14 +26,14 @@ class DefaultObjectOutputter<T extends Event> implements ObjectOutputter<T>
 {
     protected final EventSerializer<T> eventSerializer;
 
-    public DefaultObjectOutputter(OutputStream out, EventSerializer<T> eventSerializer) throws IOException
+    public DefaultObjectOutputter(final OutputStream out, final EventSerializer<T> eventSerializer) throws IOException
     {
         this.eventSerializer = eventSerializer;
         eventSerializer.open(out);
     }
 
     @Override
-    public void writeObject(T event) throws IOException
+    public void writeObject(final T event) throws IOException
     {
         eventSerializer.serialize(event);
     }

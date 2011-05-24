@@ -22,13 +22,9 @@ import org.apache.log4j.Logger;
 import org.joda.time.Period;
 import org.weakref.jmx.Managed;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -82,29 +78,29 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     private volatile File currentOutputFile;
 
     public DiskSpoolEventWriter(
-        EventHandler eventHandler,
-        String spoolPath,
-        boolean flushEnabled,
-        long flushIntervalInSeconds,
-        ScheduledExecutorService executor,
-        SyncType syncType,
-        int syncBatchSize,
-        int rateWindowSizeMinutes
+        final EventHandler eventHandler,
+        final String spoolPath,
+        final boolean flushEnabled,
+        final long flushIntervalInSeconds,
+        final ScheduledExecutorService executor,
+        final SyncType syncType,
+        final int syncBatchSize,
+        final int rateWindowSizeMinutes
     )
     {
         this(eventHandler, spoolPath, flushEnabled, flushIntervalInSeconds, executor, syncType, syncBatchSize, rateWindowSizeMinutes, null);
     }
 
     public DiskSpoolEventWriter(
-            EventHandler eventHandler,
-            String spoolPath,
-            boolean flushEnabled,
-            long flushIntervalInSeconds,
-            ScheduledExecutorService executor,
-            SyncType syncType,
-            int syncBatchSize,
-            int rateWindowSizeMinutes,
-            EventSerializer<T> eventSerializer
+            final EventHandler eventHandler,
+            final String spoolPath,
+            final boolean flushEnabled,
+            final long flushIntervalInSeconds,
+            final ScheduledExecutorService executor,
+            final SyncType syncType,
+            final int syncBatchSize,
+            final int rateWindowSizeMinutes,
+            final EventSerializer<T> eventSerializer
     )
     {
         this.eventHandler = eventHandler;
@@ -130,7 +126,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
         recoverFiles();
     }
 
-    private void createSpoolDir(File dir)
+    private void createSpoolDir(final File dir)
     {
         if (!dir.exists() && !dir.mkdirs()) {
             log.error(String.format("unable to create spool directory %s", dir));
@@ -139,8 +135,8 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
 
     private void recoverFiles()
     {
-        //only call on startup
-        for (File file : tmpSpoolDirectory.listFiles()) {
+        // Only called on startup
+        for (final File file : tmpSpoolDirectory.listFiles()) {
             renameFile(file, spoolDirectory);
         }
     }
@@ -165,7 +161,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
                     log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
                 }
                 finally {
-                    long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
+                    final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
                     log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
                     executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
                 }
@@ -177,9 +173,9 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
 
     protected List<File> getSpooledFileList()
     {
-        List<File> spooledFileList = new ArrayList<File>();
+        final List<File> spooledFileList = new ArrayList<File>();
 
-        for (File file : spoolDirectory.listFiles()) {
+        for (final File file : spoolDirectory.listFiles()) {
             if (file.isFile()) {
                 spooledFileList.add(file);
             }
@@ -189,7 +185,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     }
 
     @Override
-    public synchronized void write(T event) throws IOException
+    public synchronized void write(final T event) throws IOException
     {
         if (currentOutputter == null) {
             currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.bin", fileId.incrementAndGet()));
@@ -250,34 +246,33 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
         }
     }
 
-    @Managed(description = "Commit events (forward them to final handler)")
+    @Managed(description = "Flush events (forward them to final handler)")
     public void flush()
     {
         if (!currentlyFlushing.compareAndSet(false, true)) {
             return;
         }
 
-        for (File file : getSpooledFileList()) {
+        for (final File file : getSpooledFileList()) {
             if (flushEnabled.get()) {
                 // Move files aside, to avoid sending dups (the handler can take longer than the flushing period)
                 final File lockedFile = renameFile(file, lockDirectory);
-                CallbackHandler callbackHandler = new CallbackHandler()
+                final CallbackHandler callbackHandler = new CallbackHandler()
                 {
                     @Override
-                    public synchronized void onError(Throwable t, File file)
+                    public synchronized void onError(final Throwable t, final File file)
                     {
                         log.warn(String.format("Error trying to flush file %s", file), t);
 
                         if (file != null && file.exists()) {
-
                             quarantineFile(lockedFile);
                         }
                     }
 
                     @Override
-                    public void onSuccess(File file)
+                    public void onSuccess(final File file)
                     {
-                        // delete the file
+                        // Delete the file
                         if (!file.exists()) {
                             log.warn(String.format("Trying to delete a file that does not exist: %s", file));
                         }
@@ -291,7 +286,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
                     eventHandler.handle(lockedFile, callbackHandler);
                 }
                 catch (RuntimeException e) {
-                    log.warn(String.format("Unknown error transferring events from local disk spool to serialization. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
+                    log.warn(String.format("Unknown error transferring events from local disk spool to flusher. Quarantining local file %s to directory %s", file, quarantineDirectory), e);
                     callbackHandler.onError(e, lockedFile);
                 }
             }
@@ -300,15 +295,13 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
         currentlyFlushing.set(false);
     }
 
-    private void quarantineFile(File file)
+    private void quarantineFile(final File file)
     {
         renameFile(file, quarantineDirectory);
-
-        // TODO we never even try to roll back.
     }
 
     @Managed(description = "enable/disable flushing to hdfs")
-    public void setFlushEnabled(boolean enabled)
+    public void setFlushEnabled(final boolean enabled)
     {
         log.info(String.format("setting flush enabled to %b", enabled));
         flushEnabled.set(enabled);
@@ -321,7 +314,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     }
 
     @Managed(description = "set the commit interval for next scheduled commit to hdfs in seconds")
-    public void setFlushIntervalInSeconds(long seconds)
+    public void setFlushIntervalInSeconds(final long seconds)
     {
         log.info(String.format("setting persistent flushing to %d seconds", seconds));
         flushIntervalInSeconds.set(seconds);
@@ -338,7 +331,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     {
         long size = 0;
 
-        for (File file : getSpooledFileList()) {
+        for (final File file : getSpooledFileList()) {
             size += file.length();
         }
 
@@ -346,12 +339,11 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     }
 
     @Managed(description = "size in kilobytes of quarantined data that could not be written to hdfs")
-    // TODO: periodically retry?
     public long getQuarantineSize()
     {
         long size = 0;
 
-        for (File file : quarantineDirectory.listFiles()) {
+        for (final File file : quarantineDirectory.listFiles()) {
             size += file.length();
         }
 
@@ -361,9 +353,9 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     @Managed(description = "attempt to process quarantined files")
     public synchronized void processQuarantinedFiles()
     {
-        for (File file : quarantineDirectory.listFiles()) {
+        for (final File file : quarantineDirectory.listFiles()) {
             if (file.isFile()) {
-                File dest = new File(spoolDirectory, file.getName());
+                final File dest = new File(spoolDirectory, file.getName());
 
                 if (!file.renameTo(dest)) {
                     log.info(String.format("error moving quarantined file %s to %s", file, dest));
@@ -384,12 +376,12 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
         return eventSerializationFailures.get();
     }
 
-    private File renameFile(File srcFile, File destDir)
+    private File renameFile(final File srcFile, final File destDir)
     {
-        File destinationOutputFile = new File(destDir, srcFile.getName());
+        final File destinationOutputFile = new File(destDir, srcFile.getName());
 
         if (!srcFile.renameTo(destinationOutputFile)) {
-            String msg = String.format("unable to rename spool file %s to %s", srcFile, destinationOutputFile);
+            final String msg = String.format("unable to rename spool file %s to %s", srcFile, destinationOutputFile);
             log.error(msg);
         }
 

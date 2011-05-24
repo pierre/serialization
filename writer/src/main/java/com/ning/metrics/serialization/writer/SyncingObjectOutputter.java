@@ -28,7 +28,7 @@ class SyncingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
     private final int batchSize;
     private int objectsWritten = 0;
 
-    public SyncingObjectOutputter(FileOutputStream out, EventSerializer<T> eventSerializer, final int batchSize) throws IOException
+    public SyncingObjectOutputter(final FileOutputStream out, final EventSerializer<T> eventSerializer, final int batchSize) throws IOException
     {
         super(out, eventSerializer);
         this.out = out;
@@ -36,18 +36,16 @@ class SyncingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
     }
 
     @Override
-    public void writeObject(T event) throws IOException
+    public void writeObject(final T event) throws IOException
     {
         super.writeObject(event);
         objectsWritten++;
 
-        // TODO unit test (mock out)
         if (objectsWritten >= batchSize) {
             out.flush();
             out.getFD().sync();
             objectsWritten = 0;
         }
     }
-
     // TODO should we sync() on close as well?
 }

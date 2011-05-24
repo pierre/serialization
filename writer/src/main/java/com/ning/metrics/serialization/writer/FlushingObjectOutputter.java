@@ -29,7 +29,7 @@ class FlushingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
     private final int batchSize;
     private int objectsWritten = 0;
 
-    public FlushingObjectOutputter(FileOutputStream out, EventSerializer<T> serializer, int batchSize) throws IOException
+    public FlushingObjectOutputter(final FileOutputStream out, final EventSerializer<T> serializer, final int batchSize) throws IOException
     {
         super(out, serializer);
         this.out = out;
@@ -37,7 +37,7 @@ class FlushingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
     }
 
     @Override
-    public void writeObject(T event) throws IOException
+    public void writeObject(final T event) throws IOException
     {
         super.writeObject(event);
         objectsWritten++;

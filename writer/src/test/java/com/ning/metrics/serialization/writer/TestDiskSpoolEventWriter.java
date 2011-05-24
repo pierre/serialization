@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class TestDiskSpoolEventWriter
 {
-    private static Logger log = Logger.getLogger(TestDiskSpoolEventWriter.class);
+    private static final Logger log = Logger.getLogger(TestDiskSpoolEventWriter.class);
 
     private Runnable commandToRun;
     private long secondsToWait;
