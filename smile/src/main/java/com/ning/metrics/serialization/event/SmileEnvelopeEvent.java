@@ -92,8 +92,8 @@ public class SmileEnvelopeEvent implements Event
         JsonGenerator g = smileFactory.createJsonGenerator(stream);
 
         g.writeStartObject();
-        g.writeNumberField(SmileEnvelopeEvent.SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
-        g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
+        g.writeNumberField(SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
+        g.writeStringField(SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
         for (String key : map.keySet()) {
             g.writeObjectField(key, map.get(key)); // will hopefully do the right thing (e.g. take care of numerics)
         }

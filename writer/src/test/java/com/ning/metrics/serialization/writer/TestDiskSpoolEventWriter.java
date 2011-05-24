@@ -76,9 +76,9 @@ public class TestDiskSpoolEventWriter
     {
         spoolPath = System.getProperty("java.io.tmpdir") + "/diskspooleventwriter-" + System.currentTimeMillis();
         spoolDir = new File(spoolPath);
-        tmpDir = new File(spoolPath + "/_tmp");
-        quarantineDir = new File(spoolPath + "/_quarantine");
-        lockDir = new File(spoolPath + "/_lock");
+        tmpDir = new File(spoolDir, "_tmp");
+        quarantineDir = new File(spoolDir, "_quarantine");
+        lockDir = new File(spoolDir, "_lock");
 
         prepareSpoolDirs();
     }
