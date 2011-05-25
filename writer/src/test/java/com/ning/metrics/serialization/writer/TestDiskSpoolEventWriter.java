@@ -41,10 +41,10 @@ public class TestDiskSpoolEventWriter
 
     private Runnable commandToRun;
     private long secondsToWait;
-    private ScheduledExecutorService executor = new StubScheduledExecutorService()
+    private final ScheduledExecutorService executor = new StubScheduledExecutorService()
     {
         @Override
-        public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)
+        public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit)
         {
             commandToRun = command;
             secondsToWait = TimeUnit.SECONDS.convert(delay, unit);
@@ -64,7 +64,7 @@ public class TestDiskSpoolEventWriter
     private final Event eventThrowsOnWrite = new StubEvent()
     {
         @Override
-        public void writeExternal(ObjectOutput out) throws IOException
+        public void writeExternal(final ObjectOutput out) throws IOException
         {
             throw new IOException();
         }
@@ -86,7 +86,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testWriteIOFailure() throws Exception
     {
-        DiskSpoolEventWriter writer = createWriter(writerSucceeds);
+        final DiskSpoolEventWriter writer = createWriter(writerSucceeds);
 
         try {
             writer.write(eventThrowsOnWrite);
@@ -106,7 +106,7 @@ public class TestDiskSpoolEventWriter
     {
         final AtomicReference<List<File>> spooledFileList = new AtomicReference<List<File>>(Collections.<File>emptyList());
 
-        @SuppressWarnings({"UnusedDeclaration"})
+        @SuppressWarnings({"UnusedDeclaration"}) final
         DiskSpoolEventWriter writer = new DiskSpoolEventWriter(writerSucceeds, spoolPath, true, 30, executor, SyncType.NONE, 1, 1)
         {
             @Override
@@ -127,7 +127,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testPersistentWriterSucceeds() throws Exception
     {
-        DiskSpoolEventWriter writer = createWriter(writerSucceeds);
+        final DiskSpoolEventWriter writer = createWriter(writerSucceeds);
 
         testSpoolDirs(0, 0, 0);
         writer.write(createEvent());
@@ -142,7 +142,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testPersistentWriteFails() throws Exception
     {
-        DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnWrite);
+        final DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnWrite);
 
         testSpoolDirs(0, 0, 0);
         writer.write(createEvent());
@@ -155,7 +155,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testPersistentCommitFails() throws Exception
     {
-        DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnCommit);
+        final DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnCommit);
 
         prepareSpoolDirs();
         testSpoolDirs(0, 0, 0);
@@ -170,7 +170,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testPersistentRollbackFails() throws Exception
     {
-        DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnCommitAndRollback);
+        final DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnCommitAndRollback);
 
         prepareSpoolDirs();
         testSpoolDirs(0, 0, 0);
@@ -188,12 +188,12 @@ public class TestDiskSpoolEventWriter
     public void testQuarantineByEvent() throws Exception
     {
         // create a writer that fails for events with the name "fail"
-        DiskSpoolEventWriter writer = createWriter(new StubEventHandler(new MockEventWriter(false, false, false)
+        final DiskSpoolEventWriter writer = createWriter(new StubEventHandler(new MockEventWriter(false, false, false)
         {
             private boolean hasFailedOneEvent = false;
 
             @Override
-            public void write(Event event) throws IOException
+            public void write(final Event event) throws IOException
             {
                 if (!hasFailedOneEvent) {
                     hasFailedOneEvent = true;
@@ -218,7 +218,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testPersistentMassiveFail() throws Exception
     {
-        DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnAll);
+        final DiskSpoolEventWriter writer = createWriter(writerThrowsIOExceptionOnAll);
 
         prepareSpoolDirs();
         testSpoolDirs(0, 0, 0);
@@ -230,12 +230,12 @@ public class TestDiskSpoolEventWriter
         testSpoolDirs(0, 0, 1);
     }
 
-    private DiskSpoolEventWriter createWriter(EventHandler persistentWriter)
+    private DiskSpoolEventWriter createWriter(final EventHandler persistentWriter)
     {
         return new DiskSpoolEventWriter(persistentWriter, spoolPath, true, 1, executor, SyncType.NONE, 1, 1);
     }
 
-    private void testSpoolDirs(int tmpCount, int spoolCount, int quarantineCount)
+    private void testSpoolDirs(final int tmpCount, final int spoolCount, final int quarantineCount)
     {
         Assert.assertEquals(listBinFiles(tmpDir).length, tmpCount);
         Assert.assertEquals(listBinFiles(spoolDir).length, spoolCount);
@@ -251,22 +251,22 @@ public class TestDiskSpoolEventWriter
         cleanDirectory(lockDir);
     }
 
-    private File[] listBinFiles(File dir)
+    private File[] listBinFiles(final File dir)
     {
         return dir.listFiles(new FileFilter()
         {
             @Override
-            public boolean accept(File pathname)
+            public boolean accept(final File pathname)
             {
                 return pathname.getName().endsWith(".bin");
             }
         });
     }
 
-    private void cleanDirectory(File quarantineDir)
+    private void cleanDirectory(final File quarantineDir)
     {
         if (quarantineDir.exists()) {
-            for (File file : quarantineDir.listFiles()) {
+            for (final File file : quarantineDir.listFiles()) {
                 if (file.isFile()) {
                     if (!file.delete()) {
                         log.info(String.format("unable to delete file %s", file));

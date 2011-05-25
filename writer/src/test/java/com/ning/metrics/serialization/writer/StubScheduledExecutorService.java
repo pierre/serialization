@@ -29,55 +29,55 @@ import java.util.concurrent.TimeoutException;
 public class StubScheduledExecutorService implements ScheduledExecutorService
 {
     @Override
-    public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit)
+    public <V> ScheduledFuture<V> schedule(final Callable<V> callable, final long delay, final TimeUnit unit)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)
+    public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit)
     {
         return null;
     }
 
     @Override
-    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)
+    public ScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay, final long period, final TimeUnit unit)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)
+    public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay, final TimeUnit unit)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException
+    public boolean awaitTermination(final long timeout, final TimeUnit unit) throws InterruptedException
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException
+    public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) throws InterruptedException
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException
+    public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit) throws InterruptedException
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException
+    public <T> T invokeAny(final Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
+    public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
     {
         throw new UnsupportedOperationException();
     }
@@ -107,25 +107,25 @@ public class StubScheduledExecutorService implements ScheduledExecutorService
     }
 
     @Override
-    public <T> Future<T> submit(Callable<T> task)
+    public <T> Future<T> submit(final Callable<T> task)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Future<?> submit(Runnable task)
+    public Future<?> submit(final Runnable task)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> Future<T> submit(Runnable task, T result)
+    public <T> Future<T> submit(final Runnable task, final T result)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void execute(Runnable command)
+    public void execute(final Runnable command)
     {
         throw new UnsupportedOperationException();
     }
