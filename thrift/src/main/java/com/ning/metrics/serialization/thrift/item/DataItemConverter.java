@@ -18,7 +18,7 @@ package com.ning.metrics.serialization.thrift.item;
 
 public class DataItemConverter
 {
-    public static DataItem convert(DataItem dataItem, DataItemTypes type)
+    public static DataItem convert(final DataItem dataItem, final DataItemTypes type)
     {
         switch (type) {
             case BOOLEAN:

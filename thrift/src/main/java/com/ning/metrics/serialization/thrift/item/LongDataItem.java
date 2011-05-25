@@ -31,7 +31,7 @@ class LongDataItem implements DataItem
         value = 0L;
     }
 
-    public LongDataItem(long value)
+    public LongDataItem(final long value)
     {
         this.value = value;
     }
@@ -85,13 +85,13 @@ class LongDataItem implements DataItem
     }
 
     @Override
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
         return value.compareTo(((DataItem) o).getLong());
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         return o instanceof DataItem && value.equals(((DataItem) o).getLong());
     }
@@ -103,14 +103,14 @@ class LongDataItem implements DataItem
     }
 
     @Override
-    public void write(DataOutput out) throws IOException
+    public void write(final DataOutput out) throws IOException
     {
         out.writeByte(LONG_TYPE);
         out.writeLong(value);
     }
 
     @Override
-    public void readFields(DataInput in) throws IOException
+    public void readFields(final DataInput in) throws IOException
     {
         value = in.readLong();
     }

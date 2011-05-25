@@ -31,7 +31,7 @@ class ShortDataItem implements DataItem
         value = 0;
     }
 
-    public ShortDataItem(short value)
+    public ShortDataItem(final short value)
     {
         this.value = value;
     }
@@ -85,13 +85,13 @@ class ShortDataItem implements DataItem
     }
 
     @Override
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
         return value.compareTo(((DataItem) o).getShort());
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         return o instanceof DataItem && value.equals(((DataItem) o).getShort());
     }
@@ -103,14 +103,14 @@ class ShortDataItem implements DataItem
     }
 
     @Override
-    public void write(DataOutput out) throws IOException
+    public void write(final DataOutput out) throws IOException
     {
         out.writeByte(SHORT_TYPE);
         out.writeShort(value);
     }
 
     @Override
-    public void readFields(DataInput in) throws IOException
+    public void readFields(final DataInput in) throws IOException
     {
         value = in.readShort();
     }

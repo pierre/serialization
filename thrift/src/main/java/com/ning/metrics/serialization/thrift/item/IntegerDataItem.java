@@ -31,7 +31,7 @@ class IntegerDataItem implements DataItem
         value = 0;
     }
 
-    public IntegerDataItem(int value)
+    public IntegerDataItem(final int value)
     {
         this.value = value;
     }
@@ -85,13 +85,13 @@ class IntegerDataItem implements DataItem
     }
 
     @Override
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
         return value.compareTo(((DataItem) o).getInteger());
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         return o instanceof DataItem && value.equals(((DataItem) o).getInteger());
     }
@@ -103,14 +103,14 @@ class IntegerDataItem implements DataItem
     }
 
     @Override
-    public void write(DataOutput out) throws IOException
+    public void write(final DataOutput out) throws IOException
     {
         out.writeByte(INTEGER_TYPE);
         out.writeInt(value);
     }
 
     @Override
-    public void readFields(DataInput in) throws IOException
+    public void readFields(final DataInput in) throws IOException
     {
         value = in.readInt();
     }

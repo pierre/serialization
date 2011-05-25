@@ -16,11 +16,11 @@
 
 package com.ning.metrics.serialization.schema;
 
-class IdentitySchemaField extends AbstractSchemaField implements SchemaField
+class IdentitySchemaField extends AbstractSchemaField
 {
     private static final long serialVersionUID = 1L;
 
-    public IdentitySchemaField(String name, SchemaFieldType type, short id)
+    public IdentitySchemaField(final String name, final SchemaFieldType type, final short id)
     {
         super(name, type, id);
     }

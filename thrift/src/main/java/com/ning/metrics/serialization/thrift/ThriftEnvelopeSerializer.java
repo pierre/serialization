@@ -37,12 +37,12 @@ public class ThriftEnvelopeSerializer
     private TProtocol protocol;
     private final ThriftFieldListSerializer payloadSerializer = new ThriftFieldListSerializer();
 
-    public void open(OutputStream out) throws IOException
+    public void open(final OutputStream out) throws IOException
     {
         protocol = new TBinaryProtocol(new TIOStreamTransport(out));
     }
 
-    public void serialize(ThriftEnvelope thriftEnvelope) throws IOException
+    public void serialize(final ThriftEnvelope thriftEnvelope) throws IOException
     {
         try {
             protocol.writeStructBegin(new TStruct("EventEnvelope"));
@@ -58,7 +58,7 @@ public class ThriftEnvelopeSerializer
             }
 
 
-            byte[] payload = payloadSerializer.createPayload(thriftEnvelope.getPayload());
+            final byte[] payload = payloadSerializer.createPayload(thriftEnvelope.getPayload());
 
             protocol.writeFieldBegin(PAYLOAD_FIELD);
             protocol.writeBinary(ByteBuffer.wrap(payload));

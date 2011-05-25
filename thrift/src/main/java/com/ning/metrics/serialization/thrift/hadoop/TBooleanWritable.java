@@ -23,25 +23,25 @@ public class TBooleanWritable extends ThriftWritable<TBoolean>
         super(new TBoolean());
     }
 
-    public TBooleanWritable(boolean value)
+    public TBooleanWritable(final boolean value)
     {
         super(new TBoolean(value));
     }
 
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
-        Boolean t = get().value;
-        Boolean that = ((TBooleanWritable) o).get().value;
+        final Boolean t = get().value;
+        final Boolean that = ((TBooleanWritable) o).get().value;
         return t.compareTo(that);
     }
 
     public int hashCode()
     {
-        Boolean t = get().value;
+        final Boolean t = get().value;
         return t.hashCode();
     }
 
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         if (this == o) {
             return true;
@@ -50,8 +50,8 @@ public class TBooleanWritable extends ThriftWritable<TBoolean>
             return false;
         }
 
-        Boolean me = get().value;
-        Boolean you = ((TBooleanWritable) o).get().value;
+        final Boolean me = get().value;
+        final Boolean you = ((TBooleanWritable) o).get().value;
         return me.equals(you);
     }
 }

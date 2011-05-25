@@ -20,6 +20,7 @@ import com.ning.metrics.serialization.event.Event;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class MockEventWriter implements EventWriter
@@ -38,7 +39,7 @@ public class MockEventWriter implements EventWriter
         this(false, false, false);
     }
 
-    public MockEventWriter(boolean commitThrowsException, boolean rollbackThrowsException, boolean writeThrowsException)
+    public MockEventWriter(final boolean commitThrowsException, final boolean rollbackThrowsException, final boolean writeThrowsException)
     {
         this.commitThrowsException = commitThrowsException;
         this.rollbackThrowsException = rollbackThrowsException;
@@ -82,7 +83,7 @@ public class MockEventWriter implements EventWriter
     }
 
     @Override
-    public synchronized void write(Event event) throws IOException
+    public synchronized void write(final Event event) throws IOException
     {
         if (writeThrowsException) {
             throw new IOException("IGNORE - Expected exception for tests");
@@ -91,27 +92,27 @@ public class MockEventWriter implements EventWriter
         writtenEventList.add(event);
     }
 
-    public void setCommitThrowsException(boolean commitThrowsException)
+    public void setCommitThrowsException(final boolean commitThrowsException)
     {
         this.commitThrowsException = commitThrowsException;
     }
 
-    public void setRollbackThrowsException(boolean rollbackThrowsException)
+    public void setRollbackThrowsException(final boolean rollbackThrowsException)
     {
         this.rollbackThrowsException = rollbackThrowsException;
     }
 
-    public void setWriteThrowsException(boolean writeThrowsException)
+    public void setWriteThrowsException(final boolean writeThrowsException)
     {
         this.writeThrowsException = writeThrowsException;
     }
 
-    public List<Event> getWrittenEventList()
+    public Collection<Event> getWrittenEventList()
     {
         return writtenEventList;
     }
 
-    public List<Event> getCommittedEventList()
+    public Collection<Event> getCommittedEventList()
     {
         return committedEventList;
     }

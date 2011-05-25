@@ -33,25 +33,25 @@ public class ThriftEnvelope
     {
     }
 
-    public ThriftEnvelope(String typeName, String name)
+    public ThriftEnvelope(final String typeName, final String name)
     {
         this.typeName = typeName;
         this.name = name;
     }
 
-    public ThriftEnvelope(String typeName)
+    public ThriftEnvelope(final String typeName)
     {
         this(typeName, typeName);
     }
 
-    public ThriftEnvelope(String typeName, String name, List<ThriftField> list)
+    public ThriftEnvelope(final String typeName, final String name, final List<ThriftField> list)
     {
         this.typeName = typeName;
         this.name = name;
         payload.addAll(list);
     }
 
-    public ThriftEnvelope(String typeName, List<ThriftField> list)
+    public ThriftEnvelope(final String typeName, final List<ThriftField> list)
     {
         this.typeName = typeName;
         this.name = typeName;
@@ -70,14 +70,14 @@ public class ThriftEnvelope
 
     public String getVersion()
     {
-        StringBuilder sb = new StringBuilder(payload.size() * 2);
-        Set<Short> idList = new TreeSet<Short>();
+        final StringBuilder sb = new StringBuilder(payload.size() * 2);
+        final Set<Short> idList = new TreeSet<Short>();
 
-        for (ThriftField field : payload) {
+        for (final ThriftField field : payload) {
             idList.add(field.getId());
         }
 
-        for (Short id : idList) {
+        for (final Short id : idList) {
             if (sb.length() > 0) {
                 sb.append(".");
             }
@@ -88,7 +88,7 @@ public class ThriftEnvelope
     }
 
     // hack method to allow hadoop to re-use this object
-    public void replaceWith(ThriftEnvelope thriftEnvelope)
+    public void replaceWith(final ThriftEnvelope thriftEnvelope)
     {
         this.typeName = thriftEnvelope.typeName;
         this.name = thriftEnvelope.name;
@@ -103,10 +103,10 @@ public class ThriftEnvelope
 
     public byte[][] toByteArray()
     {
-        byte[][] data = new byte[payload.size()][];
+        final byte[][] data = new byte[payload.size()][];
 
         int index = 0;
-        for (ThriftField field : payload) {
+        for (final ThriftField field : payload) {
             data[index] = field.toByteArray();
             index++;
         }
@@ -115,7 +115,7 @@ public class ThriftEnvelope
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         return o instanceof ThriftEnvelope &&
             typeName.equals(((ThriftEnvelope) o).typeName) &&

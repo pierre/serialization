@@ -43,7 +43,7 @@ public class SmileBucketEvent implements Event
     private SmileOutputStream eventStream = null;
     private static final Charset CHARSET = Charset.forName("UTF-8");
 
-    public SmileBucketEvent(String eventName, Granularity granularity, SmileBucket bucket)
+    public SmileBucketEvent(final String eventName, final Granularity granularity, final SmileBucket bucket)
     {
         this(eventName, granularity, "", bucket);
     }
@@ -53,7 +53,7 @@ public class SmileBucketEvent implements Event
     {
     }
 
-    public SmileBucketEvent(String eventName, Granularity granularity, String baseOutputDir, SmileBucket bucket)
+    public SmileBucketEvent(final String eventName, final Granularity granularity, final String baseOutputDir, final SmileBucket bucket)
     {
         this.eventName = eventName;
         this.granularity = granularity;
@@ -91,7 +91,7 @@ public class SmileBucketEvent implements Event
     }
 
     @Override
-    public String getOutputDir(String prefix)
+    public String getOutputDir(final String prefix)
     {
         if (suffixOutputPath.length() == 0) {
             // Add a safeguard here - if it's not set, the caller must be doing something wrong
@@ -128,7 +128,7 @@ public class SmileBucketEvent implements Event
     /**
      * Serialize an event to a byte array.
      * This method is optional, methods relying on this call should handle gracefully null.
-     *
+     * <p/>
      * Only serializes the data, not the event metadata.
      *
      * @return byte array representation of an event, can return null
@@ -145,36 +145,36 @@ public class SmileBucketEvent implements Event
      * because we don't want to duplicate the metadata in both the URI and the post body.
      */
     @Override
-    public void writeExternal(ObjectOutput objectOutput) throws IOException
+    public void writeExternal(final ObjectOutput objectOutput) throws IOException
     {
-        int eventNameLength = eventName.length();
+        final int eventNameLength = eventName.length();
         objectOutput.writeInt(eventNameLength);
         objectOutput.write(eventName.getBytes(CHARSET));
 
-        int granularityLength = granularity.toString().length();
+        final int granularityLength = granularity.toString().length();
         objectOutput.writeInt(granularityLength);
         objectOutput.write(granularity.toString().getBytes(CHARSET));
 
         objectOutput.writeInt(suffixOutputPath.length());
         objectOutput.write(suffixOutputPath.getBytes(CHARSET));
 
-        byte[] data = getSerializedEvent();
-        int dataLen = data.length;
+        final byte[] data = getSerializedEvent();
+        final int dataLen = data.length;
 
         objectOutput.writeInt(dataLen);
         objectOutput.write(data);
     }
 
     @Override
-    public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException
+    public void readExternal(final ObjectInput objectInput) throws IOException, ClassNotFoundException
     {
-        int eventNameLength = objectInput.readInt();
-        byte[] eventNameData = new byte[eventNameLength];
+        final int eventNameLength = objectInput.readInt();
+        final byte[] eventNameData = new byte[eventNameLength];
         objectInput.readFully(eventNameData);
         eventName = new String(eventNameData, CHARSET);
 
-        int granularityLength = objectInput.readInt();
-        byte[] granularityData = new byte[granularityLength];
+        final int granularityLength = objectInput.readInt();
+        final byte[] granularityData = new byte[granularityLength];
         objectInput.readFully(granularityData);
         try {
             granularity = Granularity.valueOf(new String(granularityData, CHARSET));
@@ -183,13 +183,13 @@ public class SmileBucketEvent implements Event
             granularity = Granularity.HOURLY;
         }
 
-        int suffixOutputPathLength = objectInput.readInt();
-        byte[] suffixOuputPathData = new byte[suffixOutputPathLength];
+        final int suffixOutputPathLength = objectInput.readInt();
+        final byte[] suffixOuputPathData = new byte[suffixOutputPathLength];
         objectInput.readFully(suffixOuputPathData);
         suffixOutputPath = new String(suffixOuputPathData, CHARSET);
 
-        int dataLen = objectInput.readInt();
-        byte[] data = new byte[dataLen];
+        final int dataLen = objectInput.readInt();
+        final byte[] data = new byte[dataLen];
         objectInput.readFully(data);
 
         bucket = SmileBucketDeserializer.deserialize(new ByteArrayInputStream(data));

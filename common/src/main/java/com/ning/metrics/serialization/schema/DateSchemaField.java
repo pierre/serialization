@@ -16,11 +16,11 @@
 
 package com.ning.metrics.serialization.schema;
 
-class DateSchemaField extends AbstractSchemaField implements SchemaField
+class DateSchemaField extends AbstractSchemaField
 {
     private static final long serialVersionUID = 1L;
 
-    public DateSchemaField(String name, short id)
+    public DateSchemaField(final String name, final short id)
     {
         super(name, SchemaFieldType.DATE, id);
     }

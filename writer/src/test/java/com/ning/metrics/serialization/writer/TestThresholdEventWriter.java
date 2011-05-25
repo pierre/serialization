@@ -173,13 +173,13 @@ public class TestThresholdEventWriter
         }
     }
 
-    private void writeAndTestCounts(int written, int committed) throws IOException
+    private void writeAndTestCounts(final int written, final int committed) throws IOException
     {
         eventWriter.write(event);
         assertTestCounts(written, committed);
     }
 
-    private void assertTestCounts(int written, int committed)
+    private void assertTestCounts(final int written, final int committed)
     {
         Assert.assertEquals(delegateWriter.getWrittenEventList().size(), written);
         Assert.assertEquals(delegateWriter.getCommittedEventList().size(), committed);

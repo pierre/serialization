@@ -23,7 +23,7 @@ import java.io.IOException;
 class StubEventWriter implements EventWriter
 {
     @Override
-    public void write(Event event) throws IOException
+    public void write(final Event event) throws IOException
     {
     }
 

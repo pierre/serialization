@@ -55,7 +55,7 @@ public class StubEvent implements Event
     }
 
     @Override
-    public String getOutputDir(String prefix)
+    public String getOutputDir(final String prefix)
     {
         throw new UnsupportedOperationException();
     }
@@ -67,12 +67,12 @@ public class StubEvent implements Event
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
     {
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
+    public void writeExternal(final ObjectOutput out) throws IOException
     {
     }
 }

@@ -27,13 +27,13 @@ public class ObjectOutputEventSerializer<T extends Event> implements EventSerial
     private ObjectOutputStream objectOut;
 
     @Override
-    public void open(OutputStream out) throws IOException
+    public void open(final OutputStream out) throws IOException
     {
         objectOut = new ObjectOutputStream(out);
     }
 
     @Override
-    public void serialize(T obj) throws IOException
+    public void serialize(final T obj) throws IOException
     {
         objectOut.write(1);
         objectOut.writeObject(obj);

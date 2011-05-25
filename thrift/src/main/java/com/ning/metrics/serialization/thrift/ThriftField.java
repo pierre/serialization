@@ -54,9 +54,9 @@ public abstract class ThriftField
         }
     }
 
-    private static byte[] numberToByteArray(String string)
+    private static byte[] numberToByteArray(final String string)
     {
-        byte[] bytes = new byte[string.length()];
+        final byte[] bytes = new byte[string.length()];
 
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = (byte) string.charAt(i);
@@ -64,50 +64,50 @@ public abstract class ThriftField
         return bytes;
     }
 
-    private final static byte[] TRUE = {(byte) '1'};
-    private final static byte[] FALSE = {(byte) '0'};
+    private static final byte[] TRUE = {(byte) '1'};
+    private static final byte[] FALSE = {(byte) '0'};
 
-    private static byte[] booleanToByteArray(boolean b)
+    private static byte[] booleanToByteArray(final boolean b)
     {
         return (b ? TRUE : FALSE);
     }
 
-    public static ThriftField createThriftField(Boolean value, short id)
+    public static ThriftField createThriftField(final Boolean value, final short id)
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.BOOLEAN.getThriftType(), id));
     }
 
-    public static ThriftField createThriftField(Byte value, short id)
+    public static ThriftField createThriftField(final Byte value, final short id)
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.BYTE.getThriftType(), id));
     }
 
-    public static ThriftField createThriftField(Short value, short id)
+    public static ThriftField createThriftField(final Short value, final short id)
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.SHORT.getThriftType(), id));
     }
 
-    public static ThriftField createThriftField(Integer value, short id)
+    public static ThriftField createThriftField(final Integer value, final short id)
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.INTEGER.getThriftType(), id));
     }
 
-    public static ThriftField createThriftField(Long value, short id)
+    public static ThriftField createThriftField(final Long value, final short id)
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.LONG.getThriftType(), id));
     }
 
-    public static ThriftField createThriftField(Double value, short id)
+    public static ThriftField createThriftField(final Double value, final short id)
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.DOUBLE.getThriftType(), id));
     }
 
-    public static ThriftField createThriftField(String value, short id)
+    public static ThriftField createThriftField(final String value, final short id)
     {
         return new ThriftFieldImpl(DataItemFactory.create(value), new TField(String.valueOf(id), SchemaFieldType.STRING.getThriftType(), id));
     }
 
-    public static ThriftField createThriftField(Class<?> type, Object o, short id)
+    public static ThriftField createThriftField(final Class<?> type, final Object o, final short id)
     {
         if (o == null) {
             return null;

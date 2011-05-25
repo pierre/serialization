@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class StubEventHandler implements EventHandler
 {
@@ -33,26 +34,26 @@ public class StubEventHandler implements EventHandler
         this.eventWriter = new StubEventWriter();
     }
 
-    public StubEventHandler(EventWriter eventWriter)
+    public StubEventHandler(final EventWriter eventWriter)
     {
         this.eventWriter = eventWriter;
     }
 
     @Override
-    public void handle(File file, CallbackHandler handler)
+    public void handle(final File file, final CallbackHandler handler)
     {
         try {
-            ArrayList<Event> events = new ArrayList<Event>();
+            final Collection<Event> events = new ArrayList<Event>();
 
-            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
+            final ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
 
             while (objectInputStream.read() != -1) {
-                Event e = (Event) objectInputStream.readObject();
+                final Event e = (Event) objectInputStream.readObject();
                 events.add(e);
             }
             objectInputStream.close();
 
-            for (Event event : events) {
+            for (final Event event : events) {
                 eventWriter.write(event);
             }
 

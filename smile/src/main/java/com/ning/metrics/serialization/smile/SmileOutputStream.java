@@ -23,9 +23,9 @@ import java.io.ByteArrayOutputStream;
  */
 public class SmileOutputStream extends ByteArrayOutputStream
 {
-    private String typeName;
+    private final String typeName;
 
-    public SmileOutputStream(String typeName, int size)
+    public SmileOutputStream(final String typeName, final int size)
     {
         super(size);
         this.typeName = typeName;

@@ -33,33 +33,34 @@ public class ThriftEnvelopeDeserializer
     private TProtocol protocol;
     private final ThriftFieldListDeserializer payloadDeserializer = new ThriftFieldListDeserializer();
 
-    public void open(InputStream in) throws IOException
+    public void open(final InputStream in) throws IOException
     {
         protocol = new TBinaryProtocol(new TIOStreamTransport(in));
     }
 
-    public ThriftEnvelope deserialize(ThriftEnvelope thriftEnvelope) throws IOException
+    public ThriftEnvelope deserialize(final ThriftEnvelope thriftEnvelope) throws IOException
     {
         String typeName = null;
         String name = null;
-        List<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
+        final List<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
 
         try {
             protocol.readStructBegin();
 
             TField currentField = protocol.readFieldBegin();
             while (currentField.type != TType.STOP) {
-                if (currentField.id == ThriftEnvelopeSerialization.TYPE_ID) {
-                    typeName = protocol.readString();
-                }
-                else if (currentField.id == ThriftEnvelopeSerialization.PAYLOAD_ID) {
-                    thriftFieldList.addAll(payloadDeserializer.readPayload(protocol.readBinary().array()));
-                }
-                else if (currentField.id == ThriftEnvelopeSerialization.NAME_ID) {
-                    name = protocol.readString();
-                }
-                else {
-                    throw new IOException(String.format("deserialization error: unknown id: %s", currentField.id));
+                switch (currentField.id) {
+                    case ThriftEnvelopeSerialization.TYPE_ID:
+                        typeName = protocol.readString();
+                        break;
+                    case ThriftEnvelopeSerialization.PAYLOAD_ID:
+                        thriftFieldList.addAll(payloadDeserializer.readPayload(protocol.readBinary().array()));
+                        break;
+                    case ThriftEnvelopeSerialization.NAME_ID:
+                        name = protocol.readString();
+                        break;
+                    default:
+                        throw new IOException(String.format("deserialization error: unknown id: %s", currentField.id));
                 }
                 protocol.readFieldEnd();
                 currentField = protocol.readFieldBegin();
@@ -79,7 +80,7 @@ public class ThriftEnvelopeDeserializer
             name = typeName;
         }
 
-        ThriftEnvelope nextThriftEnvelope = new ThriftEnvelope(typeName, name, thriftFieldList);
+        final ThriftEnvelope nextThriftEnvelope = new ThriftEnvelope(typeName, name, thriftFieldList);
 
         if (thriftEnvelope != null) {
             thriftEnvelope.replaceWith(nextThriftEnvelope);

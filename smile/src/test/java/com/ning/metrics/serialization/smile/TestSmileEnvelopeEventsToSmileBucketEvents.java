@@ -24,6 +24,7 @@ import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
 import org.joda.time.DateTime;
+import org.joda.time.ReadableInstant;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -32,11 +33,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class TestSmileEnvelopeEventsToSmileBucketEvents
 {
     private SmileFactory f;
-    private static Granularity eventGranularity = Granularity.MINUTE;
+    private static final Granularity eventGranularity = Granularity.MINUTE;
     private static final String EVENT1_NAME = "event1";
     private static final String EVENT2_NAME = "event2";
 
@@ -53,14 +55,14 @@ public class TestSmileEnvelopeEventsToSmileBucketEvents
     @Test(groups = "fast")
     public void testExtractEvents() throws Exception
     {
-        DateTime eventDateTime = new DateTime(2010, 10, 12, 4, 10, 0, 0);
+        final DateTime eventDateTime = new DateTime(2010, 10, 12, 4, 10, 0, 0);
         // Granularity is by minutes, this forces a new output dir
-        DateTime eventDateTime2 = eventDateTime.plusMinutes(3);
-        SmileEnvelopeEvent event1 = createEvent(EVENT1_NAME, eventDateTime);
-        SmileEnvelopeEvent event2 = createEvent(EVENT2_NAME, eventDateTime2);
-        SmileEnvelopeEvent event3 = createEvent(EVENT1_NAME, eventDateTime2);
+        final DateTime eventDateTime2 = eventDateTime.plusMinutes(3);
+        final SmileEnvelopeEvent event1 = createEvent(EVENT1_NAME, eventDateTime);
+        final SmileEnvelopeEvent event2 = createEvent(EVENT2_NAME, eventDateTime2);
+        final SmileEnvelopeEvent event3 = createEvent(EVENT1_NAME, eventDateTime2);
 
-        ArrayList<SmileEnvelopeEvent> envelopes = new ArrayList<SmileEnvelopeEvent>();
+        final List<SmileEnvelopeEvent> envelopes = new ArrayList<SmileEnvelopeEvent>();
         for (int i = 0; i < 10; i++) {
             envelopes.add(event1);
         }
@@ -69,7 +71,7 @@ public class TestSmileEnvelopeEventsToSmileBucketEvents
         }
         envelopes.add(event3);
 
-        Collection<SmileBucketEvent> events = SmileEnvelopeEventsToSmileBucketEvents.extractEvents(envelopes);
+        final Collection<SmileBucketEvent> events = SmileEnvelopeEventsToSmileBucketEvents.extractEvents(envelopes);
 
         // We should have 3 buckets:
         //  * event1 at eventDateTime
@@ -78,7 +80,7 @@ public class TestSmileEnvelopeEventsToSmileBucketEvents
         Assert.assertEquals(events.size(), 3);
 
         boolean firstBucketSeen = false;
-        for (SmileBucketEvent event : events) {
+        for (final SmileBucketEvent event : events) {
             // We don't really know the order
             if (event.getName().equals(EVENT1_NAME)) {
                 if (event.getNumberOfEvent() == 10) {
@@ -100,15 +102,15 @@ public class TestSmileEnvelopeEventsToSmileBucketEvents
         Assert.assertTrue(firstBucketSeen);
     }
 
-    private SmileEnvelopeEvent createEvent(String schema, DateTime eventDateTime) throws IOException
+    private SmileEnvelopeEvent createEvent(final String schema, final DateTime eventDateTime) throws IOException
     {
         return new SmileEnvelopeEvent(schema, createSmilePayload(eventDateTime), eventDateTime, eventGranularity);
     }
 
-    private byte[] createSmilePayload(DateTime eventDateTime) throws IOException
+    private byte[] createSmilePayload(final ReadableInstant eventDateTime) throws IOException
     {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JsonGenerator g = f.createJsonGenerator(stream);
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final JsonGenerator g = f.createJsonGenerator(stream);
 
         g.writeStartObject();
         g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, eventGranularity.toString());

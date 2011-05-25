@@ -29,17 +29,17 @@ public class TestThriftToThriftEnvelopeEvent
     {
         final DateTime eventDateTime = new DateTime();
         final String coreHostname = "hostname";
-        final String ip = "10.1.2.3";
-        final String type = "coic";
 
-        TLoggingEvent event = new TLoggingEvent();
+        final TLoggingEvent event = new TLoggingEvent();
         event.setCoreHostname(coreHostname);
+        final String ip = "10.1.2.3";
         event.setCoreIp(ip);
+        final String type = "coic";
         event.setCoreType(type);
         event.setEventDate(eventDateTime.getMillis());
 
-        ThriftEnvelopeEvent envelopeEvent = ThriftToThriftEnvelopeEvent.extractEvent("TLoggingEvent", event);
-        TLoggingEvent finalEvent = ThriftEnvelopeEventToThrift.extractThrift(TLoggingEvent.class, envelopeEvent);
+        final ThriftEnvelopeEvent envelopeEvent = ThriftToThriftEnvelopeEvent.extractEvent("TLoggingEvent", event);
+        final TLoggingEvent finalEvent = ThriftEnvelopeEventToThrift.extractThrift(TLoggingEvent.class, envelopeEvent);
 
         Assert.assertEquals(finalEvent.getCoreHostname(), event.getCoreHostname());
         Assert.assertEquals(finalEvent.getCoreHostname(), coreHostname);
@@ -54,7 +54,7 @@ public class TestThriftToThriftEnvelopeEvent
         Assert.assertEquals(finalEvent.getEventDate(), eventDateTime.getMillis());
 
         // Make sure fields start at 1, not 0 (Thrift convention)
-        for (ThriftField field : ((ThriftEnvelope) envelopeEvent.getData()).getPayload()) {
+        for (final ThriftField field : ((ThriftEnvelope) envelopeEvent.getData()).getPayload()) {
             Assert.assertTrue(field.getId() > 0);
         }
     }

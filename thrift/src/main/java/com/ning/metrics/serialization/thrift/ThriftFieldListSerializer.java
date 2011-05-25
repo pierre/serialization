@@ -27,10 +27,10 @@ import java.util.List;
 
 public class ThriftFieldListSerializer
 {
-    public byte[] createPayload(List<ThriftField> thriftFieldList) throws TException
+    public byte[] createPayload(final List<ThriftField> thriftFieldList) throws TException
     {
-        ByteArrayOutputStream payloadOutputStream = new ByteArrayOutputStream();
-        TProtocol payloadProtocol = new TBinaryProtocol(new TIOStreamTransport(payloadOutputStream));
+        final ByteArrayOutputStream payloadOutputStream = new ByteArrayOutputStream();
+        final TProtocol payloadProtocol = new TBinaryProtocol(new TIOStreamTransport(payloadOutputStream));
 
         serialize(payloadProtocol, thriftFieldList);
         payloadProtocol.getTransport().close();
@@ -38,11 +38,11 @@ public class ThriftFieldListSerializer
         return payloadOutputStream.toByteArray();
     }
 
-    public void serialize(TProtocol protocol, List<ThriftField> thriftFieldList) throws TException
+    public void serialize(final TProtocol protocol, final List<ThriftField> thriftFieldList) throws TException
     {
         protocol.writeStructBegin(new TStruct("ThriftFieldList"));
 
-        for (ThriftField serializer : thriftFieldList) {
+        for (final ThriftField serializer : thriftFieldList) {
             serializer.write(protocol);
         }
 

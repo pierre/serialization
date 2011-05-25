@@ -32,7 +32,7 @@ public class TestSmileBucketDeserializer
 
     //{ "foo": "bar", "baz": 1242, "meh": [1,2,3] }
     //{ "foo": "bar2", "baz": 4212 }
-    private final static String fileData = new File(new File("").getAbsolutePath(), "src/test/java/com/ning/metrics/serialization/smile/sampleData.json").getPath();
+    private static final String fileData = new File(new File("").getAbsolutePath(), "src/test/java/com/ning/metrics/serialization/smile/sampleData.json").getPath();
 
     @BeforeTest
     public void setUp() throws FileNotFoundException
@@ -43,11 +43,11 @@ public class TestSmileBucketDeserializer
     @Test
     public void testDeserialize() throws Exception
     {
-        SmileBucket bucket = SmileBucketDeserializer.deserialize(in);
+        final SmileBucket bucket = SmileBucketDeserializer.deserialize(in);
 
         Assert.assertEquals(bucket.size(), 2);
 
-        JsonNode json = bucket.get(0);
+        final JsonNode json = bucket.get(0);
         Assert.assertEquals(json.path("foo").getValueAsText(), "bar");
         Assert.assertEquals(json.path("baz").getValueAsInt(), 1242);
         Assert.assertTrue(json.path("meh").isArray());

@@ -39,7 +39,7 @@ public enum Granularity
     MINUTE(Minutes.ONE)
         {
             @Override
-            public <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T
+            public <T extends Throwable> void stepThroughInterval(final ReadableInterval interval, final Callback<T> callback) throws T
             {
                 DateTime start = dateTimeUtil.truncateToMinute(interval.getStart());
                 while (start.isBefore(interval.getEnd())) {
@@ -56,13 +56,13 @@ public enum Granularity
             }
 
             @Override
-            public DateTime truncate(ReadableDateTime date)
+            public DateTime truncate(final ReadableDateTime date)
             {
                 return dateTimeUtil.truncateToMinute(date);
             }
 
             @Override
-            public String getRelativePathFor(ReadableDateTime date)
+            public String getRelativePathFor(final ReadableDateTime date)
             {
                 return String.format("%s/%02d/%02d/%02d/%02d", date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), date.getHourOfDay(), date.getMinuteOfHour());
             }
@@ -70,7 +70,7 @@ public enum Granularity
     HOURLY(Hours.ONE)
         {
             @Override
-            public <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T
+            public <T extends Throwable> void stepThroughInterval(final ReadableInterval interval, final Callback<T> callback) throws T
             {
                 DateTime start = dateTimeUtil.truncateToHour(interval.getStart());
                 while (start.isBefore(interval.getEnd())) {
@@ -87,13 +87,13 @@ public enum Granularity
             }
 
             @Override
-            public DateTime truncate(ReadableDateTime date)
+            public DateTime truncate(final ReadableDateTime date)
             {
                 return dateTimeUtil.truncateToHour(date);
             }
 
             @Override
-            public String getRelativePathFor(ReadableDateTime date)
+            public String getRelativePathFor(final ReadableDateTime date)
             {
                 return String.format("%s/%02d/%02d/%02d", date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), date.getHourOfDay());
             }
@@ -101,7 +101,7 @@ public enum Granularity
     DAILY(Days.ONE)
         {
             @Override
-            public <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T
+            public <T extends Throwable> void stepThroughInterval(final ReadableInterval interval, final Callback<T> callback) throws T
             {
                 DateTime start = dateTimeUtil.truncateToDay(interval.getStart());
                 while (start.isBefore(interval.getEnd())) {
@@ -118,13 +118,13 @@ public enum Granularity
             }
 
             @Override
-            public DateTime truncate(ReadableDateTime date)
+            public DateTime truncate(final ReadableDateTime date)
             {
                 return dateTimeUtil.truncateToDay(date);
             }
 
             @Override
-            public String getRelativePathFor(ReadableDateTime date)
+            public String getRelativePathFor(final ReadableDateTime date)
             {
                 return String.format("%s/%02d/%02d", date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
             }
@@ -133,11 +133,11 @@ public enum Granularity
     WEEKLY(Weeks.ONE)
         {
             @Override
-            public <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T
+            public <T extends Throwable> void stepThroughInterval(final ReadableInterval interval, final Callback<T> callback) throws T
             {
                 DateTime start = dateTimeUtil.truncateToWeek(interval.getStart());
                 while (start.isBefore(interval.getEnd())) {
-                    DateTime end = start.plusWeeks(1);
+                    final DateTime end = start.plusWeeks(1);
                     callback.step(new Interval(start, end));
 
                     start = end;
@@ -151,13 +151,13 @@ public enum Granularity
             }
 
             @Override
-            public DateTime truncate(ReadableDateTime date)
+            public DateTime truncate(final ReadableDateTime date)
             {
                 return dateTimeUtil.truncateToWeek(date);
             }
 
             @Override
-            public String getRelativePathFor(ReadableDateTime date)
+            public String getRelativePathFor(final ReadableDateTime date)
             {
                 return String.format("%s/%02d/%02d", date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
             }
@@ -166,11 +166,11 @@ public enum Granularity
     MONTHLY(Months.ONE)
         {
             @Override
-            public <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T
+            public <T extends Throwable> void stepThroughInterval(final ReadableInterval interval, final Callback<T> callback) throws T
             {
                 ReadableDateTime start = dateTimeUtil.truncateToMonth(interval.getStart());
                 while (start.isBefore(interval.getEnd())) {
-                    MutableDateTime end = new MutableDateTime(start);
+                    final MutableDateTime end = new MutableDateTime(start);
 
                     int month = start.getMonthOfYear() + 1;
 
@@ -193,13 +193,13 @@ public enum Granularity
             }
 
             @Override
-            public DateTime truncate(ReadableDateTime date)
+            public DateTime truncate(final ReadableDateTime date)
             {
                 return dateTimeUtil.truncateToMonth(date);
             }
 
             @Override
-            public String getRelativePathFor(ReadableDateTime date)
+            public String getRelativePathFor(final ReadableDateTime date)
             {
                 return String.format("%s/%02d", date.getYear(), date.getMonthOfYear());
             }
@@ -208,11 +208,11 @@ public enum Granularity
     YEARLY(Years.ONE)
         {
             @Override
-            public <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T
+            public <T extends Throwable> void stepThroughInterval(final ReadableInterval interval, final Callback<T> callback) throws T
             {
                 ReadableDateTime start = dateTimeUtil.truncateToYear(interval.getStart());
                 while (start.isBefore(interval.getEnd())) {
-                    MutableDateTime end = new MutableDateTime(start);
+                    final MutableDateTime end = new MutableDateTime(start);
 
                     end.setYear(start.getYear() + 1);
                     callback.step(new Interval(start, end));
@@ -228,13 +228,13 @@ public enum Granularity
             }
 
             @Override
-            public DateTime truncate(ReadableDateTime date)
+            public DateTime truncate(final ReadableDateTime date)
             {
                 return dateTimeUtil.truncateToYear(date);
             }
 
             @Override
-            public String getRelativePathFor(ReadableDateTime date)
+            public String getRelativePathFor(final ReadableDateTime date)
             {
                 return String.format("%s", date.getYear());
             }
@@ -250,7 +250,7 @@ public enum Granularity
 
     private final ReadablePeriod period;
 
-    Granularity(ReadablePeriod period)
+    Granularity(final ReadablePeriod period)
     {
         this.period = period;
     }
@@ -260,14 +260,14 @@ public enum Granularity
         return period;
     }
 
-    public List<ReadableDateTime> forwardSteps(ReadableInterval interval)
+    public List<ReadableDateTime> forwardSteps(final ReadableInterval interval)
     {
         final List<ReadableDateTime> result = new ArrayList<ReadableDateTime>();
 
         stepThroughInterval(interval, new Callback<RuntimeException>()
         {
             @Override
-            public void step(ReadableInterval stepInterval)
+            public void step(final ReadableInterval stepInterval)
             {
                 result.add(stepInterval.getStart());
             }
@@ -276,7 +276,7 @@ public enum Granularity
         return result;
     }
 
-    public List<ReadableDateTime> reverseSteps(ReadableInterval interval)
+    public List<ReadableDateTime> reverseSteps(final ReadableInterval interval)
     {
         final List<ReadableDateTime> result = forwardSteps(interval);
 
@@ -285,12 +285,12 @@ public enum Granularity
         return result;
     }
 
-    abstract public <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T;
+    public abstract <T extends Throwable> void stepThroughInterval(ReadableInterval interval, Callback<T> callback) throws T;
 
-    abstract public DateTime getNow();
+    public abstract DateTime getNow();
 
-    abstract public DateTime truncate(ReadableDateTime date);
+    public abstract DateTime truncate(ReadableDateTime date);
 
-    abstract public String getRelativePathFor(ReadableDateTime date);
+    public abstract String getRelativePathFor(ReadableDateTime date);
 }
 

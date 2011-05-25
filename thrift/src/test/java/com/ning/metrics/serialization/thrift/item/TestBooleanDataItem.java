@@ -36,16 +36,16 @@ public class TestBooleanDataItem
     @Test(groups = "fast")
     public void testNoArgConstructor() throws Exception
     {
-        DataItem item = new BooleanDataItem();
+        final DataItem item = new BooleanDataItem();
         Assert.assertEquals(item.getBoolean().booleanValue(), true);
     }
 
     @Test(groups = "fast")
     public void testConstructor() throws Exception
     {
-        DataItem item1 = new BooleanDataItem(true);
+        final DataItem item1 = new BooleanDataItem(true);
         Assert.assertEquals(item1.getBoolean().booleanValue(), true);
-        DataItem item2 = new BooleanDataItem(false);
+        final DataItem item2 = new BooleanDataItem(false);
         Assert.assertEquals(item2.getBoolean().booleanValue(), false);
     }
 
@@ -102,7 +102,7 @@ public class TestBooleanDataItem
     public void testCompareToAndEquals() throws Exception
     {
         Assert.assertTrue(trueDataItem.compareTo(new BooleanDataItem(false)) > 0);
-        BooleanDataItem trueDataItem2 = new BooleanDataItem(true);
+        final BooleanDataItem trueDataItem2 = new BooleanDataItem(true);
         Assert.assertEquals(trueDataItem, trueDataItem2);
         Assert.assertEquals(trueDataItem.hashCode(), trueDataItem2.hashCode());
     }
@@ -117,13 +117,13 @@ public class TestBooleanDataItem
     @Test(groups = "fast")
     public void testReadAndWrite() throws Exception
     {
-        BooleanDataItem item = new BooleanDataItem(true);
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        DataOutput out = new DataOutputStream(byteOut);
+        final BooleanDataItem item = new BooleanDataItem(true);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final DataOutput out = new DataOutputStream(byteOut);
         item.write(out);
-        DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-        DataItem inItem = new BooleanDataItem();
-        int type = in.readByte(); //length must be read outside
+        final DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+        final DataItem inItem = new BooleanDataItem();
+        final int type = in.readByte(); //length must be read outside
         Assert.assertEquals(type, DataItem.BOOLEAN_TYPE);
         inItem.readFields(in);
         Assert.assertEquals(item, inItem);

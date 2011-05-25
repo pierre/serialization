@@ -23,9 +23,10 @@ import org.joda.time.ReadablePeriod;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,9 +37,9 @@ public class EventRate
     private final BlockingDeque<Map.Entry<DateTime, AtomicInteger>> queue = new LinkedBlockingDeque<Map.Entry<DateTime, AtomicInteger>>();
     private int rate = 0;
     private final ReadablePeriod rateWindow;
-    private final BlockingDeque<DateTime> dateTimeQueue = new LinkedBlockingDeque<DateTime>();
+    private final BlockingQueue<DateTime> dateTimeQueue = new LinkedBlockingDeque<DateTime>();
 
-    public EventRate(ReadablePeriod rateWindow)
+    public EventRate(final ReadablePeriod rateWindow)
     {
         this.rateWindow = rateWindow;
     }
@@ -61,12 +62,12 @@ public class EventRate
 
     private synchronized void updateRate()
     {
-        List<DateTime> eventList = new ArrayList<DateTime>();
+        final Collection<DateTime> eventList = new ArrayList<DateTime>();
         dateTimeQueue.drainTo(eventList);
 
-        for (DateTime dateTime : eventList) {
+        for (final DateTime dateTime : eventList) {
             rate++;
-            Map.Entry<DateTime, AtomicInteger> lastPair = queue.peekLast();
+            final Map.Entry<DateTime, AtomicInteger> lastPair = queue.peekLast();
 
             if (lastPair != null && lastPair.getKey().equals(dateTime)) {
                 lastPair.getValue().incrementAndGet();
@@ -77,17 +78,17 @@ public class EventRate
 
         }
 
-        DateTime now = getNow();
+        final DateTime now = getNow();
 
         while (!queue.isEmpty() && !queue.peekFirst().getKey().plus(rateWindow).isAfter(now)) {
-            Map.Entry<DateTime, AtomicInteger> firstPair = queue.pollFirst();
+            final Map.Entry<DateTime, AtomicInteger> firstPair = queue.pollFirst();
             rate -= firstPair.getValue().get();
         }
     }
 
-    public DateTime truncateToSecond(ReadableDateTime time)
+    public DateTime truncateToSecond(final ReadableDateTime time)
     {
-        MutableDateTime result = new MutableDateTime(time);
+        final MutableDateTime result = new MutableDateTime(time);
         result.setMillisOfSecond(0);
         return new DateTime(result);
     }

@@ -29,8 +29,8 @@ import java.io.OutputStream;
 
 public class SmileBucketSerializer
 {
-    protected final static SmileFactory smileFactory = new SmileFactory();
-    protected final static JsonFactory jsonFactory = new JsonFactory();
+    protected static final SmileFactory smileFactory = new SmileFactory();
+    protected static final JsonFactory jsonFactory = new JsonFactory();
 
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
@@ -44,24 +44,24 @@ public class SmileBucketSerializer
     private static final ObjectMapper jsonObjectMapper = new ObjectMapper(jsonFactory);
 
 
-    public static void serialize(SmileBucket bucket, OutputStream outStream) throws IOException
+    public static void serialize(final SmileBucket bucket, final OutputStream outStream) throws IOException
     {
         serializeSmile(bucket, outStream);
     }
 
-    public static void serializeSmile(SmileBucket bucket, OutputStream outStream) throws IOException
+    public static void serializeSmile(final SmileBucket bucket, final OutputStream outStream) throws IOException
     {
         serialize(bucket, outStream, smileObjectMapper);
     }
 
-    public static void serializeJson(SmileBucket bucket, OutputStream outStream) throws IOException
+    public static void serializeJson(final SmileBucket bucket, final OutputStream outStream) throws IOException
     {
         serialize(bucket, outStream, jsonObjectMapper);
     }
 
-    public static void serialize(SmileBucket bucket, OutputStream outStream, ObjectMapper objectMapper) throws IOException
+    public static void serialize(final SmileBucket bucket, final OutputStream outStream, final ObjectMapper objectMapper) throws IOException
     {
-        JsonGenerator gen = objectMapper.getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
+        final JsonGenerator gen = objectMapper.getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
         objectMapper.writeValue(gen, bucket);
         gen.flush();
         gen.close();

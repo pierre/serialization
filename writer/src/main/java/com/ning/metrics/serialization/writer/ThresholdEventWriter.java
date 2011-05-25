@@ -43,7 +43,7 @@ public class ThresholdEventWriter implements EventWriter
     private long lastFlushNanos;
     private long uncommittedWriteCount = 0;
 
-    public ThresholdEventWriter(EventWriter delegate, long maxUncommittedWriteCount, long maxFlushPeriodInSeconds)
+    public ThresholdEventWriter(final EventWriter delegate, final long maxUncommittedWriteCount, final long maxFlushPeriodInSeconds)
     {
         this.delegate = delegate;
         this.maxWriteCount = new AtomicLong(maxUncommittedWriteCount);
@@ -58,7 +58,7 @@ public class ThresholdEventWriter implements EventWriter
      * @throws IOException as thrown by the delegate writer
      */
     @Override
-    public synchronized void write(Event event) throws IOException
+    public synchronized void write(final Event event) throws IOException
     {
         delegate.write(event);
         uncommittedWriteCount++;
@@ -137,7 +137,7 @@ public class ThresholdEventWriter implements EventWriter
     }
 
     @Managed(description = "Set the max number of writes before a commit is performed")
-    public void setMaxWriteCount(long maxWriteCount)
+    public void setMaxWriteCount(final long maxWriteCount)
     {
         this.maxWriteCount.set(maxWriteCount);
     }
@@ -149,7 +149,7 @@ public class ThresholdEventWriter implements EventWriter
     }
 
     @Managed(description = "Set the max number of seconds between commits of local disk spools")
-    public void setMaxFlushPeriodInSeconds(long maxFlushPeriodInSeconds)
+    public void setMaxFlushPeriodInSeconds(final long maxFlushPeriodInSeconds)
     {
         this.maxFlushPeriodNanos = maxFlushPeriodInSeconds * 1000000000;
     }

@@ -36,7 +36,7 @@ import java.util.HashMap;
 
 public class TestSmileEnvelopeEvent
 {
-    private static Granularity eventGranularity = Granularity.MONTHLY;
+    private static final Granularity eventGranularity = Granularity.MONTHLY;
     private static final DateTime eventDateTime = new DateTime();
     private static final String SCHEMA_NAME = "mySmile";
 
@@ -48,13 +48,13 @@ public class TestSmileEnvelopeEvent
     public void setUp() throws IOException
     {
         // Use same configuration as SmileEnvelopeEvent
-        SmileFactory f = new SmileFactory();
+        final SmileFactory f = new SmileFactory();
         f.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
         f.configure(SmileGenerator.Feature.CHECK_SHARED_STRING_VALUES, true);
         f.configure(SmileParser.Feature.REQUIRE_HEADER, false);
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JsonGenerator g = f.createJsonGenerator(stream);
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final JsonGenerator g = f.createJsonGenerator(stream);
 
         g.writeStartObject();
         g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, eventGranularity.toString());
@@ -88,7 +88,7 @@ public class TestSmileEnvelopeEvent
     @Test(groups = "fast")
     public void testBytesVsString() throws Exception
     {
-        byte[] fromString = serializedString.getBytes(SmileEnvelopeEvent.CHARSET);
+        final byte[] fromString = serializedString.getBytes(SmileEnvelopeEvent.CHARSET);
         Assert.assertEquals(fromString, serializedBytes);
     }
 
@@ -101,14 +101,14 @@ public class TestSmileEnvelopeEvent
     @Test(groups = "fast")
     public void testGetEventDateTime() throws Exception
     {
-        SmileEnvelopeEvent event = createEvent();
+        final SmileEnvelopeEvent event = createEvent();
         Assert.assertEquals(event.getEventDateTime(), eventDateTime);
     }
 
     @Test(groups = "fast")
     public void testGetName() throws Exception
     {
-        SmileEnvelopeEvent event = createEvent();
+        final SmileEnvelopeEvent event = createEvent();
         Assert.assertEquals(event.getName(), SCHEMA_NAME);
     }
 
@@ -121,21 +121,21 @@ public class TestSmileEnvelopeEvent
     @Test(groups = "fast")
     public void testExternalization() throws Exception
     {
-        SmileEnvelopeEvent envelope = createEvent();
+        final SmileEnvelopeEvent envelope = createEvent();
 
-        byte[] inputBytes = serializedBytes;
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream(bytes);
+        final byte[] inputBytes = serializedBytes;
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        final ObjectOutputStream out = new ObjectOutputStream(bytes);
         out.writeObject(envelope);
         out.close();
-        byte[] data = bytes.toByteArray();
-        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(data));
-        Object ob = in.readObject();
+        final byte[] data = bytes.toByteArray();
+        final ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(data));
+        final Object ob = in.readObject();
 
         Assert.assertNotNull(ob);
         Assert.assertSame(SmileEnvelopeEvent.class, ob.getClass());
 
-        SmileEnvelopeEvent result = (SmileEnvelopeEvent) ob;
+        final Event result = (SmileEnvelopeEvent) ob;
         // name is not automatically set, but can check other metadata
         Assert.assertSame(result.getGranularity(), eventGranularity);
         Assert.assertEquals(result.getEventDateTime(), eventDateTime);
@@ -149,14 +149,14 @@ public class TestSmileEnvelopeEvent
     @Test(groups = "fast")
     public void testReadWriteExternal() throws Exception
     {
-        SmileEnvelopeEvent event = createEvent();
+        final SmileEnvelopeEvent event = createEvent();
 
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        ObjectOutput out = new ObjectOutputStream(outStream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final ObjectOutput out = new ObjectOutputStream(outStream);
         event.writeExternal(out);
         out.close();
 
-        SmileEnvelopeEvent event2 = new SmileEnvelopeEvent();
+        final SmileEnvelopeEvent event2 = new SmileEnvelopeEvent();
         event2.readExternal(new ObjectInputStream(new ByteArrayInputStream(outStream.toByteArray())));
 
         Assert.assertEquals(event2.getName(), event.getName());
@@ -167,7 +167,7 @@ public class TestSmileEnvelopeEvent
     @Test(groups = "fast")
     public void testStaticUtils() throws Exception
     {
-        SmileEnvelopeEvent event = createEvent();
+        final SmileEnvelopeEvent event = createEvent();
         Assert.assertEquals(SmileEnvelopeEvent.getEventDateTimeFromJson((JsonNode) event.getData()), eventDateTime);
         Assert.assertEquals(SmileEnvelopeEvent.getGranularityFromJson((JsonNode) event.getData()), eventGranularity);
     }
@@ -175,10 +175,10 @@ public class TestSmileEnvelopeEvent
     @Test(groups = "fast")
     public void testConstructorFromMap() throws Exception
     {
-        HashMap<String, Object> eventMap = new HashMap<String, Object>();
+        final HashMap<String, Object> eventMap = new HashMap<String, Object>();
         eventMap.put("foo", "bar");
         eventMap.put("bleh", 12);
-        SmileEnvelopeEvent event = new SmileEnvelopeEvent("myEvent", eventDateTime, eventMap);
+        final Event event = new SmileEnvelopeEvent("myEvent", eventDateTime, eventMap);
 
         Assert.assertEquals(event.getName(), "myEvent");
         Assert.assertEquals(SmileEnvelopeEvent.getEventDateTimeFromJson((JsonNode) event.getData()), eventDateTime);

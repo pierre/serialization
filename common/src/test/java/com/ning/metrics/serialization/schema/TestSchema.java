@@ -19,7 +19,7 @@ package com.ning.metrics.serialization.schema;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class TestSchema
 {
@@ -35,7 +35,7 @@ public class TestSchema
     @Test(groups = "fast")
     public void testCreateSchema() throws Exception
     {
-        Schema schema = new Schema(EVENT_NAME);
+        final Schema schema = new Schema(EVENT_NAME);
 
         Assert.assertEquals(schema.getName(), EVENT_NAME);
 
@@ -61,7 +61,7 @@ public class TestSchema
         Assert.assertEquals(schema.getFieldByPosition((short) 3), schema.getFieldByName(EVENT_FIELD3_NAME));
 
         // Test ordering
-        ArrayList<SchemaField> field = schema.getSchema();
+        final List<SchemaField> field = schema.getSchema();
         Assert.assertEquals(field.get(0), schema.getFieldByName(EVENT_FIELD1_NAME));
         Assert.assertEquals(field.get(2), schema.getFieldByName(EVENT_FIELD3_NAME));
         Assert.assertEquals(field.get(1), schema.getFieldByName(EVENT_FIELD2_NAME));

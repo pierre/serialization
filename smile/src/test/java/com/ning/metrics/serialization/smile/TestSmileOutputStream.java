@@ -23,6 +23,7 @@ import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
 import org.joda.time.DateTime;
+import org.joda.time.ReadableInstant;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -34,7 +35,7 @@ import java.io.IOException;
 public class TestSmileOutputStream
 {
     private SmileFactory f;
-    private static Granularity eventGranularity = Granularity.MINUTE;
+    private static final Granularity eventGranularity = Granularity.MINUTE;
 
     @BeforeTest
     public void setUp() throws IOException
@@ -49,19 +50,19 @@ public class TestSmileOutputStream
     @Test(groups = "fast")
     public void testFromByteArray() throws Exception
     {
-        String eventType = "hello";
-        SmileOutputStream stream = new SmileOutputStream(eventType, 1024);
+        final String eventType = "hello";
+        final SmileOutputStream stream = new SmileOutputStream(eventType, 1024);
         stream.write(createSmilePayload(new DateTime()));
 
-        SmileBucket bucket2 = SmileBucketDeserializer.deserialize(new ByteArrayInputStream(stream.toByteArray()));
+        final SmileBucket bucket2 = SmileBucketDeserializer.deserialize(new ByteArrayInputStream(stream.toByteArray()));
 
         Assert.assertEquals(bucket2.size(), 1);
     }
 
-    private byte[] createSmilePayload(DateTime eventDateTime) throws IOException
+    private byte[] createSmilePayload(final ReadableInstant eventDateTime) throws IOException
     {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JsonGenerator g = f.createJsonGenerator(stream);
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final JsonGenerator g = f.createJsonGenerator(stream);
 
         g.writeStartObject();
         g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, eventGranularity.toString());

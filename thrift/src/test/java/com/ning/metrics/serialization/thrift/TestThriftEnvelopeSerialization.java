@@ -41,7 +41,7 @@ public class TestThriftEnvelopeSerialization
     public void testSerializeNull() throws Exception
     {
         try {
-            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
             serializer.open(byteStream);
             serializer.serialize(null);
@@ -55,15 +55,15 @@ public class TestThriftEnvelopeSerialization
     @Test(groups = "fast")
     public void testEmptyObject() throws Exception
     {
-        ThriftEnvelope input = new ThriftEnvelope("event-type");
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        final ThriftEnvelope input = new ThriftEnvelope("event-type");
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
         serializer.open(byteStream);
         serializer.serialize(input);
         serializer.close();
 
         deserializer.open(new ByteArrayInputStream(byteStream.toByteArray()));
-        ThriftEnvelope result = deserializer.deserialize(null);
+        final ThriftEnvelope result = deserializer.deserialize(null);
 
         Assert.assertEquals(result, input);
         Assert.assertFalse(result.equals(new ThriftEnvelope("null-struct")));
@@ -73,12 +73,12 @@ public class TestThriftEnvelopeSerialization
     @Test(groups = "fast")
     public void testMultipleObjectStream() throws Exception
     {
-        ThriftEnvelope input1 = createDummyEvent("input1");
-        ThriftEnvelope input2 = createDummyEvent("input2");
+        final ThriftEnvelope input1 = createDummyEvent("input1");
+        final ThriftEnvelope input2 = createDummyEvent("input2");
 
         Assert.assertEquals(input1.equals(input2), false);
 
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         serializer.open(byteStream);
         serializer.serialize(input1);
         serializer.serialize(input2);
@@ -86,10 +86,10 @@ public class TestThriftEnvelopeSerialization
 
         deserializer.open(new ByteArrayInputStream(byteStream.toByteArray()));
 
-        ThriftEnvelope result1 = deserializer.deserialize(null);
+        final ThriftEnvelope result1 = deserializer.deserialize(null);
         Assert.assertEquals(result1, input1);
 
-        ThriftEnvelope result2 = deserializer.deserialize(null);
+        final ThriftEnvelope result2 = deserializer.deserialize(null);
         Assert.assertEquals(result2, input2);
 
         deserializer.close();
@@ -98,17 +98,17 @@ public class TestThriftEnvelopeSerialization
     @Test(groups = "fast")
     public void testNonNullArgToDeserialize() throws Exception
     {
-        ThriftEnvelope input1 = createDummyEvent("fuu-1");
-        ThriftEnvelope input2 = createDummyEvent("fuu-2");
+        final ThriftEnvelope input1 = createDummyEvent("fuu-1");
+        final ThriftEnvelope input2 = createDummyEvent("fuu-2");
 
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
         serializer.open(byteStream);
         serializer.serialize(input1);
         serializer.close();
 
         deserializer.open(new ByteArrayInputStream(byteStream.toByteArray()));
-        ThriftEnvelope result = deserializer.deserialize(input2);
+        final ThriftEnvelope result = deserializer.deserialize(input2);
         deserializer.close();
 
         Assert.assertEquals(input2.getPayload().get(0).getDataItem().getString(), "fuu-1");
@@ -118,16 +118,16 @@ public class TestThriftEnvelopeSerialization
     @Test(groups = "fast")
     public void testSimpleSerialize() throws Exception
     {
-        ThriftEnvelope input = createDummyEvent("fuu");
+        final ThriftEnvelope input = createDummyEvent("fuu");
 
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
         serializer.open(byteStream);
         serializer.serialize(input);
         serializer.close();
 
         deserializer.open(new ByteArrayInputStream(byteStream.toByteArray()));
-        ThriftEnvelope result = deserializer.deserialize(null);
+        final ThriftEnvelope result = deserializer.deserialize(null);
         deserializer.close();
 
         Assert.assertEquals(result, input);
@@ -139,7 +139,7 @@ public class TestThriftEnvelopeSerialization
         try {
             deserializer.open(new ByteArrayInputStream(new byte[0]));
             deserializer.close();
-            ThriftEnvelope result = deserializer.deserialize(null);
+            final ThriftEnvelope result = deserializer.deserialize(null);
             Assert.fail("expected IOException");
         }
         catch (Exception e) {
@@ -150,29 +150,29 @@ public class TestThriftEnvelopeSerialization
     @Test(groups = "fast")
     public void testSchemaNameNotSameAsName() throws Exception
     {
-        ThriftEnvelope input = createDummyEvent("fuu", "event-name");
+        final ThriftEnvelope input = createDummyEvent("fuu", "event-name");
 
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
         serializer.open(byteStream);
         serializer.serialize(input);
         serializer.close();
 
         deserializer.open(new ByteArrayInputStream(byteStream.toByteArray()));
-        ThriftEnvelope result = deserializer.deserialize(null);
+        final ThriftEnvelope result = deserializer.deserialize(null);
         deserializer.close();
 
         Assert.assertEquals(result, input);
     }
 
-    private ThriftEnvelope createDummyEvent(String firstValue)
+    private ThriftEnvelope createDummyEvent(final String firstValue)
     {
         return createDummyEvent(firstValue, "event-type");
     }
 
-    private ThriftEnvelope createDummyEvent(String firstValue, String name)
+    private ThriftEnvelope createDummyEvent(final String firstValue, final String name)
     {
-        ThriftEnvelope input = new ThriftEnvelope("event-type", name);
+        final ThriftEnvelope input = new ThriftEnvelope("event-type", name);
 
         input.getPayload().add(new ThriftFieldImpl(DataItemFactory.create(firstValue), new TField("0", TType.STRING, (short) 0)));
         input.getPayload().add(new ThriftFieldImpl(DataItemFactory.create((byte) 1), new TField("1", TType.BYTE, (short) 1)));

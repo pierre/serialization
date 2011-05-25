@@ -29,6 +29,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Event representation of a single Smile event. This class is useful to send Json trees
@@ -45,8 +46,8 @@ public class SmileEnvelopeEvent implements Event
 
     public static final Charset NAME_CHARSET = Charset.forName("UTF-8");
 
-    protected final static SmileFactory smileFactory = new SmileFactory();
-    protected final static JsonFactory jsonFactory = new JsonFactory();
+    protected static final SmileFactory smileFactory = new SmileFactory();
+    protected static final JsonFactory jsonFactory = new JsonFactory();
 
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
@@ -82,19 +83,19 @@ public class SmileEnvelopeEvent implements Event
      * @param map           event data
      * @throws IOException generic serialization exception
      */
-    public SmileEnvelopeEvent(String eventName, DateTime eventDateTime, HashMap<String, Object> map) throws IOException
+    public SmileEnvelopeEvent(final String eventName, final DateTime eventDateTime, final Map<String, Object> map) throws IOException
     {
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
         this.granularity = Granularity.HOURLY;
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JsonGenerator g = smileFactory.createJsonGenerator(stream);
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final JsonGenerator g = smileFactory.createJsonGenerator(stream);
 
         g.writeStartObject();
         g.writeNumberField(SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
         g.writeStringField(SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
-        for (String key : map.keySet()) {
+        for (final String key : map.keySet()) {
             g.writeObjectField(key, map.get(key)); // will hopefully do the right thing (e.g. take care of numerics)
         }
         g.writeEndObject();
@@ -103,12 +104,12 @@ public class SmileEnvelopeEvent implements Event
         setPayloadFromByteArray(stream.toByteArray());
     }
 
-    public SmileEnvelopeEvent(String eventName, JsonNode node)
+    public SmileEnvelopeEvent(final String eventName, final JsonNode node)
     {
         this(eventName, null, node);
     }
 
-    public SmileEnvelopeEvent(String eventName, Granularity granularity, JsonNode node)
+    public SmileEnvelopeEvent(final String eventName, final Granularity granularity, final JsonNode node)
     {
         this.eventName = eventName;
         this.root = node;
@@ -117,7 +118,7 @@ public class SmileEnvelopeEvent implements Event
         setEventPropertiesFromNode(node);
     }
 
-    public SmileEnvelopeEvent(String eventName, byte[] inputBytes, DateTime eventDateTime, Granularity granularity) throws IOException
+    public SmileEnvelopeEvent(final String eventName, final byte[] inputBytes, final DateTime eventDateTime, final Granularity granularity) throws IOException
     {
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
@@ -127,7 +128,7 @@ public class SmileEnvelopeEvent implements Event
 
     // this constructor needs a node arg generated via writeToJsonGenerator()
     // can throw RuntimeExceptions very easily, because any JsonNode.get() call return null
-    public SmileEnvelopeEvent(JsonNode node) throws IOException
+    public SmileEnvelopeEvent(final JsonNode node) throws IOException
     {
         try {
             eventName = node.get("eventName").getTextValue();
@@ -165,9 +166,9 @@ public class SmileEnvelopeEvent implements Event
     }
 
     @Override
-    public String getOutputDir(String prefix)
+    public String getOutputDir(final String prefix)
     {
-        GranularityPathMapper pathMapper = new GranularityPathMapper(String.format("%s/%s", prefix, eventName), granularity);
+        final GranularityPathMapper pathMapper = new GranularityPathMapper(String.format("%s/%s", prefix, eventName), granularity);
 
         return pathMapper.getPathForDateTime(getEventDateTime());
     }
@@ -186,7 +187,7 @@ public class SmileEnvelopeEvent implements Event
         return isPlainJson;
     }
 
-    public void setPlainJson(boolean plainJson)
+    public void setPlainJson(final boolean plainJson)
     {
         isPlainJson = plainJson;
     }
@@ -204,10 +205,10 @@ public class SmileEnvelopeEvent implements Event
     @Override
     public byte[] getSerializedEvent()
     {
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
         try {
-            JsonGenerator gen = getObjectMapper().getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
+            final JsonGenerator gen = getObjectMapper().getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
             getObjectMapper().writeTree(gen, root);
             gen.close();
         }
@@ -233,14 +234,14 @@ public class SmileEnvelopeEvent implements Event
      * method of this Externalizable class.
      */
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
+    public void writeExternal(final ObjectOutput out) throws IOException
     {
         // Name of the event
-        byte[] eventNameBytes = eventName.getBytes(NAME_CHARSET);
+        final byte[] eventNameBytes = eventName.getBytes(NAME_CHARSET);
         out.writeInt(eventNameBytes.length);
         out.write(eventNameBytes);
 
-        byte[] payloadBytes = getSerializedEvent();
+        final byte[] payloadBytes = getSerializedEvent();
 
         // Size of Smile payload. Needed for deserialization, see below
         out.writeInt(payloadBytes.length);
@@ -259,17 +260,17 @@ public class SmileEnvelopeEvent implements Event
      * @throws java.io.IOException    if I/O errors occur
      */
     @Override
-    public void readExternal(ObjectInput in) throws IOException
+    public void readExternal(final ObjectInput in) throws IOException
     {
         // Name of the event first
-        int smileEventNameBytesSize = in.readInt();
-        byte[] eventNameBytes = new byte[smileEventNameBytesSize];
+        final int smileEventNameBytesSize = in.readInt();
+        final byte[] eventNameBytes = new byte[smileEventNameBytesSize];
         in.readFully(eventNameBytes);
         eventName = new String(eventNameBytes, NAME_CHARSET);
 
         // Then payload
-        int smilePayloadSize = in.readInt();
-        byte[] smilePayload = new byte[smilePayloadSize];
+        final int smilePayloadSize = in.readInt();
+        final byte[] smilePayload = new byte[smilePayloadSize];
         in.readFully(smilePayload);
 
         setPayloadFromByteArray(smilePayload);
@@ -280,9 +281,9 @@ public class SmileEnvelopeEvent implements Event
     // By using the same JsonGenerator for writing multiple events, we can do streaming smile compression
     // So we can compress multiple events into a single smile stream w/ back-references and everything WITHOUT
     // having to know all the events ahead of time.
-    public void writeToJsonGenerator(JsonGenerator gen) throws IOException
+    public void writeToJsonGenerator(final JsonGenerator gen) throws IOException
     {
-        // writes '{eventName:<name>,payload:{<data>}}' --it's kind of silly but ultimately inconsequential to nest them like this. 
+        // writes '{eventName:<name>,payload:{<data>}}' --it's kind of silly but ultimately inconsequential to nest them like this.
         gen.writeStartObject();
         gen.writeStringField("eventName", eventName);
         gen.writeFieldName("payload");
@@ -292,7 +293,7 @@ public class SmileEnvelopeEvent implements Event
         gen.writeEndObject();
     }
 
-    private void setEventPropertiesFromNode(JsonNode node)
+    private void setEventPropertiesFromNode(final JsonNode node)
     {
         eventDateTime = getEventDateTimeFromJson(node);
 
@@ -301,9 +302,9 @@ public class SmileEnvelopeEvent implements Event
         }
     }
 
-    public static DateTime getEventDateTimeFromJson(JsonNode node)
+    public static DateTime getEventDateTimeFromJson(final JsonNode node)
     {
-        JsonNode eventDateTimeNode = node.path(SMILE_EVENT_DATETIME_TOKEN_NAME);
+        final JsonNode eventDateTimeNode = node.path(SMILE_EVENT_DATETIME_TOKEN_NAME);
 
         DateTime nodeDateTime = new DateTime();
         if (!eventDateTimeNode.isMissingNode()) {
@@ -313,9 +314,9 @@ public class SmileEnvelopeEvent implements Event
         return nodeDateTime;
     }
 
-    public static Granularity getGranularityFromJson(JsonNode node)
+    public static Granularity getGranularityFromJson(final JsonNode node)
     {
-        JsonNode granularityNode = node.path(SMILE_EVENT_GRANULARITY_TOKEN_NAME);
+        final JsonNode granularityNode = node.path(SMILE_EVENT_GRANULARITY_TOKEN_NAME);
 
         Granularity nodeGranularity = Granularity.HOURLY;
         if (!granularityNode.isMissingNode()) {
@@ -330,9 +331,9 @@ public class SmileEnvelopeEvent implements Event
         return nodeGranularity;
     }
 
-    private void setPayloadFromByteArray(byte[] smilePayload) throws IOException
+    private void setPayloadFromByteArray(final byte[] smilePayload) throws IOException
     {
-        JsonParser jp = getObjectMapper().getJsonFactory().createJsonParser(smilePayload);
+        final JsonParser jp = getObjectMapper().getJsonFactory().createJsonParser(smilePayload);
         root = getObjectMapper().readTree(jp);
         jp.close();
     }

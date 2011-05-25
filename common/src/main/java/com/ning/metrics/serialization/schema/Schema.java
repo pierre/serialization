@@ -31,9 +31,9 @@ public class Schema
     private static final long serialVersionUID = 1L;
 
     private final String name;
-    private HashMap<Short, SchemaField> schemaFields = new HashMap<Short, SchemaField>();
+    private final HashMap<Short, SchemaField> schemaFields = new HashMap<Short, SchemaField>();
 
-    public Schema(String name)
+    public Schema(final String name)
     {
         this.name = name;
     }
@@ -43,19 +43,19 @@ public class Schema
         return name;
     }
 
-    public void addSchemaField(SchemaField schemaField)
+    public void addSchemaField(final SchemaField schemaField)
     {
         schemaFields.put(schemaField.getId(), schemaField);
     }
 
-    public SchemaField getFieldByPosition(short id)
+    public SchemaField getFieldByPosition(final short id)
     {
         return schemaFields.get(id);
     }
 
-    public SchemaField getFieldByName(String name)
+    public SchemaField getFieldByName(final String name)
     {
-        for (SchemaField field : schemaFields.values()) {
+        for (final SchemaField field : schemaFields.values()) {
             if (field.getName().equals(name)) {
                 return field;
             }
@@ -72,12 +72,12 @@ public class Schema
      */
     public ArrayList<SchemaField> getSchema()
     {
-        ArrayList<SchemaField> items = new ArrayList<SchemaField>(schemaFields.values());
+        final ArrayList<SchemaField> items = new ArrayList<SchemaField>(schemaFields.values());
 
         Collections.sort(items, new Comparator<SchemaField>()
         {
             @Override
-            public int compare(SchemaField left, SchemaField right)
+            public int compare(final SchemaField left, final SchemaField right)
             {
                 return left.getId() - right.getId();
             }

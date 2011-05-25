@@ -24,7 +24,7 @@ public class ThriftWritableDeserializer
 {
     private DataInputStream dataIn;
 
-    public void open(InputStream in)
+    public void open(final InputStream in)
     {
         if (in instanceof DataInputStream) {
             dataIn = (DataInputStream) in;
@@ -34,7 +34,7 @@ public class ThriftWritableDeserializer
         }
     }
 
-    public ThriftWritable deserialize(ThriftWritable writable) throws IOException
+    public ThriftWritable deserialize(final ThriftWritable writable) throws IOException
     {
         writable.readFields(dataIn);
         return writable;
