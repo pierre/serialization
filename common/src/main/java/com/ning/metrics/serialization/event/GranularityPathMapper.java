@@ -22,7 +22,6 @@ import org.joda.time.ReadableInterval;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 class GranularityPathMapper implements Serializable
 {
@@ -31,7 +30,7 @@ class GranularityPathMapper implements Serializable
     private final String prefix;
     private final Granularity granularity;
 
-    public GranularityPathMapper(String prefix, Granularity granularity)
+    public GranularityPathMapper(final String prefix, final Granularity granularity)
     {
         this.prefix = prefix;
         this.granularity = granularity;
@@ -52,13 +51,13 @@ class GranularityPathMapper implements Serializable
         return granularity;
     }
 
-    public Collection<String> getPathsForInterval(ReadableInterval interval)
+    public Collection<String> getPathsForInterval(final ReadableInterval interval)
     {
-        final List<String> paths = new ArrayList<String>();
+        final Collection<String> paths = new ArrayList<String>();
 
         granularity.stepThroughInterval(interval, new Granularity.Callback<RuntimeException>()
         {
-            public void step(ReadableInterval stepInterval) throws RuntimeException
+            public void step(final ReadableInterval stepInterval) throws RuntimeException
             {
                 paths.add(getPathForDateTime(stepInterval.getStart()));
             }
@@ -67,7 +66,7 @@ class GranularityPathMapper implements Serializable
         return paths;
     }
 
-    public String getPathForDateTime(ReadableDateTime dateTime)
+    public String getPathForDateTime(final ReadableDateTime dateTime)
     {
         return String.format("%s/%s", prefix, granularity.getRelativePathFor(dateTime));
     }

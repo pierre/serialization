@@ -61,7 +61,7 @@ public enum SchemaFieldType
     private final byte thriftType;
     private final Class<?> smileType;
 
-    SchemaFieldType(byte thriftType, Class<?> smileType)
+    SchemaFieldType(final byte thriftType, final Class<?> smileType)
     {
         this.thriftType = thriftType;
         this.smileType = smileType;
@@ -77,7 +77,7 @@ public enum SchemaFieldType
         return smileType;
     }
 
-    public SchemaField createSchemaField(String name, short id)
+    public SchemaField createSchemaField(final String name, final short id)
     {
         switch (this) {
             case DATE:
@@ -98,10 +98,10 @@ public enum SchemaFieldType
      * @return newly created SchemaField
      */
     @SuppressWarnings("unused")
-    public static SchemaField createSchemaField(String name, String type, short id)
+    public static SchemaField createSchemaField(final String name, final String type, final short id)
     {
         try {
-            SchemaFieldType schemaFieldType = valueOf(type.toUpperCase());
+            final SchemaFieldType schemaFieldType = valueOf(type.toUpperCase());
             return schemaFieldType.createSchemaField(name, id);
         }
         catch (IllegalArgumentException e) {

@@ -33,17 +33,17 @@ public class DateTimeUtil
         return truncateToMinute(new DateTime());
     }
 
-    public DateTime truncateToMinute(ReadableDateTime time)
+    public DateTime truncateToMinute(final ReadableDateTime time)
     {
-        MutableDateTime result = new MutableDateTime(time);
+        final MutableDateTime result = new MutableDateTime(time);
         result.setMillisOfSecond(0);
         result.setSecondOfMinute(0);
         return new DateTime(result);
     }
 
-    public DateTime truncateToHour(ReadableDateTime time)
+    public DateTime truncateToHour(final ReadableDateTime time)
     {
-        MutableDateTime result = new MutableDateTime(time);
+        final MutableDateTime result = new MutableDateTime(time);
         result.setMillisOfSecond(0);
         result.setSecondOfMinute(0);
         result.setMinuteOfHour(0);
@@ -55,9 +55,9 @@ public class DateTimeUtil
         return truncateToDay(new DateTime());
     }
 
-    public DateTime truncateToDay(ReadableDateTime time)
+    public DateTime truncateToDay(final ReadableDateTime time)
     {
-        MutableDateTime result = new MutableDateTime(time);
+        final MutableDateTime result = new MutableDateTime(time);
         result.setMillisOfSecond(0);
         result.setSecondOfMinute(0);
         result.setMinuteOfHour(0);
@@ -70,9 +70,9 @@ public class DateTimeUtil
         return truncateToMonth(new DateTime());
     }
 
-    public DateTime truncateToMonth(ReadableDateTime time)
+    public DateTime truncateToMonth(final ReadableDateTime time)
     {
-        MutableDateTime result = new MutableDateTime(time);
+        final MutableDateTime result = new MutableDateTime(time);
         result.setMillisOfSecond(0);
         result.setSecondOfMinute(0);
         result.setMinuteOfHour(0);
@@ -86,9 +86,9 @@ public class DateTimeUtil
         return truncateToWeek(new DateTime());
     }
 
-    public DateTime truncateToWeek(ReadableDateTime time)
+    public DateTime truncateToWeek(final ReadableDateTime time)
     {
-        MutableDateTime result = new MutableDateTime(time);
+        final MutableDateTime result = new MutableDateTime(time);
         result.setMillisOfSecond(0);
         result.setSecondOfMinute(0);
         result.setMinuteOfHour(0);
@@ -108,9 +108,9 @@ public class DateTimeUtil
         return truncateToYear(new DateTime());
     }
 
-    public DateTime truncateToYear(ReadableDateTime time)
+    public DateTime truncateToYear(final ReadableDateTime time)
     {
-        MutableDateTime result = new MutableDateTime(time);
+        final MutableDateTime result = new MutableDateTime(time);
         result.setMillisOfSecond(0);
         result.setSecondOfMinute(0);
         result.setMinuteOfHour(0);

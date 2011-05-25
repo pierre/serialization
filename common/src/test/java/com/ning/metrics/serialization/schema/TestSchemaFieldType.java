@@ -27,7 +27,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldBoolean() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "BOOLEAN", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "BOOLEAN", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -40,7 +40,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldByte() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "BYTE", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "BYTE", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -53,7 +53,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldShort() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "SHORT", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "SHORT", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -66,7 +66,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldInteger() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "INTEGER", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "INTEGER", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -79,7 +79,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldLong() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "LONG", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "LONG", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -92,7 +92,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldDouble() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "DOUBLE", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "DOUBLE", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -105,7 +105,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldString() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "STRING", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "STRING", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -118,7 +118,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldDate() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "DATE", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "DATE", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);
@@ -131,7 +131,7 @@ public class TestSchemaFieldType
     @Test(groups = "fast")
     public void testCreateSchemaFieldIp() throws Exception
     {
-        SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "IP", FIELD_ID);
+        final SchemaField testField = SchemaFieldType.createSchemaField(FIELD_NAME, "IP", FIELD_ID);
 
         Assert.assertEquals(testField.getName(), FIELD_NAME);
         Assert.assertEquals(testField.getId(), FIELD_ID);

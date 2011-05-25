@@ -63,12 +63,12 @@ public class Events
      * @throws java.io.IOException    generic IOException
      * @throws ClassNotFoundException if the underlying Event class is not in the classpath
      */
-    public static List<Event> fromObjectInputStream(ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException
+    public static List<Event> fromObjectInputStream(final ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException
     {
-        final ArrayList<Event> events = new ArrayList<Event>();
+        final List<Event> events = new ArrayList<Event>();
 
         while (objectInputStream.read() != -1) {
-            Event e = (Event) objectInputStream.readObject();
+            final Event e = (Event) objectInputStream.readObject();
             events.add(e);
         }
         objectInputStream.close();

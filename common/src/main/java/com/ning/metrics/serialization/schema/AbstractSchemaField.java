@@ -24,7 +24,7 @@ abstract class AbstractSchemaField implements SchemaField
     private final SchemaFieldType type;
     private final short id;
 
-    public AbstractSchemaField(String name, SchemaFieldType type, short id)
+    public AbstractSchemaField(final String name, final SchemaFieldType type, final short id)
     {
         this.name = name;
         this.type = type;
@@ -61,11 +61,11 @@ abstract class AbstractSchemaField implements SchemaField
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         if (obj == this) return true;
         if (obj == null || !(obj instanceof AbstractSchemaField)) return false;
-        AbstractSchemaField other = (AbstractSchemaField) obj;
+        final AbstractSchemaField other = (AbstractSchemaField) obj;
         return (other.type == type) && (other.id == id) && other.name.equals(name);
     }
 }

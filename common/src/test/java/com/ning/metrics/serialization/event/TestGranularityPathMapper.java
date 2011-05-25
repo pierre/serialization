@@ -30,7 +30,7 @@ public class TestGranularityPathMapper
     @Test(groups = "fast")
     public void testMinutly()
     {
-        GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.MINUTE);
+        final GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.MINUTE);
 
         Assert.assertEquals(prefix.getPrefix(), PREFIX);
         Assert.assertEquals(prefix.getRootPath(), PREFIX);
@@ -44,7 +44,7 @@ public class TestGranularityPathMapper
     @Test(groups = "fast")
     public void testHourly()
     {
-        GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.HOURLY);
+        final GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.HOURLY);
 
         Assert.assertEquals(prefix.getPrefix(), PREFIX);
         Assert.assertEquals(prefix.getRootPath(), PREFIX);
@@ -58,7 +58,7 @@ public class TestGranularityPathMapper
     @Test(groups = "fast")
     public void testDaily()
     {
-        GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.DAILY);
+        final GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.DAILY);
 
         Assert.assertEquals(prefix.getPrefix(), PREFIX);
         Assert.assertEquals(prefix.getRootPath(), PREFIX);
@@ -72,7 +72,7 @@ public class TestGranularityPathMapper
     @Test(groups = "fast")
     public void testWeekly()
     {
-        GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.WEEKLY);
+        final GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.WEEKLY);
 
         Assert.assertEquals(prefix.getPrefix(), PREFIX);
         Assert.assertEquals(prefix.getRootPath(), PREFIX);
@@ -86,7 +86,7 @@ public class TestGranularityPathMapper
     @Test(groups = "fast")
     public void testMonthly()
     {
-        GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.MONTHLY);
+        final GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.MONTHLY);
 
         Assert.assertEquals(prefix.getPrefix(), PREFIX);
         Assert.assertEquals(prefix.getRootPath(), PREFIX);
@@ -100,7 +100,7 @@ public class TestGranularityPathMapper
     @Test(groups = "fast")
     public void testYearly()
     {
-        GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.YEARLY);
+        final GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.YEARLY);
 
         Assert.assertEquals(prefix.getPrefix(), PREFIX);
         Assert.assertEquals(prefix.getRootPath(), PREFIX);
@@ -114,10 +114,10 @@ public class TestGranularityPathMapper
     @Test(groups = "fast")
     public void testInterval()
     {
-        GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.DAILY);
+        final GranularityPathMapper prefix = new GranularityPathMapper(PREFIX, Granularity.DAILY);
 
-        Collection<String> paths = prefix.getPathsForInterval(new MutableInterval(new DateTime("2010-10-01").getMillis(), new DateTime("2010-10-04").getMillis()));
-        Object[] pathsArray = paths.toArray();
+        final Collection<String> paths = prefix.getPathsForInterval(new MutableInterval(new DateTime("2010-10-01").getMillis(), new DateTime("2010-10-04").getMillis()));
+        final Object[] pathsArray = paths.toArray();
 
         Assert.assertEquals(pathsArray.length, 3);
         Assert.assertEquals((String) pathsArray[0], String.format("%s/2010/10/01", PREFIX));

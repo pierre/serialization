@@ -49,12 +49,12 @@ public class FixedManagedJmxExport
     private static final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 
     @SuppressWarnings("unused")
-    public static void export(String name, Object monitoredObject)
+    public static void export(final String name, final Object monitoredObject)
     {
         try {
-            ObjectName objectName = new ObjectName(name);
+            final ObjectName objectName = new ObjectName(name);
 
-            RequiredModelMBean mbean = getMBean(monitoredObject);
+            final RequiredModelMBean mbean = getMBean(monitoredObject);
             mbean.setManagedResource(monitoredObject, "objectReference");
 
             // register the model MBean in the MBean server
@@ -65,10 +65,10 @@ public class FixedManagedJmxExport
         }
     }
 
-    private static RequiredModelMBean getMBean(Object monitoredObject)
+    private static RequiredModelMBean getMBean(final Object monitoredObject)
     {
         try {
-            ModelMBeanInfo info = buildInfo(monitoredObject.getClass());
+            final ModelMBeanInfo info = buildInfo(monitoredObject.getClass());
 
             return new RequiredModelMBean(new ModelMBeanInfoSupport(info));
         }
@@ -77,15 +77,15 @@ public class FixedManagedJmxExport
         }
     }
 
-    private static boolean includeMethod(Method method)
+    private static boolean includeMethod(final Method method)
     {
         log.debug(String.format("Include method[%s]? %s", method.getName(), method.getAnnotation(Managed.class) != null));
         return method.getAnnotation(Managed.class) != null;
     }
 
-    private static String getDescription(Method method)
+    private static String getDescription(final Method method)
     {
-        Managed annotation = method.getAnnotation(Managed.class);
+        final Managed annotation = method.getAnnotation(Managed.class);
         if (annotation == null) {
             throw new RuntimeException("FixedManagedJmxExportScope is trying to export a method without a managed annotation.  Method name: " + method.getName());
         }
@@ -97,29 +97,29 @@ public class FixedManagedJmxExport
     private static ModelMBeanInfo buildInfo(Class<?> clazz)
         throws IntrospectionException
     {
-        List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
-        Map<String, AttributeDescriptor> attributeDescriptors = new HashMap<String, AttributeDescriptor>();
+        final List<OperationDescriptor> operations = new ArrayList<OperationDescriptor>();
+        final Map<String, AttributeDescriptor> attributeDescriptors = new HashMap<String, AttributeDescriptor>();
 
-        String className = clazz.getName();
+        final String className = clazz.getName();
 
         while (clazz != null) {
-            for (Method method : clazz.getMethods()) {
+            for (final Method method : clazz.getMethods()) {
                 if (!includeMethod(method)) {
                     continue;
                 }
 
-                String name = method.getName();
-                String description = getDescription(method);
+                final String name = method.getName();
+                final String description = getDescription(method);
 
-                Matcher matcher = getterOrSetterPattern.matcher(name);
+                final Matcher matcher = getterOrSetterPattern.matcher(name);
                 OperationDescriptor operation = null;
 
                 if (matcher.matches()) {
-                    String type = matcher.group(1);
-                    String first = matcher.group(2);
-                    String rest = matcher.group(3);
+                    final String type = matcher.group(1);
+                    final String first = matcher.group(2);
+                    final String rest = matcher.group(3);
 
-                    String attributeName = first + (rest != null ? rest : "");
+                    final String attributeName = first + (rest != null ? rest : "");
 
                     AttributeDescriptor descriptor = attributeDescriptors.get(attributeName);
                     if (descriptor == null) {
@@ -149,10 +149,10 @@ public class FixedManagedJmxExport
         }
 
 
-        List<ModelMBeanAttributeInfo> attributeInfos = new ArrayList<ModelMBeanAttributeInfo>();
+        final List<ModelMBeanAttributeInfo> attributeInfos = new ArrayList<ModelMBeanAttributeInfo>();
 
-        for (AttributeDescriptor attribute : attributeDescriptors.values()) {
-            Descriptor descriptor = new DescriptorSupport();
+        for (final AttributeDescriptor attribute : attributeDescriptors.values()) {
+            final Descriptor descriptor = new DescriptorSupport();
             descriptor.setField("name", attribute.getName());
             descriptor.setField("descriptorType", "attribute");
             if (attribute.getGetter() != null) {
@@ -169,10 +169,10 @@ public class FixedManagedJmxExport
                 descriptor));
         }
 
-        List<ModelMBeanOperationInfo> operationInfos = new ArrayList<ModelMBeanOperationInfo>();
+        final List<ModelMBeanOperationInfo> operationInfos = new ArrayList<ModelMBeanOperationInfo>();
 
-        for (OperationDescriptor operation : operations) {
-            Descriptor descriptor = new DescriptorSupport();
+        for (final OperationDescriptor operation : operations) {
+            final Descriptor descriptor = new DescriptorSupport();
             descriptor.setField("name", operation.getMethod().getName());
             descriptor.setField("class", className);
             descriptor.setField("descriptorType", "operation");
@@ -198,7 +198,7 @@ public class FixedManagedJmxExport
         private final Method method;
         private final String role;
 
-        public OperationDescriptor(Method method, String role)
+        public OperationDescriptor(final Method method, final String role)
         {
             this.method = method;
             this.role = role;
@@ -222,7 +222,7 @@ public class FixedManagedJmxExport
         private final String description;
         private final String name;
 
-        private AttributeDescriptor(String name, String description)
+        private AttributeDescriptor(final String name, final String description)
         {
             this.name = name;
             this.description = description;
@@ -238,7 +238,7 @@ public class FixedManagedJmxExport
             return getter;
         }
 
-        public void setGetter(Method getter)
+        public void setGetter(final Method getter)
         {
             this.getter = getter;
         }
@@ -248,7 +248,7 @@ public class FixedManagedJmxExport
             return setter;
         }
 
-        public void setSetter(Method setter)
+        public void setSetter(final Method setter)
         {
             this.setter = setter;
         }
