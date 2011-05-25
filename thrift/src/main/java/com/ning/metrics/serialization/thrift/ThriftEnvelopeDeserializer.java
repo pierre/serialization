@@ -49,17 +49,18 @@ public class ThriftEnvelopeDeserializer
 
             TField currentField = protocol.readFieldBegin();
             while (currentField.type != TType.STOP) {
-                if (currentField.id == ThriftEnvelopeSerialization.TYPE_ID) {
-                    typeName = protocol.readString();
-                }
-                else if (currentField.id == ThriftEnvelopeSerialization.PAYLOAD_ID) {
-                    thriftFieldList.addAll(payloadDeserializer.readPayload(protocol.readBinary().array()));
-                }
-                else if (currentField.id == ThriftEnvelopeSerialization.NAME_ID) {
-                    name = protocol.readString();
-                }
-                else {
-                    throw new IOException(String.format("deserialization error: unknown id: %s", currentField.id));
+                switch (currentField.id) {
+                    case ThriftEnvelopeSerialization.TYPE_ID:
+                        typeName = protocol.readString();
+                        break;
+                    case ThriftEnvelopeSerialization.PAYLOAD_ID:
+                        thriftFieldList.addAll(payloadDeserializer.readPayload(protocol.readBinary().array()));
+                        break;
+                    case ThriftEnvelopeSerialization.NAME_ID:
+                        name = protocol.readString();
+                        break;
+                    default:
+                        throw new IOException(String.format("deserialization error: unknown id: %s", currentField.id));
                 }
                 protocol.readFieldEnd();
                 currentField = protocol.readFieldBegin();
