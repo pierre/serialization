@@ -50,7 +50,7 @@ public class TestThriftFieldImpl
         }
 
         @Override
-        public void write(TProtocol protocol)
+        public void write(final TProtocol protocol)
         {
         }
     };
@@ -153,9 +153,9 @@ public class TestThriftFieldImpl
         testPrimitiveShipment(new ThriftFieldImpl(DataItemFactory.create("the-text-lay    here"), (short) 0), TType.STRING);
     }
 
-    private void testPrimitiveShipment(ThriftField field, int type) throws Exception
+    private void testPrimitiveShipment(final ThriftField field, final int type) throws Exception
     {
-        ThriftField result = shipPrimitive(field);
+        final ThriftField result = shipPrimitive(field);
 
         switch (type) {
             case TType.BOOL:
@@ -185,18 +185,18 @@ public class TestThriftFieldImpl
         Assert.assertEquals(field.equals(nullField), false);
     }
 
-    private ThriftField shipPrimitive(ThriftField field) throws TException
+    private ThriftField shipPrimitive(final ThriftField field) throws TException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        TProtocol output = new TBinaryProtocol(new TIOStreamTransport(out));
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final TProtocol output = new TBinaryProtocol(new TIOStreamTransport(out));
 
         field.write(output);
 
         output.getTransport().close();
 
-        TProtocol input = new TBinaryProtocol(new TIOStreamTransport(new ByteArrayInputStream(out.toByteArray())));
-        TField tField = input.readFieldBegin();
-        ThriftField result = new ThriftFieldImpl(dataItemDeserializer.fromThrift(input, tField), tField);
+        final TProtocol input = new TBinaryProtocol(new TIOStreamTransport(new ByteArrayInputStream(out.toByteArray())));
+        final TField tField = input.readFieldBegin();
+        final ThriftField result = new ThriftFieldImpl(dataItemDeserializer.fromThrift(input, tField), tField);
 
         return result;
     }

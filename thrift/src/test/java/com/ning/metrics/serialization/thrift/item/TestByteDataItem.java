@@ -38,14 +38,14 @@ public class TestByteDataItem
     @Test(groups = "fast")
     public void testNoArgConstructor() throws Exception
     {
-        DataItem item = new ByteDataItem();
+        final DataItem item = new ByteDataItem();
         Assert.assertEquals(item.getByte(), Byte.valueOf((byte) 0));
     }
 
     @Test(groups = "fast")
     public void testConstructor() throws Exception
     {
-        DataItem item1 = new ByteDataItem((byte) 2);
+        final DataItem item1 = new ByteDataItem((byte) 2);
         Assert.assertEquals(item1.getByte(), Byte.valueOf((byte) 2));
     }
 
@@ -135,13 +135,13 @@ public class TestByteDataItem
     @Test(groups = "fast")
     public void testReadAndWrite() throws Exception
     {
-        ByteDataItem item = new ByteDataItem((byte) 42);
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        DataOutput out = new DataOutputStream(byteOut);
+        final ByteDataItem item = new ByteDataItem((byte) 42);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final DataOutput out = new DataOutputStream(byteOut);
         item.write(out);
-        DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-        DataItem inItem = new ByteDataItem();
-        int type = in.readByte();
+        final DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+        final DataItem inItem = new ByteDataItem();
+        final int type = in.readByte();
         Assert.assertEquals(type, DataItem.BYTE_TYPE);
         inItem.readFields(in);
         Assert.assertEquals(item, inItem);

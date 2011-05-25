@@ -29,9 +29,9 @@ public enum DataItemTypes
     STRING(TType.STRING),;
 
 
-    private byte tType;
+    private final byte tType;
 
-    DataItemTypes(byte tType)
+    DataItemTypes(final byte tType)
     {
         this.tType = tType;
     }
@@ -41,7 +41,7 @@ public enum DataItemTypes
         return tType;
     }
 
-    public static DataItemTypes fromTType(byte tType)
+    public static DataItemTypes fromTType(final byte tType)
     {
         switch (tType) {
             case TType.BOOL:
@@ -63,7 +63,7 @@ public enum DataItemTypes
         }
     }
 
-    public static DataItemTypes fromString(String str)
+    public static DataItemTypes fromString(final String str)
     {
         return DataItemTypes.valueOf(str.toUpperCase());
     }

@@ -31,7 +31,7 @@ class ByteDataItem implements DataItem
         value = 0;
     }
 
-    public ByteDataItem(byte value)
+    public ByteDataItem(final byte value)
     {
         this.value = value;
     }
@@ -85,13 +85,13 @@ class ByteDataItem implements DataItem
     }
 
     @Override
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
         return value.compareTo(((DataItem) o).getByte());
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         return o instanceof DataItem && value.equals(((DataItem) o).getByte());
     }
@@ -103,14 +103,14 @@ class ByteDataItem implements DataItem
     }
 
     @Override
-    public void write(DataOutput out) throws IOException
+    public void write(final DataOutput out) throws IOException
     {
         out.writeByte(BYTE_TYPE);
         out.writeByte(value);
     }
 
     @Override
-    public void readFields(DataInput in) throws IOException
+    public void readFields(final DataInput in) throws IOException
     {
         value = in.readByte();
     }

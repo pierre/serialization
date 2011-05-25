@@ -37,10 +37,10 @@ public class TestThriftEnvelopeEvent
     @Test(groups = "fast")
     public void testGetOutputDir() throws Exception
     {
-        ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
+        final ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
         thriftEnvelope.getPayload().add(ThriftField.createThriftField("fuuness", (short) 0));
         thriftEnvelope.getPayload().add(ThriftField.createThriftField(100L, (short) 1));
-        ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
+        final ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
 
         Assert.assertEquals(event.getOutputDir("/events/ning"), String.format("/events/ning/%s/2009/01/01/02", eventType));
     }
@@ -48,21 +48,21 @@ public class TestThriftEnvelopeEvent
     @Test(groups = "fast")
     public void testSerialization() throws Exception
     {
-        ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
+        final ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
         thriftEnvelope.getPayload().add(ThriftField.createThriftField("fuuness", (short) 0));
         thriftEnvelope.getPayload().add(ThriftField.createThriftField(100L, (short) 1));
-        ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
+        final ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
 
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        ObjectOutput objectOut = new ObjectOutputStream(byteOut);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final ObjectOutput objectOut = new ObjectOutputStream(byteOut);
 
         event.writeExternal(objectOut);
 
         objectOut.close();
 
-        ObjectInput objectInput = new ObjectInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+        final ObjectInput objectInput = new ObjectInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
 
-        @SuppressWarnings({"deprecation"})
+        @SuppressWarnings({"deprecation"}) final
         ThriftEnvelopeEvent resultEvent = new ThriftEnvelopeEvent();
         resultEvent.readExternal(objectInput);
 
@@ -72,10 +72,10 @@ public class TestThriftEnvelopeEvent
     @Test(groups = "fast")
     public void testVersion1() throws Exception
     {
-        ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
+        final ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
         thriftEnvelope.getPayload().add(ThriftField.createThriftField(100L, (short) 4));
         thriftEnvelope.getPayload().add(ThriftField.createThriftField("fuuness", (short) 1));
-        ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
+        final ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
 
         Assert.assertEquals(event.getVersion(), "1.4");
 
@@ -84,10 +84,10 @@ public class TestThriftEnvelopeEvent
     @Test(groups = "fast")
     public void testVersion2() throws Exception
     {
-        ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
+        final ThriftEnvelope thriftEnvelope = new ThriftEnvelope(eventType);
         thriftEnvelope.getPayload().add(ThriftField.createThriftField("fuuness", (short) 1));
         thriftEnvelope.getPayload().add(ThriftField.createThriftField(100L, (short) 4));
-        ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
+        final ThriftEnvelopeEvent event = new ThriftEnvelopeEvent(new DateTime("2009-01-01T02:03:04"), thriftEnvelope);
 
         Assert.assertEquals(event.getVersion(), "1.4");
     }

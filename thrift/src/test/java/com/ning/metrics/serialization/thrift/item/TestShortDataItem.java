@@ -39,14 +39,14 @@ public class TestShortDataItem
     @Test(groups = "fast")
     public void testNoArgConstructor() throws Exception
     {
-        DataItem item = new ShortDataItem();
+        final DataItem item = new ShortDataItem();
         Assert.assertEquals(item.getShort(), Short.valueOf((short) 0));
     }
 
     @Test(groups = "fast")
     public void testConstructor() throws Exception
     {
-        DataItem item1 = new ShortDataItem((short) 100);
+        final DataItem item1 = new ShortDataItem((short) 100);
         Assert.assertEquals(item1.getShort(), Short.valueOf((short) 100));
     }
 
@@ -135,13 +135,13 @@ public class TestShortDataItem
     @Test(groups = "fast")
     public void testReadAndWrite() throws Exception
     {
-        ShortDataItem item = new ShortDataItem((short) 1000);
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        DataOutput out = new DataOutputStream(byteOut);
+        final ShortDataItem item = new ShortDataItem((short) 1000);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final DataOutput out = new DataOutputStream(byteOut);
         item.write(out);
-        DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-        DataItem inItem = new BooleanDataItem();
-        int type = in.readByte();
+        final DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+        final DataItem inItem = new BooleanDataItem();
+        final int type = in.readByte();
         Assert.assertEquals(type, DataItem.SHORT_TYPE);
         inItem.readFields(in);
         Assert.assertEquals(item, inItem);

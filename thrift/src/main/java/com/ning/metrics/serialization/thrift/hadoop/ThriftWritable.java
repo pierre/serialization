@@ -45,26 +45,26 @@ public abstract class ThriftWritable<T extends TBase> implements Comparable
 
     static class Transport extends TIOStreamTransport
     {
-        public void setInputStream(InputStream in)
+        public void setInputStream(final InputStream in)
         {
             inputStream_ = in;
         }
 
-        public void setOutputStream(OutputStream out)
+        public void setOutputStream(final OutputStream out)
         {
             outputStream_ = out;
         }
     }
 
     private T tbase;
-    private Transport transport = new Transport();
-    private TProtocol protocol = new TBinaryProtocol(transport);
+    private final Transport transport = new Transport();
+    private final TProtocol protocol = new TBinaryProtocol(transport);
 
     public ThriftWritable()
     {
     }
 
-    public ThriftWritable(T tbase)
+    public ThriftWritable(final T tbase)
     {
         this.tbase = tbase;
     }
@@ -74,12 +74,12 @@ public abstract class ThriftWritable<T extends TBase> implements Comparable
         return tbase;
     }
 
-    public void set(T tbase)
+    public void set(final T tbase)
     {
         this.tbase = tbase;
     }
 
-    public void readFields(DataInput in) throws IOException
+    public void readFields(final DataInput in) throws IOException
     {
         // cast to InputStream - ugly, but should work since all
         // DataInput implementations in Hadoop are actually InputStreams
@@ -92,7 +92,7 @@ public abstract class ThriftWritable<T extends TBase> implements Comparable
         }
     }
 
-    public void write(DataOutput out) throws IOException
+    public void write(final DataOutput out) throws IOException
     {
         // cast to OutputStream - ugly, but should work
         transport.setOutputStream((OutputStream) out);
@@ -104,12 +104,12 @@ public abstract class ThriftWritable<T extends TBase> implements Comparable
         }
     }
 
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
         throw new UnsupportedOperationException("You need to specify a comparator.");
     }
 
-    protected static int stringCompare(String str1, String str2)
+    protected static int stringCompare(final String str1, final String str2)
     {
         if (str1 == null) {
             if (str2 == null) {
@@ -123,7 +123,7 @@ public abstract class ThriftWritable<T extends TBase> implements Comparable
         return (str1.compareTo(str2));
     }
 
-    protected static boolean stringEquals(String str1, String str2)
+    protected static boolean stringEquals(final String str1, final String str2)
     {
         if (str1 == null) {
             return str2 == null;
@@ -132,7 +132,7 @@ public abstract class ThriftWritable<T extends TBase> implements Comparable
         return (str1.equals(str2));
     }
 
-    protected static int stringHashCode(String str)
+    protected static int stringHashCode(final String str)
     {
         return (str == null ? 0 : str.hashCode());
     }

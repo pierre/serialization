@@ -26,12 +26,12 @@ import java.util.List;
 
 public class StringToThriftEnvelopeEvent
 {
-    public static Event extractEvent(String type, String payload) throws TException
+    public static Event extractEvent(final String type, final String payload) throws TException
     {
         return extractEvent(type, new DateTime(), payload);
     }
 
-    public static Event extractEvent(String type, DateTime eventDateTime, String payload) throws TException
+    public static Event extractEvent(final String type, final DateTime eventDateTime, final String payload) throws TException
     {
         final List<ThriftField> list = new ArrayList<ThriftField>();
         list.add(ThriftField.createThriftField(payload, (short) 1));

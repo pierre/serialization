@@ -24,7 +24,7 @@ public class ThriftWritableSerializer
 {
     private DataOutputStream dataOut;
 
-    public void open(OutputStream out)
+    public void open(final OutputStream out)
     {
         if (out instanceof DataOutputStream) {
             dataOut = (DataOutputStream) out;
@@ -34,7 +34,7 @@ public class ThriftWritableSerializer
         }
     }
 
-    public void serialize(ThriftWritable w) throws IOException
+    public void serialize(final ThriftWritable w) throws IOException
     {
         w.write(dataOut);
     }

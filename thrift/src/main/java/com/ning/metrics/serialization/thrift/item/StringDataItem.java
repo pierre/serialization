@@ -31,7 +31,7 @@ class StringDataItem implements DataItem
         value = "";
     }
 
-    public StringDataItem(String value)
+    public StringDataItem(final String value)
     {
         if (value == null) {
             throw new NullPointerException();
@@ -103,7 +103,7 @@ class StringDataItem implements DataItem
     }
 
     @Override
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
         return value.compareTo(((StringDataItem) o).value);
     }
@@ -115,15 +115,15 @@ class StringDataItem implements DataItem
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         return o instanceof StringDataItem && value.equals(((StringDataItem) o).value);
     }
 
     @Override
-    public void write(DataOutput out) throws IOException
+    public void write(final DataOutput out) throws IOException
     {
-        byte[] bytes = value.getBytes();
+        final byte[] bytes = value.getBytes();
 
         out.writeByte(STRING_TYPE);
         out.writeInt(bytes.length);
@@ -131,10 +131,10 @@ class StringDataItem implements DataItem
     }
 
     @Override
-    public void readFields(DataInput in) throws IOException
+    public void readFields(final DataInput in) throws IOException
     {
-        int length = in.readInt();
-        byte[] bytes = new byte[length];
+        final int length = in.readInt();
+        final byte[] bytes = new byte[length];
 
         in.readFully(bytes);
         value = new String(bytes);

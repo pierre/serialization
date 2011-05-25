@@ -33,16 +33,16 @@ public class ThriftEnvelopeDeserializer
     private TProtocol protocol;
     private final ThriftFieldListDeserializer payloadDeserializer = new ThriftFieldListDeserializer();
 
-    public void open(InputStream in) throws IOException
+    public void open(final InputStream in) throws IOException
     {
         protocol = new TBinaryProtocol(new TIOStreamTransport(in));
     }
 
-    public ThriftEnvelope deserialize(ThriftEnvelope thriftEnvelope) throws IOException
+    public ThriftEnvelope deserialize(final ThriftEnvelope thriftEnvelope) throws IOException
     {
         String typeName = null;
         String name = null;
-        List<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
+        final List<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
 
         try {
             protocol.readStructBegin();
@@ -80,7 +80,7 @@ public class ThriftEnvelopeDeserializer
             name = typeName;
         }
 
-        ThriftEnvelope nextThriftEnvelope = new ThriftEnvelope(typeName, name, thriftFieldList);
+        final ThriftEnvelope nextThriftEnvelope = new ThriftEnvelope(typeName, name, thriftFieldList);
 
         if (thriftEnvelope != null) {
             thriftEnvelope.replaceWith(nextThriftEnvelope);

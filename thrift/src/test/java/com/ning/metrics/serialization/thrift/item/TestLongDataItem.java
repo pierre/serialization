@@ -38,14 +38,14 @@ public class TestLongDataItem
     @Test(groups = "fast")
     public void testNoArgConstructor() throws Exception
     {
-        DataItem item = new LongDataItem();
+        final DataItem item = new LongDataItem();
         Assert.assertEquals(item.getLong(), Long.valueOf(0));
     }
 
     @Test(groups = "fast")
     public void testConstructor() throws Exception
     {
-        DataItem item1 = new LongDataItem(10000000000L);
+        final DataItem item1 = new LongDataItem(10000000000L);
         Assert.assertEquals(item1.getLong(), Long.valueOf(10000000000L));
     }
 
@@ -134,13 +134,13 @@ public class TestLongDataItem
     @Test(groups = "fast")
     public void testReadAndWrite() throws Exception
     {
-        DataItem item = new LongDataItem(20000000000L);
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        DataOutput out = new DataOutputStream(byteOut);
+        final DataItem item = new LongDataItem(20000000000L);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final DataOutput out = new DataOutputStream(byteOut);
         item.write(out);
-        DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-        DataItem inItem = new LongDataItem();
-        int type = in.readByte();
+        final DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+        final DataItem inItem = new LongDataItem();
+        final int type = in.readByte();
         Assert.assertEquals(type, DataItem.LONG_TYPE);
         inItem.readFields(in);
         Assert.assertEquals(item, inItem);

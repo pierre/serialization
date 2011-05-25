@@ -31,7 +31,7 @@ class DoubleDataItem implements DataItem
         value = 0.0;
     }
 
-    public DoubleDataItem(double value)
+    public DoubleDataItem(final double value)
     {
         this.value = value;
     }
@@ -90,13 +90,13 @@ class DoubleDataItem implements DataItem
     }
 
     @Override
-    public int compareTo(Object o)
+    public int compareTo(final Object o)
     {
         return value.compareTo(((DataItem) o).getDouble());
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         return o instanceof DataItem && value.equals(((DataItem) o).getDouble());
     }
@@ -108,14 +108,14 @@ class DoubleDataItem implements DataItem
     }
 
     @Override
-    public void write(DataOutput out) throws IOException
+    public void write(final DataOutput out) throws IOException
     {
         out.writeByte(DOUBLE_TYPE);
         out.writeDouble(value);
     }
 
     @Override
-    public void readFields(DataInput in) throws IOException
+    public void readFields(final DataInput in) throws IOException
     {
         value = in.readDouble();
     }

@@ -38,14 +38,14 @@ public class TestIntegerDataItem
     @Test(groups = "fast")
     public void testNoArgConstructor() throws Exception
     {
-        DataItem item = new IntegerDataItem();
+        final DataItem item = new IntegerDataItem();
         Assert.assertEquals(item.getInteger(), Integer.valueOf(0));
     }
 
     @Test(groups = "fast")
     public void testConstructor() throws Exception
     {
-        DataItem item1 = new IntegerDataItem(2000000);
+        final DataItem item1 = new IntegerDataItem(2000000);
         Assert.assertEquals(item1.getInteger(), Integer.valueOf(2000000));
     }
 
@@ -134,13 +134,13 @@ public class TestIntegerDataItem
     @Test(groups = "fast")
     public void testReadAndWrite() throws Exception
     {
-        DataItem item = new IntegerDataItem(2000000);
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        DataOutput out = new DataOutputStream(byteOut);
+        final DataItem item = new IntegerDataItem(2000000);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final DataOutput out = new DataOutputStream(byteOut);
         item.write(out);
-        DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-        DataItem inItem = new IntegerDataItem();
-        int type = in.readByte();
+        final DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+        final DataItem inItem = new IntegerDataItem();
+        final int type = in.readByte();
         Assert.assertEquals(type, DataItem.INTEGER_TYPE);
         inItem.readFields(in);
         Assert.assertEquals(item, inItem);

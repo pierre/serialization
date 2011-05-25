@@ -27,13 +27,13 @@ class ThriftFieldImpl extends ThriftField
     private final TField field;
     private final DataItem dataItem;
 
-    public ThriftFieldImpl(DataItem dataItem, short id)
+    public ThriftFieldImpl(final DataItem dataItem, final short id)
     {
         this.dataItem = dataItem;
         this.field = new TField("", dataItem.getThriftType(), id);
     }
 
-    public ThriftFieldImpl(DataItem dataItem, TField field)
+    public ThriftFieldImpl(final DataItem dataItem, final TField field)
     {
         this.dataItem = dataItem;
         this.field = field;
@@ -52,7 +52,7 @@ class ThriftFieldImpl extends ThriftField
     }
 
     @Override
-    public void write(TProtocol protocol) throws TException
+    public void write(final TProtocol protocol) throws TException
     {
         protocol.writeFieldBegin(field);
 
@@ -85,7 +85,7 @@ class ThriftFieldImpl extends ThriftField
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         return obj instanceof ThriftField && dataItem.equals(((ThriftField) obj).getDataItem());
     }

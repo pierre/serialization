@@ -26,7 +26,7 @@ import java.io.IOException;
 
 public class DataItemDeserializer
 {
-    public DataItem fromThrift(TProtocol protocol, TField field) throws TException
+    public DataItem fromThrift(final TProtocol protocol, final TField field) throws TException
     {
         final DataItem dataItem;
 
@@ -59,7 +59,7 @@ public class DataItemDeserializer
         return dataItem;
     }
 
-    public DataItem fromHadoop(DataInput in) throws IOException
+    public DataItem fromHadoop(final DataInput in) throws IOException
     {
         final DataItem dataItem;
         final byte type = in.readByte();

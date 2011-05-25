@@ -34,8 +34,8 @@ public class ThriftEnvelopeEvent implements Event
     private ThriftEnvelope thriftEnvelope;
     private Granularity granularity;
     private transient byte[] serializedBytes;
-    private transient ThriftEnvelopeSerializer serializer = new ThriftEnvelopeSerializer();
-    private transient ThriftEnvelopeDeserializer deserializer = new ThriftEnvelopeDeserializer();
+    private final transient ThriftEnvelopeSerializer serializer = new ThriftEnvelopeSerializer();
+    private final transient ThriftEnvelopeDeserializer deserializer = new ThriftEnvelopeDeserializer();
 
     /**
      * Public no-arg constructor, for deserialization
@@ -47,14 +47,14 @@ public class ThriftEnvelopeEvent implements Event
         granularity = null;
     }
 
-    public ThriftEnvelopeEvent(DateTime eventDateTime, ThriftEnvelope thriftEnvelope, Granularity granularity)
+    public ThriftEnvelopeEvent(final DateTime eventDateTime, final ThriftEnvelope thriftEnvelope, final Granularity granularity)
     {
         this.eventDateTime = eventDateTime;
         this.thriftEnvelope = thriftEnvelope;
         this.granularity = granularity;
     }
 
-    public ThriftEnvelopeEvent(DateTime eventDateTime, ThriftEnvelope thriftEnvelope)
+    public ThriftEnvelopeEvent(final DateTime eventDateTime, final ThriftEnvelope thriftEnvelope)
     {
         this(eventDateTime, thriftEnvelope, Granularity.HOURLY);
     }
@@ -84,9 +84,9 @@ public class ThriftEnvelopeEvent implements Event
     }
 
     @Override
-    public String getOutputDir(String prefix)
+    public String getOutputDir(final String prefix)
     {
-        GranularityPathMapper pathMapper = new GranularityPathMapper(String.format("%s/%s", prefix, thriftEnvelope.getTypeName()), granularity);
+        final GranularityPathMapper pathMapper = new GranularityPathMapper(String.format("%s/%s", prefix, thriftEnvelope.getTypeName()), granularity);
 
         return pathMapper.getPathForDateTime(getEventDateTime());
     }
@@ -104,16 +104,16 @@ public class ThriftEnvelopeEvent implements Event
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+    public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
     {
-        int numBytes = in.readInt();
-        byte[] bytes = new byte[numBytes];
+        final int numBytes = in.readInt();
+        final byte[] bytes = new byte[numBytes];
 
         in.readFully(bytes);
 
         eventDateTime = new DateTime(ByteBuffer.wrap(bytes).getLong(0));
 
-        ByteArrayInputStream inputBuffer = new ByteArrayInputStream(bytes, 8, bytes.length - 8);
+        final ByteArrayInputStream inputBuffer = new ByteArrayInputStream(bytes, 8, bytes.length - 8);
 
         deserializer.open(inputBuffer);
         thriftEnvelope = deserializer.deserialize(null);
@@ -122,7 +122,7 @@ public class ThriftEnvelopeEvent implements Event
     }
 
     @Override
-    public void writeExternal(ObjectOutput out) throws IOException
+    public void writeExternal(final ObjectOutput out) throws IOException
     {
         toBytes();
         out.writeInt(serializedBytes.length);
@@ -133,7 +133,7 @@ public class ThriftEnvelopeEvent implements Event
     private void toBytes() throws IOException
     {
         if (serializedBytes == null) {
-            ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
+            final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
 
             outputBuffer.write(ByteBuffer.allocate(8).putLong(eventDateTime.getMillis()).array());
 

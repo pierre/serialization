@@ -24,22 +24,22 @@ import java.lang.reflect.Field;
 
 public class ThriftEnvelopeEventToThrift
 {
-    public static <T extends Serializable> T extractThrift(Class<T> clazz, ThriftEnvelopeEvent envelopeEvent)
+    public static <T extends Serializable> T extractThrift(final Class<T> clazz, final ThriftEnvelopeEvent envelopeEvent)
     {
-        ThriftEnvelope envelope = (ThriftEnvelope) envelopeEvent.getData();
+        final ThriftEnvelope envelope = (ThriftEnvelope) envelopeEvent.getData();
 
         try {
-            T thriftObject = clazz.newInstance();
+            final T thriftObject = clazz.newInstance();
 
-            Field[] fields = clazz.getFields();
-            for (ThriftField tField : envelope.getPayload()) {
+            final Field[] fields = clazz.getFields();
+            for (final ThriftField tField : envelope.getPayload()) {
                 if (tField.getId() >= fields.length) {
                     continue; // ignore field
                 }
 
                 // Thrift fields start at 1, not 0
-                Field field = fields[tField.getId() - 1];
-                Class<?> type = field.getType();
+                final Field field = fields[tField.getId() - 1];
+                final Class<?> type = field.getType();
                 if (type.isAssignableFrom(Boolean.class)) {
                     field.setBoolean(thriftObject, tField.getDataItem().getBoolean());
                 }

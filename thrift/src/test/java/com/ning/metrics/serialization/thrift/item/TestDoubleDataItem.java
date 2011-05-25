@@ -39,14 +39,14 @@ public class TestDoubleDataItem
     @Test(groups = "fast")
     public void testNoArgConstructor() throws Exception
     {
-        DataItem item = new DoubleDataItem();
+        final DataItem item = new DoubleDataItem();
         Assert.assertEquals(item.getDouble(), 0.0);
     }
 
     @Test(groups = "fast")
     public void testConstructor() throws Exception
     {
-        DataItem item1 = new DoubleDataItem(2.72);
+        final DataItem item1 = new DoubleDataItem(2.72);
         Assert.assertEquals(item1.getDouble(), 2.72);
     }
 
@@ -143,13 +143,13 @@ public class TestDoubleDataItem
     @Test(groups = "fast")
     public void testReadAndWrite() throws Exception
     {
-        DataItem item = new DoubleDataItem(987654321.123456);
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        DataOutput out = new DataOutputStream(byteOut);
+        final DataItem item = new DoubleDataItem(987654321.123456);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final DataOutput out = new DataOutputStream(byteOut);
         item.write(out);
-        DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-        DataItem inItem = new DoubleDataItem();
-        int type = in.readByte();
+        final DataInput in = new DataInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+        final DataItem inItem = new DoubleDataItem();
+        final int type = in.readByte();
         Assert.assertEquals(type, DataItem.DOUBLE_TYPE);
         inItem.readFields(in);
         Assert.assertEquals(item, inItem);

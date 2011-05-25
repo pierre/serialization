@@ -26,13 +26,13 @@ public class ThriftFieldListParser
 {
     private final ThriftFieldListDeserializer deserializer = new ThriftFieldListDeserializer();
 
-    public ArrayList<ThriftField> parse(Integer contentLength, InputStream input) throws IOException, IllegalArgumentException
+    public ArrayList<ThriftField> parse(final Integer contentLength, final InputStream input) throws IOException, IllegalArgumentException
     {
         if (contentLength == 0 || input == null) {
             throw new IllegalArgumentException("unable to parse Thrift field list from binary data");
         }
 
-        byte[] buffer = new byte[contentLength];
+        final byte[] buffer = new byte[contentLength];
         int totalBytesRead = 0;
         int bytesRead = 0;
 
@@ -42,7 +42,7 @@ public class ThriftFieldListParser
         }
 
         try {
-            ArrayList<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
+            final ArrayList<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
             thriftFieldList.addAll(deserializer.readPayload(buffer));
 
             return thriftFieldList;

@@ -18,37 +18,37 @@ package com.ning.metrics.serialization.thrift.item;
 
 public class DataItemFactory
 {
-    public static DataItem create(Boolean value)
+    public static DataItem create(final Boolean value)
     {
         return new BooleanDataItem(value);
     }
 
-    public static DataItem create(Byte value)
+    public static DataItem create(final Byte value)
     {
         return new ByteDataItem(value);
     }
 
-    public static DataItem create(Short value)
+    public static DataItem create(final Short value)
     {
         return new ShortDataItem(value);
     }
 
-    public static DataItem create(Integer value)
+    public static DataItem create(final Integer value)
     {
         return new IntegerDataItem(value);
     }
 
-    public static DataItem create(Long value)
+    public static DataItem create(final Long value)
     {
         return new LongDataItem(value);
     }
 
-    public static DataItem create(Double value)
+    public static DataItem create(final Double value)
     {
         return new DoubleDataItem(value);
     }
 
-    public static DataItem create(String value)
+    public static DataItem create(final String value)
     {
         return new StringDataItem(value);
     }

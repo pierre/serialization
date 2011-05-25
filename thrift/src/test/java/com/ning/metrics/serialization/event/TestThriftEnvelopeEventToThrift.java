@@ -31,26 +31,26 @@ public class TestThriftEnvelopeEventToThrift
     {
         final DateTime eventDateTime = new DateTime();
         final String coreHostname = "hostname";
-        final String ip = "10.1.2.3";
-        final String type = "myType";
 
         // Native Thrift
-        TLoggingEvent event = new TLoggingEvent();
+        final TLoggingEvent event = new TLoggingEvent();
         event.setCoreHostname(coreHostname); // Field 15
+        final String ip = "10.1.2.3";
         event.setCoreIp(ip); // Field 14
+        final String type = "myType";
         event.setCoreType(type); // Field 16
         event.setEventDate(eventDateTime.getMillis()); // Field 1
 
         // Corresponding ThriftEnvelopeEvent
-        ArrayList<ThriftField> fields = new ArrayList<ThriftField>();
+        final ArrayList<ThriftField> fields = new ArrayList<ThriftField>();
         fields.add(ThriftField.createThriftField(coreHostname, (short) 15));
         fields.add(ThriftField.createThriftField(ip, (short) 14));
         fields.add(ThriftField.createThriftField(type, (short) 16));
         fields.add(ThriftField.createThriftField(eventDateTime.getMillis(), (short) 1));
-        ThriftEnvelope envelope = new ThriftEnvelope("TLoggingEvent", fields);
-        ThriftEnvelopeEvent envelopeEvent = new ThriftEnvelopeEvent(eventDateTime, envelope);
+        final ThriftEnvelope envelope = new ThriftEnvelope("TLoggingEvent", fields);
+        final ThriftEnvelopeEvent envelopeEvent = new ThriftEnvelopeEvent(eventDateTime, envelope);
 
-        TLoggingEvent event2 = ThriftEnvelopeEventToThrift.extractThrift(TLoggingEvent.class,  envelopeEvent);
+        final TLoggingEvent event2 = ThriftEnvelopeEventToThrift.extractThrift(TLoggingEvent.class,  envelopeEvent);
         Assert.assertEquals(event2.getCoreHostname(), event.getCoreHostname());
         Assert.assertEquals(event2.getCoreIp(), event.getCoreIp());
         Assert.assertEquals(event2.getCoreType(), event.getCoreType());

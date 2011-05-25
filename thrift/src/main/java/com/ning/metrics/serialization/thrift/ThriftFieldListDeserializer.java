@@ -33,18 +33,18 @@ public class ThriftFieldListDeserializer
 {
     private final DataItemDeserializer dataItemDeserializer = new DataItemDeserializer();
 
-    public List<ThriftField> readPayload(byte[] payload) throws TException
+    public List<ThriftField> readPayload(final byte[] payload) throws TException
     {
-        List<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
+        final List<ThriftField> thriftFieldList = new ArrayList<ThriftField>();
 
-        ByteArrayInputStream payloadInputStream = new ByteArrayInputStream(payload);
-        TProtocol payloadProtocol = new TBinaryProtocol(new TIOStreamTransport(payloadInputStream));
+        final ByteArrayInputStream payloadInputStream = new ByteArrayInputStream(payload);
+        final TProtocol payloadProtocol = new TBinaryProtocol(new TIOStreamTransport(payloadInputStream));
         payloadProtocol.readStructBegin();
 
         TField payloadField = payloadProtocol.readFieldBegin();
 
         while (payloadField.type != TType.STOP) {
-            DataItem dataItem = dataItemDeserializer.fromThrift(payloadProtocol, payloadField);
+            final DataItem dataItem = dataItemDeserializer.fromThrift(payloadProtocol, payloadField);
             thriftFieldList.add(new ThriftFieldImpl(dataItem, payloadField));
             payloadProtocol.readFieldEnd();
             payloadField = payloadProtocol.readFieldBegin();
