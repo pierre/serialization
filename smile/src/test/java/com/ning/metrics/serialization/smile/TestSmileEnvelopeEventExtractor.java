@@ -15,6 +15,7 @@
  */
 package com.ning.metrics.serialization.smile;
 
+import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.*;
@@ -36,10 +37,10 @@ import org.testng.annotations.Test;
  */
 public class TestSmileEnvelopeEventExtractor
 {
-    private final static Logger log = Logger.getLogger(TestSmileEnvelopeEventExtractor.class);
+    private static final Logger log = Logger.getLogger(TestSmileEnvelopeEventExtractor.class);
 
-    protected final static SmileFactory smileFactory = new SmileFactory();
-    protected final static JsonFactory jsonFactory = new JsonFactory();
+    protected static final SmileFactory smileFactory = new SmileFactory();
+    protected static final JsonFactory jsonFactory = new JsonFactory();
 
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
@@ -73,25 +74,25 @@ public class TestSmileEnvelopeEventExtractor
         testIncrementalExtract(false);
     }
 
-    private void testIncrementalExtract(boolean plainJson) throws IOException
+    private void testIncrementalExtract(final boolean plainJson) throws IOException
     {
-        final int numEvents = 5;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        SmileEnvelopeEvent event = makeSampleEvent();
+        final SmileEnvelopeEvent event = makeSampleEvent();
 
-        SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(plainJson);
+        final SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(plainJson);
         serializer.open(out);
+        final int numEvents = 5;
         for (int i = 0; i < numEvents; i++) {
             serializer.serialize(event);
         }
         serializer.close();
 
-        InputStream in = new ByteArrayInputStream(out.toByteArray());
-        String jsonString = out.toString();
+        final InputStream in = new ByteArrayInputStream(out.toByteArray());
+        final String jsonString = out.toString();
         System.out.println(jsonString); // TODO
 
-        SmileEnvelopeEventExtractor extractor = new SmileEnvelopeEventExtractor(in, plainJson);
+        final SmileEnvelopeEventExtractor extractor = new SmileEnvelopeEventExtractor(in, plainJson);
 
         int numExtracted = 0;
         SmileEnvelopeEvent extractedEvent = extractor.extractNextEvent();
@@ -104,35 +105,35 @@ public class TestSmileEnvelopeEventExtractor
         Assert.assertEquals(numExtracted, numEvents);
     }
 
-    private void testExtractAll(boolean plainJson) throws IOException
+    private void testExtractAll(final boolean plainJson) throws IOException
     {
-        final int numEvents = 5;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        SmileEnvelopeEvent event = makeSampleEvent();
+        final SmileEnvelopeEvent event = makeSampleEvent();
 
-        SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(plainJson);
+        final SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(plainJson);
         serializer.open(out);
+        final int numEvents = 5;
         for (int i = 0; i < numEvents; i++) {
             serializer.serialize(event);
         }
         serializer.close();
 
-        InputStream in = new ByteArrayInputStream(out.toByteArray());
-        List<SmileEnvelopeEvent> extractedEvents = SmileEnvelopeEventExtractor.extractEvents(in);
+        final InputStream in = new ByteArrayInputStream(out.toByteArray());
+        final List<SmileEnvelopeEvent> extractedEvents = SmileEnvelopeEventExtractor.extractEvents(in);
 
         Assert.assertEquals(extractedEvents.size(), numEvents);
         assertEventsMatch(extractedEvents.get(0), event);
     }
 
-    private void assertEventsMatch(SmileEnvelopeEvent a, SmileEnvelopeEvent b)
+    private void assertEventsMatch(final Event a, final Event b)
     {
         Assert.assertEquals(a.getName(), b.getName());
         Assert.assertEquals(a.getGranularity(), b.getGranularity());
         Assert.assertEquals(a.getEventDateTime().getMillis(), b.getEventDateTime().getMillis());
 
-        JsonNode aData = (JsonNode) a.getData();
-        JsonNode bData = (JsonNode) b.getData();
+        final JsonNode aData = (JsonNode) a.getData();
+        final JsonNode bData = (JsonNode) b.getData();
         Assert.assertEquals(aData.get("firstName").getTextValue(), bData.get("firstName").getTextValue());
         Assert.assertEquals(aData.get("lastName").getTextValue(), bData.get("lastName").getTextValue());
         Assert.assertEquals(aData.get("theNumberFive").getIntValue(), bData.get("theNumberFive").getIntValue());
@@ -140,7 +141,7 @@ public class TestSmileEnvelopeEventExtractor
 
     private SmileEnvelopeEvent makeSampleEvent() throws IOException
     {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        final HashMap<String, Object> map = new HashMap<String, Object>();
 
         map.put("firstName", "joe");
         map.put("lastName", "sixPack");

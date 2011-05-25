@@ -23,7 +23,6 @@ import org.codehaus.jackson.JsonNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class SmileEnvelopeEventsToSmileBucketEvents
 {
@@ -38,40 +37,36 @@ public class SmileEnvelopeEventsToSmileBucketEvents
      * @param events Json events to extracts
      * @return a list of SmileBucketEvent, fully populated and ready to be shipped to the collector
      */
-    public static Collection<SmileBucketEvent> extractEvents(List<SmileEnvelopeEvent> events)
+    public static Collection<SmileBucketEvent> extractEvents(final Iterable<SmileEnvelopeEvent> events)
     {
         // MyEvent => {
         //          /2010/01/02/10/00 => SmileBucketEvent
         //          /2010/01/02/10/01 => SmileBucketEvent
         // }
-        HashMap<String, HashMap<String, SmileBucketEvent>> finalEvents = new HashMap<String, HashMap<String, SmileBucketEvent>>();
+        final HashMap<String, HashMap<String, SmileBucketEvent>> finalEvents = new HashMap<String, HashMap<String, SmileBucketEvent>>();
 
-        String eventName;
-        String outputDir;
-        HashMap<String, SmileBucketEvent> eventsByPath;
-        SmileBucketEvent event;
-        for (SmileEnvelopeEvent envelope : events) {
-            eventName = envelope.getName();
+        for (final SmileEnvelopeEvent envelope : events) {
+            String eventName = envelope.getName();
 
             // New event type?
             if (finalEvents.get(eventName) == null) {
                 finalEvents.put(eventName, new HashMap<String, SmileBucketEvent>());
             }
-            eventsByPath = finalEvents.get(eventName);
+            HashMap<String, SmileBucketEvent> eventsByPath = finalEvents.get(eventName);
 
             // New path?
             // TODO This assumes same granularity for same event types
-            outputDir = envelope.getOutputDir("");
+            String outputDir = envelope.getOutputDir("");
             if (eventsByPath.get(outputDir) == null) {
                 eventsByPath.put(outputDir, new SmileBucketEvent(eventName, envelope.getGranularity(), envelope.getOutputDir(""), new SmileBucket()));
             }
-            event = eventsByPath.get(outputDir);
+            SmileBucketEvent event = eventsByPath.get(outputDir);
 
             event.getBucket().add((JsonNode) envelope.getData());
         }
 
-        Collection<SmileBucketEvent> results = new ArrayList<SmileBucketEvent>();
-        for (HashMap<String, SmileBucketEvent> finalEventsByPath : finalEvents.values()) {
+        final Collection<SmileBucketEvent> results = new ArrayList<SmileBucketEvent>();
+        for (final HashMap<String, SmileBucketEvent> finalEventsByPath : finalEvents.values()) {
             results.addAll(finalEventsByPath.values());
         }
 

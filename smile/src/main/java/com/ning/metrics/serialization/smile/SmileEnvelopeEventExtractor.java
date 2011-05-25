@@ -17,7 +17,9 @@ package com.ning.metrics.serialization.smile;
 
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.*;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.smile.SmileFactory;
@@ -32,9 +34,9 @@ import java.util.List;
 
 public class SmileEnvelopeEventExtractor
 {
-    private final static Logger log = Logger.getLogger(SmileEnvelopeEventExtractor.class);
-    protected final static SmileFactory smileFactory = new SmileFactory();
-    protected final static JsonFactory jsonFactory = new JsonFactory();
+    private static final Logger log = Logger.getLogger(SmileEnvelopeEventExtractor.class);
+    protected static final SmileFactory smileFactory = new SmileFactory();
+    protected static final JsonFactory jsonFactory = new JsonFactory();
 
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
@@ -55,11 +57,11 @@ public class SmileEnvelopeEventExtractor
      * SmileEnvelopeEventExtractor should be instantiated (using this constructor) if and only if
      * you plan on using it to incrementally extract events (rather than extracting them all at once)
      *
-     * @param in
-     * @param plainJson
-     * @throws IOException
+     * @param in        InputStream containing events
+     * @param plainJson whether the stream is in plain json (otherwise smile)
+     * @throws IOException generic I/O exception
      */
-    public SmileEnvelopeEventExtractor(InputStream in, boolean plainJson) throws IOException
+    public SmileEnvelopeEventExtractor(final InputStream in, final boolean plainJson) throws IOException
     {
         // TODO bug when using pushbackInputStream like extractEvents does. very strange.
 
@@ -92,7 +94,7 @@ public class SmileEnvelopeEventExtractor
             return null;
         }
 
-        JsonNode node = mapper.readValue(parser, JsonNode.class);
+        final JsonNode node = mapper.readValue(parser, JsonNode.class);
         return new SmileEnvelopeEvent(node);
     }
 
@@ -100,15 +102,15 @@ public class SmileEnvelopeEventExtractor
      * Extracts all events in the stream
      * Note: Stream must be formatted as an array of (serialized) SmileEnvelopeEvents.
      *
-     * @param in
+     * @param in InputStream containing events
      * @return A list of SmileEnvelopeEvents
-     * @throws IOException
+     * @throws IOException generic I/O exception
      */
-    public static List<SmileEnvelopeEvent> extractEvents(InputStream in) throws IOException
+    public static List<SmileEnvelopeEvent> extractEvents(final InputStream in) throws IOException
     {
-        PushbackInputStream pbIn = new PushbackInputStream(in);
+        final PushbackInputStream pbIn = new PushbackInputStream(in);
 
-        byte firstByte = (byte) pbIn.read();
+        final byte firstByte = (byte) pbIn.read();
 
         // EOF?
         if (firstByte == -1) {
@@ -125,19 +127,18 @@ public class SmileEnvelopeEventExtractor
         }
     }
 
-    private static List<SmileEnvelopeEvent> deserialize(InputStream in, ObjectMapper objectMapper) throws IOException
+    private static List<SmileEnvelopeEvent> deserialize(final InputStream in, final ObjectMapper objectMapper) throws IOException
     {
-        List<SmileEnvelopeEvent> events = new LinkedList<SmileEnvelopeEvent>();
+        final List<SmileEnvelopeEvent> events = new LinkedList<SmileEnvelopeEvent>();
 
-        JsonParser jp = objectMapper.getJsonFactory().createJsonParser(in);
-        JsonNode root = objectMapper.readValue(jp, JsonNode.class);
+        final JsonParser jp = objectMapper.getJsonFactory().createJsonParser(in);
+        final JsonNode root = objectMapper.readValue(jp, JsonNode.class);
 
         if (root instanceof ArrayNode) {
-            ArrayNode nodes = (ArrayNode) root;
-            for (JsonNode node : nodes) {
-
+            final ArrayNode nodes = (ArrayNode) root;
+            for (final JsonNode node : nodes) {
                 try {
-                    SmileEnvelopeEvent event = new SmileEnvelopeEvent(node);
+                    final SmileEnvelopeEvent event = new SmileEnvelopeEvent(node);
                     events.add(event);
                 }
                 catch (IOException e) {

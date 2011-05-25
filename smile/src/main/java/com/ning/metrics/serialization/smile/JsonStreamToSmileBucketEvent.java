@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class JsonStreamToSmileBucketEvent
 {
@@ -37,16 +38,16 @@ public class JsonStreamToSmileBucketEvent
      * @return Event wrappers around these events
      * @throws IOException generic serialization exception
      */
-    public static Collection<SmileBucketEvent> extractEvent(String eventName, InputStream in) throws IOException
+    public static Collection<SmileBucketEvent> extractEvent(final String eventName, final InputStream in) throws IOException
     {
-        SmileBucket bucket = SmileBucketDeserializer.deserialize(in);
+        final SmileBucket bucket = SmileBucketDeserializer.deserialize(in);
 
         if (bucket == null) {
             return null;
         }
 
-        ArrayList<SmileEnvelopeEvent> events = new ArrayList<SmileEnvelopeEvent>();
-        for (JsonNode node : bucket) {
+        final List<SmileEnvelopeEvent> events = new ArrayList<SmileEnvelopeEvent>();
+        for (final JsonNode node : bucket) {
             events.add(new SmileEnvelopeEvent(eventName, node));
         }
 

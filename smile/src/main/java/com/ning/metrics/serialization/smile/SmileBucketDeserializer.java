@@ -31,8 +31,8 @@ import java.io.PushbackInputStream;
 
 public class SmileBucketDeserializer
 {
-    protected final static SmileFactory smileFactory = new SmileFactory();
-    protected final static JsonFactory jsonFactory = new JsonFactory();
+    protected static final SmileFactory smileFactory = new SmileFactory();
+    protected static final JsonFactory jsonFactory = new JsonFactory();
 
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
@@ -53,11 +53,11 @@ public class SmileBucketDeserializer
      * @return SmileBucket representation
      * @throws IOException generic serialization error
      */
-    public static SmileBucket deserialize(InputStream in) throws IOException
+    public static SmileBucket deserialize(final InputStream in) throws IOException
     {
-        PushbackInputStream pbIn = new PushbackInputStream(in);
+        final PushbackInputStream pbIn = new PushbackInputStream(in);
 
-        byte firstByte = (byte) pbIn.read();
+        final byte firstByte = (byte) pbIn.read();
 
         // EOF?
         if (firstByte == -1) {
@@ -82,16 +82,16 @@ public class SmileBucketDeserializer
      * @return SmileBucket representation
      * @throws IOException generic serialization error
      */
-    public static SmileBucket deserialize(InputStream in, ObjectMapper objectMapper) throws IOException
+    public static SmileBucket deserialize(final InputStream in, final ObjectMapper objectMapper) throws IOException
     {
-        SmileBucket bucket = new SmileBucket();
+        final SmileBucket bucket = new SmileBucket();
 
-        JsonParser jp = objectMapper.getJsonFactory().createJsonParser(in);
-        JsonNode root = objectMapper.readValue(jp, JsonNode.class);
+        final JsonParser jp = objectMapper.getJsonFactory().createJsonParser(in);
+        final JsonNode root = objectMapper.readValue(jp, JsonNode.class);
 
         if (root instanceof ArrayNode) {
-            ArrayNode nodes = (ArrayNode) root;
-            for (JsonNode node : nodes) {
+            final ArrayNode nodes = (ArrayNode) root;
+            for (final JsonNode node : nodes) {
                 bucket.add(node);
             }
         }

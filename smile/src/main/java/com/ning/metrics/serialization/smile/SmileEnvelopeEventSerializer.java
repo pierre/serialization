@@ -15,7 +15,6 @@
  */
 package com.ning.metrics.serialization.smile;
 
-import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
 import org.codehaus.jackson.JsonEncoding;
@@ -31,10 +30,10 @@ import java.io.OutputStream;
 public class SmileEnvelopeEventSerializer implements EventSerializer<SmileEnvelopeEvent>
 {
     JsonGenerator jsonGenerator;
-    boolean plainJson;
+    final boolean plainJson;
 
-    protected final static SmileFactory smileFactory = new SmileFactory();
-    protected final static JsonFactory jsonFactory = new JsonFactory();
+    protected static final SmileFactory smileFactory = new SmileFactory();
+    protected static final JsonFactory jsonFactory = new JsonFactory();
     
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
@@ -44,12 +43,12 @@ public class SmileEnvelopeEventSerializer implements EventSerializer<SmileEnvelo
         smileFactory.configure(SmileParser.Feature.REQUIRE_HEADER, false);
     }
 
-    public SmileEnvelopeEventSerializer(boolean plainJson) {
+    public SmileEnvelopeEventSerializer(final boolean plainJson) {
         this.plainJson = plainJson;
     }
 
     @Override
-    public void open(OutputStream out) throws IOException
+    public void open(final OutputStream out) throws IOException
     {
         if (plainJson) {
             jsonGenerator = jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8);
@@ -61,7 +60,7 @@ public class SmileEnvelopeEventSerializer implements EventSerializer<SmileEnvelo
     }
 
     @Override
-    public void serialize(SmileEnvelopeEvent event) throws IOException
+    public void serialize(final SmileEnvelopeEvent event) throws IOException
     {
         event.setPlainJson(plainJson);
         event.writeToJsonGenerator(jsonGenerator);

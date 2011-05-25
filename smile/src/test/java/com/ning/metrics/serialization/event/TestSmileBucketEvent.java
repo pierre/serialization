@@ -37,7 +37,7 @@ public class TestSmileBucketEvent
 
     // { "eventDate": "1242", "granularity": "hourly", "meh": [1,2,3] }
     // { "eventDate": "1243", "granularity": "hourly", "meh": [1,2,3], "bleh": "user-agent" }
-    private final static String fileData = new File(new File("").getAbsolutePath(), "src/test/java/com/ning/metrics/serialization/smile/sampleEvents.json").getPath();
+    private static final String fileData = new File(new File("").getAbsolutePath(), "src/test/java/com/ning/metrics/serialization/smile/sampleEvents.json").getPath();
 
     private SmileBucketEvent bucketEvent;
     private SmileBucketEvent bucketEventWithOutputDir;
@@ -51,11 +51,11 @@ public class TestSmileBucketEvent
         // eventsBytes = new byte[inStream.available()];
         // inStream.read(eventsBytes);
         // inStream.close();
-        SmileBucket bucket2 = SmileBucketDeserializer.deserialize(new FileInputStream(fileData));
+        final SmileBucket bucket2 = SmileBucketDeserializer.deserialize(new FileInputStream(fileData));
         finalStream = new ByteArrayOutputStream();
         SmileBucketSerializer.serialize(bucket2, finalStream);
 
-        SmileBucket bucket = SmileBucketDeserializer.deserialize(new FileInputStream(fileData));
+        final SmileBucket bucket = SmileBucketDeserializer.deserialize(new FileInputStream(fileData));
         bucketEvent = new SmileBucketEvent("testEvent", Granularity.HOURLY, bucket);
         bucketEventWithOutputDir = new SmileBucketEvent("testEvent", Granularity.HOURLY, OUTPUT_DIR, bucket);
     }
@@ -69,7 +69,7 @@ public class TestSmileBucketEvent
     @Test(groups = "fast")
     public void testGetData() throws Exception
     {
-        byte[] bytes = ((ByteArrayOutputStream) bucketEvent.getData()).toByteArray();
+        final byte[] bytes = ((ByteArrayOutputStream) bucketEvent.getData()).toByteArray();
 
         Assert.assertEquals(bytes, finalStream.toByteArray());
 
@@ -88,7 +88,7 @@ public class TestSmileBucketEvent
     @Test(groups = "fast")
     public void testReadWriteExternal() throws Exception
     {
-        SmileBucketEvent event = doTestsRW(bucketEvent);
+        final SmileBucketEvent event = doTestsRW(bucketEvent);
         try {
             event.getOutputDir("");
             Assert.fail();
@@ -102,18 +102,18 @@ public class TestSmileBucketEvent
     @Test(groups = "fast")
     public void testReadWriteExternalWithOutputDir() throws Exception
     {
-        SmileBucketEvent event = doTestsRW(bucketEventWithOutputDir);
+        final SmileBucketEvent event = doTestsRW(bucketEventWithOutputDir);
         Assert.assertEquals(event.getOutputDir(""), OUTPUT_DIR);
     }
 
-    private SmileBucketEvent doTestsRW(SmileBucketEvent bucket) throws IOException, ClassNotFoundException
+    private SmileBucketEvent doTestsRW(final SmileBucketEvent bucket) throws IOException, ClassNotFoundException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ObjectOutputStream outputStream = new ObjectOutputStream(out);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ObjectOutputStream outputStream = new ObjectOutputStream(out);
         bucket.writeExternal(outputStream);
         outputStream.close();
 
-        SmileBucketEvent bucketEvent2 = new SmileBucketEvent();
+        final SmileBucketEvent bucketEvent2 = new SmileBucketEvent();
         bucketEvent2.readExternal(new ObjectInputStream(new ByteArrayInputStream(out.toByteArray())));
 
         Assert.assertEquals(bucketEvent2.getName(), bucket.getName());
