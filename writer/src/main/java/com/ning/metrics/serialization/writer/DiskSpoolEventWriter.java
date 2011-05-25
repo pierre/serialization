@@ -262,7 +262,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
                     @Override
                     public synchronized void onError(final Throwable t, final File file)
                     {
-                        log.warn(String.format("Error trying to flush file %s", file), t);
+                        log.warn(String.format("Error trying to flush file %s: %s", file, t.getLocalizedMessage()));
 
                         if (file != null && file.exists()) {
                             quarantineFile(lockedFile);
