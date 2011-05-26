@@ -93,8 +93,8 @@ public class SmileEnvelopeEvent implements Event
         final JsonGenerator g = smileFactory.createJsonGenerator(stream);
 
         g.writeStartObject();
-        g.writeNumberField(SmileEnvelopeEvent.SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
-        g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
+        g.writeNumberField(SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
+        g.writeStringField(SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
         for (final String key : map.keySet()) {
             g.writeObjectField(key, map.get(key)); // will hopefully do the right thing (e.g. take care of numerics)
         }
@@ -283,7 +283,7 @@ public class SmileEnvelopeEvent implements Event
     // having to know all the events ahead of time.
     public void writeToJsonGenerator(final JsonGenerator gen) throws IOException
     {
-        // writes '{eventName:<name>,payload:{<data>}}' --it's kind of silly but ultimately inconsequential to nest them like this. 
+        // writes '{eventName:<name>,payload:{<data>}}' --it's kind of silly but ultimately inconsequential to nest them like this.
         gen.writeStartObject();
         gen.writeStringField("eventName", eventName);
         gen.writeFieldName("payload");
