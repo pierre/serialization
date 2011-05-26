@@ -17,10 +17,12 @@
 package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
-import org.weakref.jmx.Managed;
 import org.apache.log4j.Logger;
+import org.weakref.jmx.Managed;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -49,6 +51,20 @@ public class ThresholdEventWriter implements EventWriter
         this.maxWriteCount = new AtomicLong(maxUncommittedWriteCount);
         setMaxFlushPeriodInSeconds(maxFlushPeriodInSeconds);
         this.lastFlushNanos = getNow();
+
+        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try {
+                        commitIfNeeded();
+                    }
+                    catch (IOException e) {
+                        log.warn(String.format("Got exception while trying to commit: %s", e));
+                    }
+                }
+            }, maxFlushPeriodInSeconds, maxFlushPeriodInSeconds, TimeUnit.SECONDS);
     }
 
     /**
