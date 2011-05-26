@@ -18,6 +18,7 @@ package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.Period;
 import org.weakref.jmx.Managed;
@@ -92,15 +93,15 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     }
 
     public DiskSpoolEventWriter(
-            final EventHandler eventHandler,
-            final String spoolPath,
-            final boolean flushEnabled,
-            final long flushIntervalInSeconds,
-            final ScheduledExecutorService executor,
-            final SyncType syncType,
-            final int syncBatchSize,
-            final int rateWindowSizeMinutes,
-            final EventSerializer<T> eventSerializer
+        final EventHandler eventHandler,
+        final String spoolPath,
+        final boolean flushEnabled,
+        final long flushIntervalInSeconds,
+        final ScheduledExecutorService executor,
+        final SyncType syncType,
+        final int syncBatchSize,
+        final int rateWindowSizeMinutes,
+        final EventSerializer<T> eventSerializer
     )
     {
         this.eventHandler = eventHandler;
@@ -150,23 +151,23 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     private void scheduleFlush()
     {
         executor.schedule(new Runnable()
-        {
-            @Override
-            public void run()
             {
-                try {
-                    flush();
+                @Override
+                public void run()
+                {
+                    try {
+                        flush();
+                    }
+                    catch (Exception e) {
+                        log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
+                    }
+                    finally {
+                        final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
+                        log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
+                        executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
+                    }
                 }
-                catch (Exception e) {
-                    log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
-                }
-                finally {
-                    final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
-                    log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
-                    executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
-                }
-            }
-        }, flushIntervalInSeconds.get(), TimeUnit.SECONDS);
+            }, flushIntervalInSeconds.get(), TimeUnit.SECONDS);
     }
 
     //protected for overriding during unit tests
@@ -303,7 +304,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     @Managed(description = "enable/disable flushing to hdfs")
     public void setFlushEnabled(final boolean enabled)
     {
-        log.info(String.format("setting flush enabled to %b", enabled));
+        log.info(String.format("Setting flush enabled to %b", enabled));
         flushEnabled.set(enabled);
     }
 
@@ -355,11 +356,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     {
         for (final File file : quarantineDirectory.listFiles()) {
             if (file.isFile()) {
-                final File dest = new File(spoolDirectory, file.getName());
-
-                if (!file.renameTo(dest)) {
-                    log.info(String.format("error moving quarantined file %s to %s", file, dest));
-                }
+                renameFile(file, spoolDirectory);
             }
         }
     }
@@ -380,9 +377,11 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     {
         final File destinationOutputFile = new File(destDir, srcFile.getName());
 
-        if (!srcFile.renameTo(destinationOutputFile)) {
-            final String msg = String.format("unable to rename spool file %s to %s", srcFile, destinationOutputFile);
-            log.error(msg);
+        try {
+            FileUtils.moveFile(srcFile, destinationOutputFile);
+        }
+        catch (IOException e) {
+            log.warn(String.format("Error renaming spool file %s to %s: %s", srcFile, destinationOutputFile, e));
         }
 
         return destinationOutputFile;

@@ -47,4 +47,11 @@ class FlushingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
             objectsWritten = 0;
         }
     }
+
+    @Override
+    public void close() throws IOException
+    {
+        out.flush();
+        super.close();
+    }
 }
