@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.smile.SmileFactory;
@@ -75,7 +76,7 @@ public class SmileEnvelopeEventExtractor
         }
 
         // check that
-        if (!parser.nextToken().toString().equals("START_ARRAY")) {
+        if (parser.nextToken() != JsonToken.START_ARRAY) {
             throw new IOException("I can't find a START_ARRAY. The inputStream is supposed to be a list!");
         }
     }
@@ -90,7 +91,7 @@ public class SmileEnvelopeEventExtractor
     public SmileEnvelopeEvent extractNextEvent() throws IOException
     {
         // move parser along to the start of the next object & make sure next object's not an END_ARRAY
-        if (parser.nextToken().toString().equals("END_ARRAY")) {
+        if (parser.nextToken() == JsonToken.END_ARRAY) {
             return null;
         }
 

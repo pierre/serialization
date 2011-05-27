@@ -47,5 +47,12 @@ class SyncingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
             objectsWritten = 0;
         }
     }
-    // TODO should we sync() on close as well?
+
+    @Override
+    public void close() throws IOException
+    {
+        out.flush();
+        out.getFD().sync();
+        super.close();
+    }
 }
