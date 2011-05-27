@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 public class TestSmileOutputStream
 {
@@ -52,30 +54,34 @@ public class TestSmileOutputStream
     {
         final String eventType = "hello";
         final SmileOutputStream stream = new SmileOutputStream(eventType, 1024);
-        stream.write(createSmilePayload(new DateTime()));
+        stream.write(createSmilePayload());
 
-        final SmileBucket bucket2 = SmileBucketDeserializer.deserialize(new ByteArrayInputStream(stream.toByteArray()));
+        final List<SmileEnvelopeEvent> events = SmileEnvelopeEventExtractor.extractEvents(new ByteArrayInputStream(stream.toByteArray()));
 
-        Assert.assertEquals(bucket2.size(), 1);
+        Assert.assertEquals(events.size(), 1);
     }
 
-    private byte[] createSmilePayload(final ReadableInstant eventDateTime) throws IOException
+    private byte[] createSmilePayload() throws IOException
     {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final JsonGenerator g = f.createJsonGenerator(stream);
 
-        g.writeStartObject();
-        g.writeStringField(SmileEnvelopeEvent.SMILE_EVENT_GRANULARITY_TOKEN_NAME, eventGranularity.toString());
-        g.writeObjectFieldStart("name");
-        g.writeStringField("first", "Joe");
-        g.writeStringField("last", "Sixpack");
-        g.writeEndObject(); // for field 'name'
-        g.writeStringField("gender", "MALE");
-        g.writeNumberField(SmileEnvelopeEvent.SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
-        g.writeBooleanField("verified", false);
-        g.writeEndObject();
-        g.close(); // important: will force flushing of output, close underlying output stream
+        SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(false);
+        serializer.open(stream);
+        serializer.serialize(makeSampleEvent());
+        serializer.close();
 
         return stream.toByteArray();
+    }
+
+    private SmileEnvelopeEvent makeSampleEvent() throws IOException
+    {
+        final HashMap<String, Object> map = new HashMap<String, Object>();
+
+        map.put("firstName", "joe");
+        map.put("lastName", "sixPack");
+        map.put("theNumberFive", 5);
+
+        return new SmileEnvelopeEvent("sample", new DateTime(), map);
     }
 }
