@@ -13,19 +13,13 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
+package com.ning.metrics.serialization.event;
 
-package com.ning.metrics.serialization.smile;
+import java.io.IOException;
 
-import org.codehaus.jackson.JsonNode;
-
-import java.util.Vector;
-
-/**
- * An unordered collection of Smile events.
- *
- * This layer of abstraction is Smile specific: as we need to be able to serialize and deserialize
- * multiple events to gain compression (back-references).
- */
-public class SmileBucket extends Vector<JsonNode>
+public interface EventDeserializer<T extends Event>
 {
+    boolean hasNextEvent();
+
+    T getNextEvent() throws IOException;
 }
