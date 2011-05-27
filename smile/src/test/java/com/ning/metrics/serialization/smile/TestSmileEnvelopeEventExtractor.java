@@ -29,11 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 /*
-    Tests SmileEnvelopeEventSerializer, SmileEnvelopeEventExtractor, & SmileEnvelopeEvent(JsonNode) constructor
+    Tests SmileEnvelopeEventSerializer, SmileEnvelopeEventDeserializer, & SmileEnvelopeEvent(JsonNode) constructor
  */
 public class TestSmileEnvelopeEventExtractor
 {
@@ -92,14 +91,14 @@ public class TestSmileEnvelopeEventExtractor
         final String jsonString = out.toString();
         System.out.println(jsonString); // TODO
 
-        final SmileEnvelopeEventExtractor extractor = new SmileEnvelopeEventExtractor(in, plainJson);
+        final SmileEnvelopeEventDeserializer deserializer = new SmileEnvelopeEventDeserializer(in, plainJson);
 
         int numExtracted = 0;
-        SmileEnvelopeEvent extractedEvent = extractor.extractNextEvent();
-        while (extractedEvent != null) {
+        SmileEnvelopeEvent extractedEvent;
+        while (deserializer.hasNextEvent()) {
+            extractedEvent = deserializer.getNextEvent();
             numExtracted++;
             assertEventsMatch(extractedEvent, event);
-            extractedEvent = extractor.extractNextEvent();
         }
 
         Assert.assertEquals(numExtracted, numEvents);
@@ -120,7 +119,7 @@ public class TestSmileEnvelopeEventExtractor
         serializer.close();
 
         final InputStream in = new ByteArrayInputStream(out.toByteArray());
-        final List<SmileEnvelopeEvent> extractedEvents = SmileEnvelopeEventExtractor.extractEvents(in);
+        final List<SmileEnvelopeEvent> extractedEvents = SmileEnvelopeEventDeserializer.extractEvents(in);
 
         Assert.assertEquals(extractedEvents.size(), numEvents);
         assertEventsMatch(extractedEvents.get(0), event);

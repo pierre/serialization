@@ -21,31 +21,26 @@ import com.ning.metrics.serialization.event.ThriftEnvelopeEvent;
 import java.io.IOException;
 import java.io.OutputStream;
 
-// TODO consolidate code! This is just a silly wrapper for ThriftEnvelopeSerializer
 public class ThriftEnvelopeEventSerializer implements EventSerializer<ThriftEnvelopeEvent>
 {
     OutputStream out;
-    ThriftEnvelopeSerializer serializer = new ThriftEnvelopeSerializer();
 
     @Override
     public void open(OutputStream out) throws IOException
     {
         this.out = out;
-        serializer.open(out);
     }
 
-    // TODO test! the codebase is a bit messy, so I can't tell if this includes all the necessary metadata.
     @Override
     public void serialize(ThriftEnvelopeEvent event) throws IOException
     {
-        out.write(1);
-        serializer.serialize((ThriftEnvelope) event.getData());
+        out.write('\n');
+        out.write(event.getSerializedEvent());
     }
 
     @Override
     public void close() throws IOException
     {
-        serializer.close();
         out.close();
     }
 }

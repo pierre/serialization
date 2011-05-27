@@ -23,7 +23,6 @@ import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
 import org.joda.time.DateTime;
-import org.joda.time.ReadableInstant;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -56,7 +55,7 @@ public class TestSmileOutputStream
         final SmileOutputStream stream = new SmileOutputStream(eventType, 1024);
         stream.write(createSmilePayload());
 
-        final List<SmileEnvelopeEvent> events = SmileEnvelopeEventExtractor.extractEvents(new ByteArrayInputStream(stream.toByteArray()));
+        final List<SmileEnvelopeEvent> events = SmileEnvelopeEventDeserializer.extractEvents(new ByteArrayInputStream(stream.toByteArray()));
 
         Assert.assertEquals(events.size(), 1);
     }

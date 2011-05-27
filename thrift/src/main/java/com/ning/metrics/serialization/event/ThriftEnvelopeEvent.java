@@ -21,12 +21,9 @@ import com.ning.metrics.serialization.thrift.ThriftEnvelopeDeserializer;
 import com.ning.metrics.serialization.thrift.ThriftEnvelopeSerializer;
 import org.joda.time.DateTime;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 public class ThriftEnvelopeEvent implements Event
 {
@@ -45,6 +42,11 @@ public class ThriftEnvelopeEvent implements Event
         eventDateTime = null;
         thriftEnvelope = null;
         granularity = null;
+    }
+
+    public ThriftEnvelopeEvent(InputStream in) throws IOException
+    {
+        deserializeFromStream(in);
     }
 
     public ThriftEnvelopeEvent(final DateTime eventDateTime, final ThriftEnvelope thriftEnvelope, final Granularity granularity)
@@ -100,25 +102,42 @@ public class ThriftEnvelopeEvent implements Event
     @Override
     public byte[] getSerializedEvent()
     {
-        return null;
+        try {
+            toBytes();
+            return serializedBytes;
+        }
+        catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
     public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
     {
         final int numBytes = in.readInt();
-        final byte[] bytes = new byte[numBytes];
+        final byte[] fullPayload = new byte[numBytes];
+        in.readFully(fullPayload);
 
-        in.readFully(bytes);
+        final ByteArrayInputStream inputBuffer = new ByteArrayInputStream(fullPayload, 0, fullPayload.length);
 
-        eventDateTime = new DateTime(ByteBuffer.wrap(bytes).getLong(0));
+        deserializeFromStream(inputBuffer);
+    }
 
-        final ByteArrayInputStream inputBuffer = new ByteArrayInputStream(bytes, 8, bytes.length - 8);
+    private void deserializeFromStream(InputStream in) throws IOException
+    {
+        final byte[] dateTimeBytes = new byte[8];
+        in.read(dateTimeBytes, 0, 8);
+        eventDateTime = new DateTime(ByteBuffer.wrap(dateTimeBytes).getLong(0));
 
-        deserializer.open(inputBuffer);
+        final byte[] sizeGranularityInBytes = new byte[4];
+        in.read(sizeGranularityInBytes, 0, 4);
+        final byte[] granularityBytes = new byte[ByteBuffer.wrap(sizeGranularityInBytes).getInt(0)];
+        in.read(granularityBytes, 0, granularityBytes.length);
+        granularity = Granularity.valueOf(new String(granularityBytes, Charset.forName("UTF-8")));
+
+        deserializer.open(in);
         thriftEnvelope = deserializer.deserialize(null);
         deserializer.close();
-        granularity = (Granularity) in.readObject();
     }
 
     @Override
@@ -127,7 +146,6 @@ public class ThriftEnvelopeEvent implements Event
         toBytes();
         out.writeInt(serializedBytes.length);
         out.write(serializedBytes);
-        out.writeObject(granularity);
     }
 
     private void toBytes() throws IOException
@@ -136,6 +154,10 @@ public class ThriftEnvelopeEvent implements Event
             final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
 
             outputBuffer.write(ByteBuffer.allocate(8).putLong(eventDateTime.getMillis()).array());
+
+            final byte[] granularityBytes = granularity.name().getBytes(Charset.forName("UTF-8"));
+            outputBuffer.write(ByteBuffer.allocate(4).putInt(granularityBytes.length).array());
+            outputBuffer.write(ByteBuffer.allocate(granularityBytes.length).put(granularityBytes).array());
 
             serializer.open(outputBuffer);
             serializer.serialize(thriftEnvelope);

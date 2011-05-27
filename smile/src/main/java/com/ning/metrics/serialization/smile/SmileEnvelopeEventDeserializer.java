@@ -15,6 +15,7 @@
  */
 package com.ning.metrics.serialization.smile;
 
+import com.ning.metrics.serialization.event.EventDeserializer;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
@@ -33,9 +34,9 @@ import java.io.PushbackInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SmileEnvelopeEventExtractor
+public class SmileEnvelopeEventDeserializer implements EventDeserializer<SmileEnvelopeEvent>
 {
-    private static final Logger log = Logger.getLogger(SmileEnvelopeEventExtractor.class);
+    private static final Logger log = Logger.getLogger(SmileEnvelopeEventDeserializer.class);
     protected static final SmileFactory smileFactory = new SmileFactory();
     protected static final JsonFactory jsonFactory = new JsonFactory();
 
@@ -54,15 +55,19 @@ public class SmileEnvelopeEventExtractor
     private final JsonParser parser;
     private final ObjectMapper mapper;
 
+    // used by hasNextEvent()
+    // keeps track of the first JsonToken that is NOT extracted
+    private JsonToken nextToken = null;
+
     /**
-     * SmileEnvelopeEventExtractor should be instantiated (using this constructor) if and only if
+     * SmileEnvelopeEventDeserializer should be instantiated (using this constructor) if and only if
      * you plan on using it to incrementally extract events (rather than extracting them all at once)
      *
      * @param in        InputStream containing events
      * @param plainJson whether the stream is in plain json (otherwise smile)
      * @throws IOException generic I/O exception
      */
-    public SmileEnvelopeEventExtractor(final InputStream in, final boolean plainJson) throws IOException
+    public SmileEnvelopeEventDeserializer(final InputStream in, final boolean plainJson) throws IOException
     {
         // TODO bug when using pushbackInputStream like extractEvents does. very strange.
 
@@ -81,6 +86,24 @@ public class SmileEnvelopeEventExtractor
         }
     }
 
+    public boolean hasNextEvent()
+    {
+        // don't advance nextToken if you don't have to
+        if (nextToken != null && nextToken != JsonToken.END_ARRAY) {
+            return true;
+        }
+
+        try {
+            // get next token
+            nextToken = parser.nextToken();
+            return nextToken != JsonToken.END_ARRAY && nextToken != null;
+        }
+        catch (Exception e) {
+            log.debug("got exception while looking for nextToken");
+            return false;
+        }
+    }
+
     /**
      * Extracts the next event in the stream.
      * Note: Stream must be formatted as an array of (serialized) SmileEnvelopeEvents.
@@ -88,14 +111,15 @@ public class SmileEnvelopeEventExtractor
      * @return nextEvent. return null if it reaches the end of the list
      * @throws IOException if there's a parsing issue
      */
-    public SmileEnvelopeEvent extractNextEvent() throws IOException
+    public SmileEnvelopeEvent getNextEvent() throws IOException
     {
-        // move parser along to the start of the next object & make sure next object's not an END_ARRAY
-        if (parser.nextToken() == JsonToken.END_ARRAY) {
+        if (!hasNextEvent()) {
             return null;
         }
 
         final JsonNode node = mapper.readValue(parser, JsonNode.class);
+        nextToken = null; // reset nextToken
+
         return new SmileEnvelopeEvent(node);
     }
 
