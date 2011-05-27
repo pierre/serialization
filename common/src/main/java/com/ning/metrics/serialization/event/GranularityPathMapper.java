@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-class GranularityPathMapper implements Serializable
+public class GranularityPathMapper implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
