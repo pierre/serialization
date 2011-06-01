@@ -34,18 +34,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * is reached and/or if the time elapsed since the last commit is greater than the specified flush period.
  * This writer will never trigger a forceCommit on the delegate writer.
  */
-public class ThresholdEventWriter implements EventWriter
+public class ThresholdEventWriter<T extends Event> implements EventWriter<T>
 {
     private static final Logger log = Logger.getLogger(ThresholdEventWriter.class);
 
-    private final EventWriter delegate;
+    private final EventWriter<T> delegate;
     private final AtomicLong maxWriteCount;
     private volatile long maxFlushPeriodNanos;
 
     private long lastFlushNanos;
     private long uncommittedWriteCount = 0;
 
-    public ThresholdEventWriter(final EventWriter delegate, final long maxUncommittedWriteCount, final long maxFlushPeriodInSeconds)
+    public ThresholdEventWriter(final EventWriter<T> delegate, final long maxUncommittedWriteCount, final long maxFlushPeriodInSeconds)
     {
         this.delegate = delegate;
         this.maxWriteCount = new AtomicLong(maxUncommittedWriteCount);
@@ -74,7 +74,7 @@ public class ThresholdEventWriter implements EventWriter
      * @throws IOException as thrown by the delegate writer
      */
     @Override
-    public synchronized void write(final Event event) throws IOException
+    public synchronized void write(final T event) throws IOException
     {
         delegate.write(event);
         uncommittedWriteCount++;

@@ -29,7 +29,7 @@ public class TestThresholdEventWriter
 {
     private Event event;
     private MockEventWriter delegateWriter;
-    private ThresholdEventWriter eventWriter;
+    private ThresholdEventWriter<Event> eventWriter;
     private DateTime now;
 
     @BeforeMethod(alwaysRun = true)
@@ -38,7 +38,7 @@ public class TestThresholdEventWriter
         event = new StubEvent();
         now = new DateTime("2009-02-01T00:00:00");
         delegateWriter = new MockEventWriter();
-        eventWriter = new ThresholdEventWriter(delegateWriter, 2, 300) // 300 seconds
+        eventWriter = new ThresholdEventWriter<Event>(delegateWriter, 2, 300) // 300 seconds
         {
             @Override
             protected long getNow()

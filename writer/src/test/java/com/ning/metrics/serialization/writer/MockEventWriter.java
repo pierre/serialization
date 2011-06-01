@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class MockEventWriter implements EventWriter
+public class MockEventWriter implements EventWriter<Event>
 {
     private final List<Event> writtenEventList = new ArrayList<Event>();
     protected final List<Event> committedEventList = new ArrayList<Event>();
