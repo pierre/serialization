@@ -16,7 +16,6 @@
 
 package com.ning.metrics.serialization.writer;
 
-import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
 
 import java.io.FileOutputStream;
@@ -24,9 +23,9 @@ import java.io.IOException;
 
 public class ObjectOutputterFactory
 {
-    public static <T extends Event> ObjectOutputter<T> createObjectOutputter(final FileOutputStream out, final SyncType type, final int batchSize) throws IOException
+    public static ObjectOutputter createObjectOutputter(final FileOutputStream out, final SyncType type, final int batchSize) throws IOException
     {
-        return createObjectOutputter(out, type, batchSize, new ObjectOutputEventSerializer<T>());
+        return createObjectOutputter(out, type, batchSize, new ObjectOutputEventSerializer());
     }
 
     /**
@@ -35,15 +34,14 @@ public class ObjectOutputterFactory
      * @param batchSize       number of events between flushes or syncs
      * @param eventSerializer does not have to be tied to 'out'. We will call eventSerializer.open(out) later.
      *                        If eventSerializer == null, it's the same as calling the default createObjectOutputter()
-     * @param <T>             Event type (e.g. ThriftEnvelopeEvent)
      * @return a new outputter object of type type
      * @throws IOException when unable to open the FileOutputStream out
      */
-    public static <T extends Event> ObjectOutputter<T> createObjectOutputter(
+    public static ObjectOutputter createObjectOutputter(
         final FileOutputStream out,
         final SyncType type,
         final int batchSize,
-        final EventSerializer<T> eventSerializer
+        final EventSerializer eventSerializer
     ) throws IOException
     {
         if (eventSerializer == null) {
@@ -52,11 +50,11 @@ public class ObjectOutputterFactory
 
         switch (type) {
             case NONE:
-                return new DefaultObjectOutputter<T>(out, eventSerializer);
+                return new DefaultObjectOutputter(out, eventSerializer);
             case FLUSH:
-                return new FlushingObjectOutputter<T>(out, eventSerializer, batchSize);
+                return new FlushingObjectOutputter(out, eventSerializer, batchSize);
             case SYNC:
-                return new SyncingObjectOutputter<T>(out, eventSerializer, batchSize);
+                return new SyncingObjectOutputter(out, eventSerializer, batchSize);
         }
 
         throw new IllegalArgumentException("Unable to construct ObjectOutputter given type" + type);

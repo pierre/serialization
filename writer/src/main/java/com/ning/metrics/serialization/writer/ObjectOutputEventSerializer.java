@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-public class ObjectOutputEventSerializer<T extends Event> implements EventSerializer<T>
+public class ObjectOutputEventSerializer implements EventSerializer
 {
     private ObjectOutputStream objectOut;
 
@@ -33,7 +33,7 @@ public class ObjectOutputEventSerializer<T extends Event> implements EventSerial
     }
 
     @Override
-    public void serialize(final T obj) throws IOException
+    public void serialize(final Event obj) throws IOException
     {
         objectOut.write(1);
         objectOut.writeObject(obj);

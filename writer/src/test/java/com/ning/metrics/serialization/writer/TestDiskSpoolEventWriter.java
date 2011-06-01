@@ -86,7 +86,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testWriteIOFailure() throws Exception
     {
-        final DiskSpoolEventWriter<Event> writer = createWriter(writerSucceeds);
+        final DiskSpoolEventWriter writer = createWriter(writerSucceeds);
 
         try {
             writer.write(eventThrowsOnWrite);
@@ -127,7 +127,7 @@ public class TestDiskSpoolEventWriter
     @Test(groups = "fast")
     public void testPersistentWriterSucceeds() throws Exception
     {
-        final DiskSpoolEventWriter<Event> writer = createWriter(writerSucceeds);
+        final DiskSpoolEventWriter writer = createWriter(writerSucceeds);
 
         testSpoolDirs(0, 0, 0);
         writer.write(createEvent());
@@ -233,7 +233,7 @@ public class TestDiskSpoolEventWriter
 
     private DiskSpoolEventWriter createWriter(final EventHandler persistentWriter)
     {
-        return new DiskSpoolEventWriter<Event>(persistentWriter, spoolPath, true, 1, executor, SyncType.NONE, 1, 1);
+        return new DiskSpoolEventWriter(persistentWriter, spoolPath, true, 1, executor, SyncType.NONE, 1, 1);
     }
 
     private void testSpoolDirs(final int tmpCount, final int spoolCount, final int quarantineCount)

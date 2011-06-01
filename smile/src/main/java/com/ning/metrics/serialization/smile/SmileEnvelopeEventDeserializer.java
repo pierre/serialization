@@ -34,7 +34,7 @@ import java.io.PushbackInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SmileEnvelopeEventDeserializer implements EventDeserializer<SmileEnvelopeEvent>
+public class SmileEnvelopeEventDeserializer implements EventDeserializer
 {
     private static final Logger log = Logger.getLogger(SmileEnvelopeEventDeserializer.class);
     protected static final SmileFactory smileFactory = new SmileFactory();

@@ -20,9 +20,9 @@ import com.ning.metrics.serialization.event.Event;
 
 import java.io.IOException;
 
-interface ObjectOutputter<T extends Event>
+interface ObjectOutputter
 {
-    public void writeObject(T event) throws IOException;
+    public void writeObject(Event event) throws IOException;
 
     public void close() throws IOException;
 }

@@ -15,6 +15,7 @@
  */
 package com.ning.metrics.serialization.smile;
 
+import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
 import org.codehaus.jackson.JsonEncoding;
@@ -27,14 +28,14 @@ import org.codehaus.jackson.smile.SmileParser;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class SmileEnvelopeEventSerializer implements EventSerializer<SmileEnvelopeEvent>
+public class SmileEnvelopeEventSerializer implements EventSerializer
 {
     JsonGenerator jsonGenerator;
     final boolean plainJson;
 
     protected static final SmileFactory smileFactory = new SmileFactory();
     protected static final JsonFactory jsonFactory = new JsonFactory();
-    
+
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
         smileFactory.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
@@ -60,10 +61,18 @@ public class SmileEnvelopeEventSerializer implements EventSerializer<SmileEnvelo
     }
 
     @Override
-    public void serialize(final SmileEnvelopeEvent event) throws IOException
+    public void serialize(final Event event) throws IOException
     {
-        event.setPlainJson(plainJson);
-        event.writeToJsonGenerator(jsonGenerator);
+        SmileEnvelopeEvent smileEvent = (SmileEnvelopeEvent) event;
+        // This is hacky, but nonetheless cleaner than using generics.
+        // If we use generics, they'd have to propagate up through the type signatures of nearly every aspect of the
+        // event flow, it's harder to understand how they'll behave, AND handling the event type will usually boil down
+        // to throwing a runtime exception ANYWAYS
+        if (event == null) {
+            throw new IllegalArgumentException("SmileEnvelopeEventSerializer can only serialize SmileEnvelopeEvents");
+        }
+        smileEvent.setPlainJson(plainJson);
+        smileEvent.writeToJsonGenerator(jsonGenerator);
     }
 
     @Override

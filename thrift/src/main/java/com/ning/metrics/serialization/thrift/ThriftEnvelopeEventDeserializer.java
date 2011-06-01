@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 
-public class ThriftEnvelopeEventDeserializer implements EventDeserializer<ThriftEnvelopeEvent>
+public class ThriftEnvelopeEventDeserializer implements EventDeserializer
 {
     private final PushbackInputStream in;
 

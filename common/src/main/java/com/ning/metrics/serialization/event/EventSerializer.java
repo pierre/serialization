@@ -18,11 +18,11 @@ package com.ning.metrics.serialization.event;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public interface EventSerializer<T extends Event>
+public interface EventSerializer
 {
     void open(OutputStream out) throws IOException;
 
-    void serialize(T event) throws IOException;
+    void serialize(Event event) throws IOException;
 
     void close() throws IOException;
 }

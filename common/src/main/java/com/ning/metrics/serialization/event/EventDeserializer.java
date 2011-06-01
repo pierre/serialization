@@ -17,9 +17,9 @@ package com.ning.metrics.serialization.event;
 
 import java.io.IOException;
 
-public interface EventDeserializer<T extends Event>
+public interface EventDeserializer
 {
     boolean hasNextEvent();
 
-    T getNextEvent() throws IOException;
+    Event getNextEvent() throws IOException;
 }

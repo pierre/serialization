@@ -15,13 +15,14 @@
  */
 package com.ning.metrics.serialization.thrift;
 
+import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
 import com.ning.metrics.serialization.event.ThriftEnvelopeEvent;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class ThriftEnvelopeEventSerializer implements EventSerializer<ThriftEnvelopeEvent>
+public class ThriftEnvelopeEventSerializer implements EventSerializer
 {
     OutputStream out;
 
@@ -32,8 +33,12 @@ public class ThriftEnvelopeEventSerializer implements EventSerializer<ThriftEnve
     }
 
     @Override
-    public void serialize(ThriftEnvelopeEvent event) throws IOException
+    public void serialize(Event event) throws IOException
     {
+        if (!(event instanceof ThriftEnvelopeEvent)) {
+            throw new IllegalArgumentException("ThriftEnvelopeEventSerializer can only serialize ThriftEnvelopeEvents");
+        }
+
         out.write('\n');
         out.write(event.getSerializedEvent());
     }

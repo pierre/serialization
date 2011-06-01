@@ -22,13 +22,13 @@ import com.ning.metrics.serialization.event.EventSerializer;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-class SyncingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
+class SyncingObjectOutputter extends DefaultObjectOutputter
 {
     private final FileOutputStream out;
     private final int batchSize;
     private int objectsWritten = 0;
 
-    public SyncingObjectOutputter(final FileOutputStream out, final EventSerializer<T> eventSerializer, final int batchSize) throws IOException
+    public SyncingObjectOutputter(final FileOutputStream out, final EventSerializer eventSerializer, final int batchSize) throws IOException
     {
         super(out, eventSerializer);
         this.out = out;
@@ -36,7 +36,7 @@ class SyncingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
     }
 
     @Override
-    public void writeObject(final T event) throws IOException
+    public void writeObject(final Event event) throws IOException
     {
         super.writeObject(event);
         objectsWritten++;

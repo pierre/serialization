@@ -23,13 +23,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class FlushingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
+class FlushingObjectOutputter extends DefaultObjectOutputter
 {
     private final OutputStream out;
     private final int batchSize;
     private int objectsWritten = 0;
 
-    public FlushingObjectOutputter(final FileOutputStream out, final EventSerializer<T> serializer, final int batchSize) throws IOException
+    public FlushingObjectOutputter(final FileOutputStream out, final EventSerializer serializer, final int batchSize) throws IOException
     {
         super(out, serializer);
         this.out = out;
@@ -37,7 +37,7 @@ class FlushingObjectOutputter<T extends Event> extends DefaultObjectOutputter<T>
     }
 
     @Override
-    public void writeObject(final T event) throws IOException
+    public void writeObject(final Event event) throws IOException
     {
         super.writeObject(event);
         objectsWritten++;

@@ -20,7 +20,7 @@ import com.ning.metrics.serialization.event.Event;
 
 import java.io.IOException;
 
-public interface EventWriter<T extends Event>
+public interface EventWriter
 {
     /**
      * Write an event to disk. This can throw an exception if:
@@ -36,7 +36,7 @@ public interface EventWriter<T extends Event>
      * @param event Event to write
      * @throws IOException See above
      */
-    public void write(T event) throws IOException;
+    public void write(Event event) throws IOException;
 
     public void commit() throws IOException;
 

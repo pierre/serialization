@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @see com.ning.metrics.serialization.writer.SyncType
  */
-public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
+public class DiskSpoolEventWriter implements EventWriter
 {
     private static final Logger log = Logger.getLogger(DiskSpoolEventWriter.class);
 
@@ -73,9 +73,9 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     private final AtomicBoolean currentlyFlushing = new AtomicBoolean(false);
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
     private final EventRate writeRate;
-    private final EventSerializer<T> eventSerializer;
+    private final EventSerializer eventSerializer;
 
-    private volatile ObjectOutputter<T> currentOutputter;
+    private volatile ObjectOutputter currentOutputter;
     private volatile File currentOutputFile;
 
     public DiskSpoolEventWriter(
@@ -101,7 +101,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
         final SyncType syncType,
         final int syncBatchSize,
         final int rateWindowSizeMinutes,
-        final EventSerializer<T> eventSerializer
+        final EventSerializer eventSerializer
     )
     {
         this.eventHandler = eventHandler;
@@ -186,7 +186,7 @@ public class DiskSpoolEventWriter<T extends Event> implements EventWriter<T>
     }
 
     @Override
-    public synchronized void write(final T event) throws IOException
+    public synchronized void write(final Event event) throws IOException
     {
         if (currentOutputter == null) {
             currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.bin", fileId.incrementAndGet()));

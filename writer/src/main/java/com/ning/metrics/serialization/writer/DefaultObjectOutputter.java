@@ -22,18 +22,18 @@ import com.ning.metrics.serialization.event.EventSerializer;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class DefaultObjectOutputter<T extends Event> implements ObjectOutputter<T>
+class DefaultObjectOutputter implements ObjectOutputter
 {
-    protected final EventSerializer<T> eventSerializer;
+    protected final EventSerializer eventSerializer;
 
-    public DefaultObjectOutputter(final OutputStream out, final EventSerializer<T> eventSerializer) throws IOException
+    public DefaultObjectOutputter(final OutputStream out, final EventSerializer eventSerializer) throws IOException
     {
         this.eventSerializer = eventSerializer;
         eventSerializer.open(out);
     }
 
     @Override
-    public void writeObject(final T event) throws IOException
+    public void writeObject(final Event event) throws IOException
     {
         eventSerializer.serialize(event);
     }
