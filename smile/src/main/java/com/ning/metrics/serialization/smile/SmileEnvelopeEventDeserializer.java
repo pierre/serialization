@@ -55,6 +55,8 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
     private final JsonParser parser;
     private final ObjectMapper mapper;
 
+    private boolean hasFailed = false;
+
     // used by hasNextEvent()
     // keeps track of the first JsonToken that is NOT extracted
     private JsonToken nextToken = null;
@@ -88,6 +90,10 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
 
     public boolean hasNextEvent()
     {
+        if (hasFailed) {
+            return false;
+        }
+
         // don't advance nextToken if you don't have to
         if (nextToken != null && nextToken != JsonToken.END_ARRAY) {
             return true;
@@ -117,10 +123,17 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
             return null;
         }
 
-        final JsonNode node = mapper.readValue(parser, JsonNode.class);
-        nextToken = null; // reset nextToken
+        try {
+            final JsonNode node = mapper.readValue(parser, JsonNode.class);
+            nextToken = null; // reset nextToken
 
-        return new SmileEnvelopeEvent(node);
+            return new SmileEnvelopeEvent(node);
+        }
+        // make sure we don't return true for hasNextEvent after this
+        catch (IOException e) {
+            hasFailed = true;
+            throw e;
+        }
     }
 
     /**

@@ -26,6 +26,9 @@ public class ThriftEnvelopeEventDeserializer implements EventDeserializer
 {
     private final PushbackInputStream in;
 
+    // cannot successfully parse any events after failing once
+    private boolean hasFailed = false;
+
     public ThriftEnvelopeEventDeserializer(InputStream in)
     {
         this.in = new PushbackInputStream(in);
@@ -33,6 +36,10 @@ public class ThriftEnvelopeEventDeserializer implements EventDeserializer
 
     public boolean hasNextEvent()
     {
+        if (hasFailed) {
+            return false;
+        }
+
         try {
             final byte separator = (byte) in.read();
             boolean hasEvent = separator == '\n';
@@ -40,17 +47,24 @@ public class ThriftEnvelopeEventDeserializer implements EventDeserializer
             return hasEvent;
         }
         catch (IOException e) {
+            hasFailed = true;
             return false; // EOF?
         }
     }
 
     public ThriftEnvelopeEvent getNextEvent() throws IOException
     {
-        if ((byte) in.read() == '\n') {
-            return new ThriftEnvelopeEvent(in);
+        try {
+            if (hasNextEvent() && (byte) in.read() == '\n') {
+                return new ThriftEnvelopeEvent(in);
+            }
+            else {
+                throw new IOException("Couldn't find any more events in the stream");
+            }
         }
-        else {
-            throw new IOException("Couldn't find any more events in the stream");
+        catch (IOException e) {
+            hasFailed = true;
+            throw e;
         }
     }
 }
