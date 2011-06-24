@@ -2,6 +2,15 @@
 
 Collection of classes to serialize data.
 
+= Hadoop pig and goodwill
+
+For instance, if you have a Netflow event in Goodwill, you can do:
+
+    REGISTER  /home/pierre/open-source/serialization/all/target/metrics.serialization-all-2.0.0-SNAPSHOT-jar-with-dependencies.jar
+    NETFLOW_DATA = LOAD '/events/Netflow/2011/05/10/17' using com.ning.metrics.serialization.hadoop.pig.ThriftStorage('Netflow');
+    NETFLOW_DATA = FILTER NETFLOW_DATA by protocol == 'TCP';
+
+
 = To build
 
     mvn assembly:assembly
