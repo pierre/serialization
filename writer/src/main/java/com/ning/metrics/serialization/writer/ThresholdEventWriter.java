@@ -135,6 +135,12 @@ public class ThresholdEventWriter implements EventWriter
         delegate.flush();
     }
 
+    @Override
+    public void close() throws IOException
+    {
+        delegate.close();
+    }
+
     private synchronized void commitIfNeeded() throws IOException
     {
         if (uncommittedWriteCount > maxWriteCount.get() || (getNow() - maxFlushPeriodNanos > lastFlushNanos)) {

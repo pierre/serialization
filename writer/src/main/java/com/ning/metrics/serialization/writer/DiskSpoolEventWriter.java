@@ -142,12 +142,6 @@ public class DiskSpoolEventWriter implements EventWriter
         }
     }
 
-    public void shutdown() throws InterruptedException
-    {
-        executor.shutdown();
-        executor.awaitTermination(15, TimeUnit.SECONDS);
-    }
-
     private void scheduleFlush()
     {
         executor.schedule(new Runnable()
@@ -245,6 +239,20 @@ public class DiskSpoolEventWriter implements EventWriter
             currentOutputFile = null;
             currentOutputter = null;
         }
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        // Stop the flusher
+        executor.shutdown();
+        try {
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+        executor.shutdownNow();
     }
 
     @Managed(description = "Flush events (forward them to final handler)")

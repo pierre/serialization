@@ -46,4 +46,9 @@ class StubEventWriter implements EventWriter
     public void rollback() throws IOException
     {
     }
+
+    @Override
+    public void close() throws IOException
+    {
+    }
 }

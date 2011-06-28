@@ -50,4 +50,6 @@ public interface EventWriter
      * @throws IOException generic IOException
      */
     public void rollback() throws IOException;
+
+    public void close() throws IOException;
 }

@@ -33,6 +33,7 @@ public class MockEventWriter implements EventWriter
     private boolean commitThrowsException;
     private boolean rollbackThrowsException;
     private boolean writeThrowsException;
+    private boolean isClosed = false;
 
     public MockEventWriter()
     {
@@ -90,6 +91,17 @@ public class MockEventWriter implements EventWriter
         }
 
         writtenEventList.add(event);
+    }
+
+    @Override
+    public synchronized void close() throws IOException
+    {
+        isClosed = true;
+    }
+
+    public boolean isClosed()
+    {
+        return isClosed;
     }
 
     public void setCommitThrowsException(final boolean commitThrowsException)
