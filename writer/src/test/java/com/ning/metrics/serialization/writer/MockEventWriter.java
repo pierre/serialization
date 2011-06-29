@@ -99,6 +99,15 @@ public class MockEventWriter implements EventWriter
         isClosed = true;
     }
 
+    /**
+     * @return local spool path used by the writer
+     */
+    @Override
+    public String getSpoolPath()
+    {
+        return null;
+    }
+
     public boolean isClosed()
     {
         return isClosed;

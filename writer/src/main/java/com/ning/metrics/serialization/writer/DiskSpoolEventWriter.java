@@ -255,6 +255,15 @@ public class DiskSpoolEventWriter implements EventWriter
         executor.shutdownNow();
     }
 
+    /**
+     * @return local spool path used by the writer
+     */
+    @Override
+    public String getSpoolPath()
+    {
+        return spoolDirectory.getAbsolutePath();
+    }
+
     @Managed(description = "Flush events (forward them to final handler)")
     public void flush()
     {

@@ -51,4 +51,10 @@ class StubEventWriter implements EventWriter
     public void close() throws IOException
     {
     }
+
+    @Override
+    public String getSpoolPath()
+    {
+        return null;
+    }
 }

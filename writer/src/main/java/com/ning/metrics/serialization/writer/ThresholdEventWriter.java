@@ -141,6 +141,15 @@ public class ThresholdEventWriter implements EventWriter
         delegate.close();
     }
 
+    /**
+     * @return local spool path used by the writer
+     */
+    @Override
+    public String getSpoolPath()
+    {
+        return delegate.getSpoolPath();
+    }
+
     private synchronized void commitIfNeeded() throws IOException
     {
         if (uncommittedWriteCount > maxWriteCount.get() || (getNow() - maxFlushPeriodNanos > lastFlushNanos)) {

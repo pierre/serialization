@@ -52,4 +52,9 @@ public interface EventWriter
     public void rollback() throws IOException;
 
     public void close() throws IOException;
+
+    /**
+     * @return local spool path used by the writer
+     */
+    public String getSpoolPath();
 }
