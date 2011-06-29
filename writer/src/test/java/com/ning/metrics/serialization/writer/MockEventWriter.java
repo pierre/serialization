@@ -17,6 +17,7 @@
 package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public class MockEventWriter implements EventWriter
     @Override
     public String getSpoolPath()
     {
-        return null;
+        return FileUtils.getTempDirectory().getAbsolutePath();
     }
 
     public boolean isClosed()
