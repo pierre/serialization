@@ -98,6 +98,9 @@ public class MockEventWriter implements EventWriter
     public synchronized void close() throws IOException
     {
         isClosed = true;
+
+        commit();
+        flush();
     }
 
     /**
