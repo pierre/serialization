@@ -78,6 +78,8 @@ public class DiskSpoolEventWriter implements EventWriter
     private volatile ObjectOutputter currentOutputter;
     private volatile File currentOutputFile;
 
+    private boolean acceptsEvents = false;
+
     public DiskSpoolEventWriter(
         final EventHandler eventHandler,
         final String spoolPath,
@@ -125,6 +127,8 @@ public class DiskSpoolEventWriter implements EventWriter
         createSpoolDir(lockDirectory);
         scheduleFlush();
         recoverFiles();
+
+        acceptsEvents = true;
     }
 
     private void createSpoolDir(final File dir)
@@ -145,23 +149,23 @@ public class DiskSpoolEventWriter implements EventWriter
     private void scheduleFlush()
     {
         executor.schedule(new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
-                {
-                    try {
-                        flush();
-                    }
-                    catch (Exception e) {
-                        log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
-                    }
-                    finally {
-                        final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
-                        log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
-                        executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
-                    }
+                try {
+                    flush();
                 }
-            }, flushIntervalInSeconds.get(), TimeUnit.SECONDS);
+                catch (Exception e) {
+                    log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
+                }
+                finally {
+                    final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
+                    log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
+                    executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
+                }
+            }
+        }, flushIntervalInSeconds.get(), TimeUnit.SECONDS);
     }
 
     //protected for overriding during unit tests
@@ -182,6 +186,11 @@ public class DiskSpoolEventWriter implements EventWriter
     @Override
     public synchronized void write(final Event event) throws IOException
     {
+        if (!acceptsEvents) {
+            log.warn("Writer not ready, discarding event: " + event.toString());
+            return;
+        }
+
         if (currentOutputter == null) {
             currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.bin", fileId.incrementAndGet()));
 
@@ -242,8 +251,10 @@ public class DiskSpoolEventWriter implements EventWriter
     }
 
     @Override
-    public void close() throws IOException
+    public synchronized void close() throws IOException
     {
+        acceptsEvents = false;
+
         // Stop the flusher
         executor.shutdown();
         try {
@@ -253,6 +264,10 @@ public class DiskSpoolEventWriter implements EventWriter
             Thread.currentThread().interrupt();
         }
         executor.shutdownNow();
+
+        // Cleanup the current state
+        forceCommit();
+        flush();
     }
 
     /**

@@ -22,6 +22,7 @@ import org.weakref.jmx.Managed;
 
 import java.io.IOException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -40,10 +41,13 @@ public class ThresholdEventWriter implements EventWriter
 
     private final EventWriter delegate;
     private final AtomicLong maxWriteCount;
+    private final ScheduledExecutorService executor;
+
     private volatile long maxFlushPeriodNanos;
 
     private long lastFlushNanos;
     private long uncommittedWriteCount = 0;
+    private boolean acceptsEvents = false;
 
     public ThresholdEventWriter(final EventWriter delegate, final long maxUncommittedWriteCount, final long maxFlushPeriodInSeconds)
     {
@@ -52,19 +56,22 @@ public class ThresholdEventWriter implements EventWriter
         setMaxFlushPeriodInSeconds(maxFlushPeriodInSeconds);
         this.lastFlushNanos = getNow();
 
-        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(new Runnable()
+        this.executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleWithFixedDelay(new Runnable()
+        {
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
-                {
-                    try {
-                        commitIfNeeded();
-                    }
-                    catch (IOException e) {
-                        log.warn(String.format("Got exception while trying to commit: %s", e));
-                    }
+                try {
+                    commitIfNeeded();
                 }
-            }, maxFlushPeriodInSeconds, maxFlushPeriodInSeconds, TimeUnit.SECONDS);
+                catch (IOException e) {
+                    log.warn(String.format("Got exception while trying to commit: %s", e));
+                }
+            }
+        }, maxFlushPeriodInSeconds, maxFlushPeriodInSeconds, TimeUnit.SECONDS);
+
+        acceptsEvents = true;
     }
 
     /**
@@ -76,6 +83,11 @@ public class ThresholdEventWriter implements EventWriter
     @Override
     public synchronized void write(final Event event) throws IOException
     {
+        if (!acceptsEvents) {
+            log.warn("Writer not ready, discarding event: " + event.toString());
+            return;
+        }
+
         delegate.write(event);
         uncommittedWriteCount++;
 
@@ -136,8 +148,21 @@ public class ThresholdEventWriter implements EventWriter
     }
 
     @Override
-    public void close() throws IOException
+    public synchronized void close() throws IOException
     {
+        acceptsEvents = false;
+
+        // Stop the flusher
+        executor.shutdown();
+        try {
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+        executor.shutdownNow();
+
+        // Close the underlying writer
         delegate.close();
     }
 
