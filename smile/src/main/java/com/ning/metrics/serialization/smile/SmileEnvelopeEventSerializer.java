@@ -71,7 +71,8 @@ public class SmileEnvelopeEventSerializer implements EventSerializer
         if (event == null) {
             throw new IllegalArgumentException("SmileEnvelopeEventSerializer can only serialize SmileEnvelopeEvents");
         }
-        smileEvent.setPlainJson(plainJson);
+        // no, no, no: type of output being produced is dictated by JsonGenerator we have so don't do this:
+        //smileEvent.setPlainJson(plainJson);
         smileEvent.writeToJsonGenerator(jsonGenerator);
     }
 

@@ -18,17 +18,17 @@ package com.ning.metrics.serialization.event;
 
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
 import org.joda.time.DateTime;
 
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -47,8 +47,6 @@ public class SmileEnvelopeEvent implements Event
     public static final Charset NAME_CHARSET = Charset.forName("UTF-8");
 
     protected static final SmileFactory smileFactory = new SmileFactory();
-    protected static final JsonFactory jsonFactory = new JsonFactory();
-
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
         smileFactory.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
@@ -58,7 +56,6 @@ public class SmileEnvelopeEvent implements Event
     }
 
     private static final ObjectMapper smileObjectMapper = new ObjectMapper(smileFactory);
-    private static final ObjectMapper jsonObjectMapper = new ObjectMapper(jsonFactory);
 
     public static final String SMILE_EVENT_DATETIME_TOKEN_NAME = "eventDate";
     public static final String SMILE_EVENT_GRANULARITY_TOKEN_NAME = "eventGranularity";
@@ -68,8 +65,8 @@ public class SmileEnvelopeEvent implements Event
     protected Granularity granularity = null;
     protected JsonNode root;
 
-    private boolean isPlainJson = false;
-
+    private volatile byte[] serializedEvent;
+    
     @Deprecated
     public SmileEnvelopeEvent()
     {
@@ -89,19 +86,15 @@ public class SmileEnvelopeEvent implements Event
         this.eventDateTime = eventDateTime;
         this.granularity = Granularity.HOURLY;
 
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        final JsonGenerator g = smileFactory.createJsonGenerator(stream);
+        ObjectNode root = getObjectMapper().createObjectNode();
 
-        g.writeStartObject();
-        g.writeNumberField(SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
-        g.writeStringField(SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
-        for (final String key : map.keySet()) {
-            g.writeObjectField(key, map.get(key)); // will hopefully do the right thing (e.g. take care of numerics)
+        root.put(SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
+        root.put(SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
+        
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            addToTree(root, entry.getKey(), entry.getValue());
         }
-        g.writeEndObject();
-        g.close(); // important: will force flushing of output, close underlying output stream
-
-        setPayloadFromByteArray(stream.toByteArray());
+        this.root = root;
     }
 
     public SmileEnvelopeEvent(final String eventName, final JsonNode node)
@@ -121,20 +114,19 @@ public class SmileEnvelopeEvent implements Event
     public SmileEnvelopeEvent(final String eventName, final byte[] inputBytes, final DateTime eventDateTime, final Granularity granularity) throws IOException
     {
         this.eventName = eventName;
+        this.serializedEvent = inputBytes;
         this.eventDateTime = eventDateTime;
         this.granularity = granularity;
-        setPayloadFromByteArray(inputBytes);
+        this.root = parseAsTree(inputBytes);
     }
 
     // this constructor needs a node arg generated via writeToJsonGenerator()
     // can throw RuntimeExceptions very easily, because any JsonNode.get() call return null
     public SmileEnvelopeEvent(final JsonNode node) throws IOException
     {
-        try {
-            eventName = node.get("eventName").getTextValue();
-            this.root = node.get("payload");
-        }
-        catch (NullPointerException e) {
+        eventName = node.path("eventName").getValueAsText();
+        root = node.get("payload");
+        if ((root == null || root.size() == 0) || (eventName == null || eventName.isEmpty())) {
             throw new IOException("Cannot construct a SmileEnvelopeEvent from just a JsonNode unless JsonNode has eventName and payload properties.");
         }
         setEventPropertiesFromNode(root);
@@ -182,41 +174,24 @@ public class SmileEnvelopeEvent implements Event
         return root;
     }
 
-    public boolean isPlainJson()
-    {
-        return isPlainJson;
-    }
-
-    public void setPlainJson(final boolean plainJson)
-    {
-        isPlainJson = plainJson;
-    }
-
     public ObjectMapper getObjectMapper()
     {
-        if (isPlainJson()) {
-            return jsonObjectMapper;
-        }
-        else {
-            return smileObjectMapper;
-        }
+        return smileObjectMapper;
     }
 
     @Override
     public byte[] getSerializedEvent()
     {
-        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-
-        try {
-            final JsonGenerator gen = getObjectMapper().getJsonFactory().createJsonGenerator(outStream, JsonEncoding.UTF8);
-            getObjectMapper().writeTree(gen, root);
-            gen.close();
+        if (serializedEvent == null) {
+            // can we not avoid serializing it if we already have bytes?
+            try {
+                serializedEvent = getObjectMapper().writeValueAsBytes(root);
+            }
+            catch (IOException e) { // would rather this was thrown, but signature won't allow it:
+                return null;
+            }
         }
-        catch (IOException e) {
-            return null;
-        }
-
-        return outStream.toByteArray();
+        return serializedEvent;
     }
 
     /**
@@ -273,7 +248,7 @@ public class SmileEnvelopeEvent implements Event
         final byte[] smilePayload = new byte[smilePayloadSize];
         in.readFully(smilePayload);
 
-        setPayloadFromByteArray(smilePayload);
+        root = parseAsTree(smilePayload);
 
         setEventPropertiesFromNode(root);
     }
@@ -331,16 +306,51 @@ public class SmileEnvelopeEvent implements Event
         return nodeGranularity;
     }
 
-    private void setPayloadFromByteArray(final byte[] smilePayload) throws IOException
+    private JsonNode parseAsTree(final byte[] smilePayload) throws IOException
     {
-        final JsonParser jp = getObjectMapper().getJsonFactory().createJsonParser(smilePayload);
-        root = getObjectMapper().readTree(jp);
-        jp.close();
+        return getObjectMapper().readTree(new ByteArrayInputStream(smilePayload));
     }
 
     @Override
     public String toString()
     {
         return root.toString();
+    }
+
+    private static void addToTree(ObjectNode root, String name, Object value)
+    {
+        /* could wrap everything as POJONode, but that's bit inefficient;
+         * so let's handle some known cases.
+         * (in reality, I doubt there could ever be non-scalars, FWIW, since
+         * downstream systems expect simple key/value data)
+         */
+        if (value instanceof String) {
+            root.put(name, (String) value);
+            return;
+        }
+        if (value instanceof Number) {
+            Number num = (Number) value;
+            if (value instanceof Integer) {
+                root.put(name, num.intValue());
+            }
+            else if (value instanceof Long) {
+                root.put(name, num.longValue());
+            }
+            else if (value instanceof Double)  {
+                root.put(name, num.doubleValue());
+            }
+            else {
+                root.putPOJO(name, num);
+            }
+        }
+        else if (value == Boolean.TRUE) {
+            root.put(name, true);
+        }
+        else if (value == Boolean.FALSE) {
+            root.put(name, false);
+        }
+        else { // most likely Date
+            root.putPOJO(name, value);
+        }
     }
 }
