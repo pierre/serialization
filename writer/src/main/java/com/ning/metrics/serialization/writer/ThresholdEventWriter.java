@@ -16,12 +16,12 @@
 
 package com.ning.metrics.serialization.writer;
 
+import com.mogwee.executors.FailsafeScheduledExecutor;
 import com.ning.metrics.serialization.event.Event;
 import org.apache.log4j.Logger;
 import org.weakref.jmx.Managed;
 
 import java.io.IOException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -56,7 +56,7 @@ public class ThresholdEventWriter implements EventWriter
         setMaxFlushPeriodInSeconds(maxFlushPeriodInSeconds);
         this.lastFlushNanos = getNow();
 
-        this.executor = Executors.newScheduledThreadPool(1);
+        this.executor = new FailsafeScheduledExecutor("ThresholdEventWriterCommitter");
         executor.scheduleWithFixedDelay(new Runnable()
         {
             @Override

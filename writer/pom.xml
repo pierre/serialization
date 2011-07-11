@@ -17,6 +17,10 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.mogwee</groupId>
+            <artifactId>mogwee-executors</artifactId>
+        </dependency>
         <!-- HACK, specify test dependency first. See http://jira.codehaus.org/browse/MSITE-432 -->
         <dependency>
             <groupId>com.ning</groupId>

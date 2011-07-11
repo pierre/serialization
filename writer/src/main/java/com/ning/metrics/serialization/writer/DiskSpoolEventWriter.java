@@ -312,6 +312,7 @@ public class DiskSpoolEventWriter implements EventWriter
                         else if (!file.delete()) {
                             log.warn(String.format("Unable to delete file %s", file));
                         }
+                        log.debug(String.format("Deleted [%s]", file));
                     }
                 };
 
@@ -411,6 +412,7 @@ public class DiskSpoolEventWriter implements EventWriter
 
         try {
             FileUtils.moveFile(srcFile, destinationOutputFile);
+            log.debug(String.format("Moved [%s] to [%s]", srcFile, destDir));
         }
         catch (IOException e) {
             log.warn(String.format("Error renaming spool file %s to %s: %s", srcFile, destinationOutputFile, e));
