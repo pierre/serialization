@@ -44,7 +44,8 @@ public class SmileEnvelopeEventSerializer implements EventSerializer
         smileFactory.configure(SmileParser.Feature.REQUIRE_HEADER, false);
     }
 
-    public SmileEnvelopeEventSerializer(final boolean plainJson) {
+    public SmileEnvelopeEventSerializer(final boolean plainJson)
+    {
         this.plainJson = plainJson;
     }
 
@@ -71,8 +72,8 @@ public class SmileEnvelopeEventSerializer implements EventSerializer
         if (event == null) {
             throw new IllegalArgumentException("SmileEnvelopeEventSerializer can only serialize SmileEnvelopeEvents");
         }
-        // no, no, no: type of output being produced is dictated by JsonGenerator we have so don't do this:
-        //smileEvent.setPlainJson(plainJson);
+        // Annotate the event with the underlying serialization protocol used
+        smileEvent.setPlainJson(plainJson);
         smileEvent.writeToJsonGenerator(jsonGenerator);
     }
 

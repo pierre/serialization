@@ -16,7 +16,8 @@
 
 package com.ning.metrics.serialization.event;
 
-import org.codehaus.jackson.*;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.smile.SmileFactory;
@@ -47,6 +48,7 @@ public class SmileEnvelopeEvent implements Event
     public static final Charset NAME_CHARSET = Charset.forName("UTF-8");
 
     protected static final SmileFactory smileFactory = new SmileFactory();
+
     static {
         // yes, full 'compression' by checking for repeating names, short string values:
         smileFactory.configure(SmileGenerator.Feature.CHECK_SHARED_NAMES, true);
@@ -65,8 +67,11 @@ public class SmileEnvelopeEvent implements Event
     protected Granularity granularity = null;
     protected JsonNode root;
 
+    // Should this Event be serialized as Smile or Json?
+    private boolean isPlainJson = false;
+
     private volatile byte[] serializedEvent;
-    
+
     @Deprecated
     public SmileEnvelopeEvent()
     {
@@ -90,7 +95,7 @@ public class SmileEnvelopeEvent implements Event
 
         root.put(SMILE_EVENT_DATETIME_TOKEN_NAME, eventDateTime.getMillis());
         root.put(SMILE_EVENT_GRANULARITY_TOKEN_NAME, granularity.toString());
-        
+
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             addToTree(root, entry.getKey(), entry.getValue());
         }
@@ -232,7 +237,7 @@ public class SmileEnvelopeEvent implements Event
      * and with the same types as were written by writeExternal.
      *
      * @param in the stream to read data from in order to restore the object
-     * @throws java.io.IOException    if I/O errors occur
+     * @throws java.io.IOException if I/O errors occur
      */
     @Override
     public void readExternal(final ObjectInput in) throws IOException
@@ -266,6 +271,21 @@ public class SmileEnvelopeEvent implements Event
         // which is super convenient, but also mysterious
         getObjectMapper().writeTree(gen, root);
         gen.writeEndObject();
+    }
+
+    /**
+     * Used as a metadata when the Event is passed around
+     *
+     * @return true if the underlying payload is/should be plain Json and not Smile
+     */
+    public boolean isPlainJson()
+    {
+        return isPlainJson;
+    }
+
+    public void setPlainJson(final boolean plainJson)
+    {
+        isPlainJson = plainJson;
     }
 
     private void setEventPropertiesFromNode(final JsonNode node)
@@ -336,7 +356,7 @@ public class SmileEnvelopeEvent implements Event
             else if (value instanceof Long) {
                 root.put(name, num.longValue());
             }
-            else if (value instanceof Double)  {
+            else if (value instanceof Double) {
                 root.put(name, num.doubleValue());
             }
             else {
