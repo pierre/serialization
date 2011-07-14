@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -162,7 +163,16 @@ public class DiskSpoolEventWriter implements EventWriter
                 finally {
                     final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
                     log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
-                    executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
+
+                    try {
+                        executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
+                    }
+                    catch (RejectedExecutionException e) {
+                        // Ignore if we've been asked to shutdown
+                        if (!executor.isShutdown()) {
+                            throw e;
+                        }
+                    }
                 }
             }
         }, flushIntervalInSeconds.get(), TimeUnit.SECONDS);
