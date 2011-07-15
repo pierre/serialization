@@ -16,7 +16,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.log4j.Logger;
 import org.apache.pig.Expression;
 import org.apache.pig.LoadFunc;
 import org.apache.pig.LoadMetadata;
@@ -35,8 +34,6 @@ import java.util.concurrent.ExecutionException;
 
 public class ThriftStorage extends LoadFunc implements LoadMetadata
 {
-    private static final Logger log = Logger.getLogger(ThriftStorage.class);
-
     private final TupleFactory factory = TupleFactory.getInstance();
     private final GoodwillSchema schema;
 
@@ -144,8 +141,6 @@ public class ThriftStorage extends LoadFunc implements LoadMetadata
     public Tuple getNext() throws IOException
     {
         try {
-            List<Object> tupleList = new ArrayList<Object>();
-
             if (reader == null || !reader.nextKeyValue()) {
                 return null;
             }
@@ -153,10 +148,10 @@ public class ThriftStorage extends LoadFunc implements LoadMetadata
             value = reader.getCurrentValue();
 
             if (value instanceof ThriftEnvelope) {
-                ThriftEnvelope envelope = (ThriftEnvelope) value;
-                Tuple tuple = factory.newTuple(envelope.getPayload().size());
-                for (ThriftField thriftField : envelope.getPayload()) {
-                    GoodwillSchemaField schemaField = schema.getFieldByPosition(thriftField.getId());
+                final ThriftEnvelope envelope = (ThriftEnvelope) value;
+                final Tuple tuple = factory.newTuple(envelope.getPayload().size());
+                for (final ThriftField thriftField : envelope.getPayload()) {
+                    final GoodwillSchemaField schemaField = schema.getFieldByPosition(thriftField.getId());
 
                     if (schemaField == null) {
                         throw new IOException(String.format("got a thrift ID [%d] that is not part of the schema", thriftField.getId()));
@@ -173,7 +168,7 @@ public class ThriftStorage extends LoadFunc implements LoadMetadata
             }
         }
         catch (InterruptedException e) {
-            log.warn("Interrupted getting next tuple", e);
+            Thread.currentThread().interrupt();
         }
 
         return null;

@@ -17,7 +17,6 @@ package com.ning.metrics.serialization.smile;
 
 import com.ning.metrics.serialization.event.EventDeserializer;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
@@ -36,7 +35,6 @@ import java.util.List;
 
 public class SmileEnvelopeEventDeserializer implements EventDeserializer
 {
-    private static final Logger log = Logger.getLogger(SmileEnvelopeEventDeserializer.class);
     protected static final SmileFactory smileFactory = new SmileFactory();
     protected static final JsonFactory jsonFactory = new JsonFactory();
 
@@ -105,7 +103,6 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
             return nextToken != JsonToken.END_ARRAY && nextToken != null;
         }
         catch (Exception e) {
-            log.debug("got exception while looking for nextToken");
             return false;
         }
     }
@@ -180,13 +177,11 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
                     events.add(event);
                 }
                 catch (IOException e) {
-                    log.warn("unable to extract an event. Expect an array of {eventName=<foo>,payload=<bar>} objects.");
                     // keep trying. there might only be one malformed tree?
                 }
             }
         }
         else {
-            log.warn("unable to extract an event. Expect an array of {eventName=<foo>,payload=<bar>} objects.");
             throw new IOException("root JsonNode must be an ArrayNode");
         }
 

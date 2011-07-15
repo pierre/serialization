@@ -18,7 +18,8 @@ package com.ning.metrics.serialization.writer;
 
 import com.mogwee.executors.FailsafeScheduledExecutor;
 import com.ning.metrics.serialization.event.Event;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weakref.jmx.Managed;
 
 import java.io.IOException;
@@ -37,7 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ThresholdEventWriter implements EventWriter
 {
-    private static final Logger log = Logger.getLogger(ThresholdEventWriter.class);
+    private static final Logger log = LoggerFactory.getLogger(ThresholdEventWriter.class);
 
     private final EventWriter delegate;
     private final AtomicLong maxWriteCount;
@@ -84,7 +85,7 @@ public class ThresholdEventWriter implements EventWriter
     public synchronized void write(final Event event) throws IOException
     {
         if (!acceptsEvents) {
-            log.warn("Writer not ready, discarding event: " + event.toString());
+            log.warn("Writer not ready, discarding event: {}", event);
             return;
         }
 
@@ -103,7 +104,7 @@ public class ThresholdEventWriter implements EventWriter
     @Override
     public synchronized void forceCommit() throws IOException
     {
-        log.debug(String.format("Performing commit on delegate EventWriter [%s]", delegate.getClass()));
+        log.debug("Performing commit on delegate EventWriter [{}]", delegate.getClass());
         delegate.commit();
 
         uncommittedWriteCount = 0;

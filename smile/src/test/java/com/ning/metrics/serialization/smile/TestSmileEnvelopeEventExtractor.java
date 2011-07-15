@@ -17,27 +17,27 @@ package com.ning.metrics.serialization.smile;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.*;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
 import org.joda.time.DateTime;
-
-import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
 
 /*
     Tests SmileEnvelopeEventSerializer, SmileEnvelopeEventDeserializer, & SmileEnvelopeEvent(JsonNode) constructor
  */
 public class TestSmileEnvelopeEventExtractor
 {
-    private static final Logger log = Logger.getLogger(TestSmileEnvelopeEventExtractor.class);
-
     protected static final SmileFactory smileFactory = new SmileFactory();
     protected static final JsonFactory jsonFactory = new JsonFactory();
 

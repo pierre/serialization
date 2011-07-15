@@ -19,8 +19,9 @@ package com.ning.metrics.serialization.writer;
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.joda.time.Period;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weakref.jmx.Managed;
 
 import java.io.File;
@@ -57,7 +58,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DiskSpoolEventWriter implements EventWriter
 {
-    private static final Logger log = Logger.getLogger(DiskSpoolEventWriter.class);
+    private static final Logger log = LoggerFactory.getLogger(DiskSpoolEventWriter.class);
 
     private final AtomicLong fileId = new AtomicLong(System.currentTimeMillis() * 1000000);
     private final AtomicBoolean flushEnabled;
@@ -135,7 +136,7 @@ public class DiskSpoolEventWriter implements EventWriter
     private void createSpoolDir(final File dir)
     {
         if (!dir.exists() && !dir.mkdirs()) {
-            log.error(String.format("unable to create spool directory %s", dir));
+            log.error("unable to create spool directory {}", dir);
         }
     }
 
@@ -158,11 +159,11 @@ public class DiskSpoolEventWriter implements EventWriter
                     flush();
                 }
                 catch (Exception e) {
-                    log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
+                    log.error(String.format("Failed commit by {}", eventHandler.toString()), e);
                 }
                 finally {
                     final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
-                    log.debug(String.format("Sleeping %d seconds before next flush by %s", sleepSeconds, eventHandler.toString()));
+                    log.debug("Sleeping {} seconds before next flush by {}", sleepSeconds, eventHandler.toString());
 
                     try {
                         executor.schedule(this, sleepSeconds, TimeUnit.SECONDS);
@@ -197,7 +198,7 @@ public class DiskSpoolEventWriter implements EventWriter
     public synchronized void write(final Event event) throws IOException
     {
         if (!acceptsEvents) {
-            log.warn("Writer not ready, discarding event: " + event.toString());
+            log.warn("Writer not ready, discarding event: {}", event);
             return;
         }
 
@@ -305,7 +306,7 @@ public class DiskSpoolEventWriter implements EventWriter
                     @Override
                     public synchronized void onError(final Throwable t, final File file)
                     {
-                        log.warn(String.format("Error trying to flush file %s: %s", file, t.getLocalizedMessage()));
+                        log.warn("Error trying to flush file {}: {}", file, t.getLocalizedMessage());
 
                         if (file != null && file.exists()) {
                             quarantineFile(lockedFile);
@@ -317,12 +318,12 @@ public class DiskSpoolEventWriter implements EventWriter
                     {
                         // Delete the file
                         if (!file.exists()) {
-                            log.warn(String.format("Trying to delete a file that does not exist: %s", file));
+                            log.warn("Trying to delete a file that does not exist: {}", file);
                         }
                         else if (!file.delete()) {
-                            log.warn(String.format("Unable to delete file %s", file));
+                            log.warn("Unable to delete file {}", file);
                         }
-                        log.debug(String.format("Deleted [%s]", file));
+                        log.debug("Deleted [{}]", file);
                     }
                 };
 
@@ -347,7 +348,7 @@ public class DiskSpoolEventWriter implements EventWriter
     @Managed(description = "enable/disable flushing to hdfs")
     public void setFlushEnabled(final boolean enabled)
     {
-        log.info(String.format("Setting flush enabled to %b", enabled));
+        log.info("Setting flush enabled to {}", enabled);
         flushEnabled.set(enabled);
     }
 
@@ -360,7 +361,7 @@ public class DiskSpoolEventWriter implements EventWriter
     @Managed(description = "set the commit interval for next scheduled commit to hdfs in seconds")
     public void setFlushIntervalInSeconds(final long seconds)
     {
-        log.info(String.format("setting persistent flushing to %d seconds", seconds));
+        log.info("setting persistent flushing to {} seconds", seconds);
         flushIntervalInSeconds.set(seconds);
     }
 
@@ -422,7 +423,7 @@ public class DiskSpoolEventWriter implements EventWriter
 
         try {
             FileUtils.moveFile(srcFile, destinationOutputFile);
-            log.debug(String.format("Moved [%s] to [%s]", srcFile, destDir));
+            log.debug("Moved [{}] to [{}]", srcFile, destDir);
         }
         catch (IOException e) {
             log.warn(String.format("Error renaming spool file %s to %s: %s", srcFile, destinationOutputFile, e));

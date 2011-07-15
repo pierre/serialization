@@ -18,7 +18,6 @@ package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.StubEvent;
-import org.apache.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -37,8 +36,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class TestDiskSpoolEventWriter
 {
-    private static final Logger log = Logger.getLogger(TestDiskSpoolEventWriter.class);
-
     private Runnable commandToRun;
     private long secondsToWait;
     private final ScheduledExecutorService executor = new StubScheduledExecutorService()
@@ -119,7 +116,7 @@ public class TestDiskSpoolEventWriter
         commandToRun.run();
         Assert.assertEquals(secondsToWait, 30);
 
-        spooledFileList.set(Arrays.asList(new File(tmpDir,"fuu")));
+        spooledFileList.set(Arrays.asList(new File(tmpDir, "fuu")));
         commandToRun.run();
         Assert.assertEquals(secondsToWait, 0);
     }
@@ -213,7 +210,7 @@ public class TestDiskSpoolEventWriter
         testSpoolDirs(0, 0, 1);
 
         // this isn't a comprehensive test at all. it doesn't tell us if some events have succeeded!
-        Assert.assertEquals(quarantineDir.listFiles().length,1);
+        Assert.assertEquals(quarantineDir.listFiles().length, 1);
     }
 
     @Test(groups = "fast")
@@ -269,9 +266,7 @@ public class TestDiskSpoolEventWriter
         if (quarantineDir.exists()) {
             for (final File file : quarantineDir.listFiles()) {
                 if (file.isFile()) {
-                    if (!file.delete()) {
-                        log.info(String.format("unable to delete file %s", file));
-                    }
+                    file.delete();
                 }
             }
         }
