@@ -51,7 +51,6 @@ public class TestEnvelopeSerializer
     public void testSerializerJson() throws Exception
     {
         testSerializer(true);
-
     }
 
     private void testSerializer(final boolean isPlainJson) throws Exception
