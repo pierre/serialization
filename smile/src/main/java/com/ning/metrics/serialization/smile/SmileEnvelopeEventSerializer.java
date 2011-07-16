@@ -64,7 +64,7 @@ public class SmileEnvelopeEventSerializer implements EventSerializer
     @Override
     public void serialize(final Event event) throws IOException
     {
-        SmileEnvelopeEvent smileEvent = (SmileEnvelopeEvent) event;
+        final SmileEnvelopeEvent smileEvent = (SmileEnvelopeEvent) event;
         // This is hacky, but nonetheless cleaner than using generics.
         // If we use generics, they'd have to propagate up through the type signatures of nearly every aspect of the
         // event flow, it's harder to understand how they'll behave, AND handling the event type will usually boil down

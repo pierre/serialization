@@ -35,10 +35,6 @@ import java.util.Map;
 /**
  * Event representation of a single Smile event. This class is useful to send Json trees
  * to the collector via the eventtracker library.
- * Under the cover though, we use SmileBucketEvent on the wire (when sending to the collector) and in
- * Hadoop sequencefiles (to leverage Smile back-references).
- *
- * @see com.ning.metrics.serialization.event.SmileBucketEvent
  */
 public class SmileEnvelopeEvent implements Event
 {
@@ -372,5 +368,19 @@ public class SmileEnvelopeEvent implements Event
         else { // most likely Date
             root.putPOJO(name, value);
         }
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (!(obj instanceof SmileEnvelopeEvent)) {
+            return false;
+        }
+        final Event other = (Event) obj;
+
+        return other.getName().equals(eventName) &&
+            other.getEventDateTime().equals(eventDateTime) &&
+            other.getGranularity().equals(granularity) &&
+            other.getData().equals(root);
     }
 }
