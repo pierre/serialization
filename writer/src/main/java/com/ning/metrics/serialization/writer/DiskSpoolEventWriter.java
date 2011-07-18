@@ -127,6 +127,12 @@ public class DiskSpoolEventWriter implements EventWriter
         createSpoolDir(tmpSpoolDirectory);
         createSpoolDir(quarantineDirectory);
         createSpoolDir(lockDirectory);
+
+        // Fail early
+        if (!spoolDirectory.exists() || !tmpSpoolDirectory.exists() || !quarantineDirectory.exists() || !lockDirectory.exists()) {
+            throw new IllegalArgumentException("Eventwriter misconfigured - couldn't create the spool directories");
+        }
+
         scheduleFlush();
         recoverFiles();
 

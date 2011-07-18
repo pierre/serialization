@@ -228,6 +228,19 @@ public class TestDiskSpoolEventWriter
         testSpoolDirs(0, 0, 1);
     }
 
+    @Test(groups = "fast")
+    public void testInvalidConfiguration() throws Exception
+    {
+        try {
+            // Shouldn't be able to write to /dev/null/...
+            new DiskSpoolEventWriter(writerSucceeds, "/dev/null", true, 1, executor, SyncType.NONE, 1, 1);
+            Assert.fail();
+        }
+        catch (IllegalArgumentException e) {
+            Assert.assertTrue(true);
+        }
+    }
+
     private DiskSpoolEventWriter createWriter(final EventHandler persistentWriter)
     {
         return new DiskSpoolEventWriter(persistentWriter, spoolPath, true, 1, executor, SyncType.NONE, 1, 1);
