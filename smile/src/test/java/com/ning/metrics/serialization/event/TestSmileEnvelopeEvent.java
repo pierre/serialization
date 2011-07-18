@@ -146,6 +146,7 @@ public class TestSmileEnvelopeEvent
         Assert.assertEquals(result.getSerializedEvent(), inputBytes);
     }
 
+    @SuppressWarnings("deprecation")
     @Test(groups = "fast")
     public void testReadWriteExternal() throws Exception
     {

@@ -33,7 +33,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * Event representation of a single Smile event. This class is useful to send Json trees
+ * Event representation of a single Smile event. This class is useful to send JSON trees
  * to the collector via the eventtracker library.
  */
 public class SmileEnvelopeEvent implements Event
@@ -74,7 +74,7 @@ public class SmileEnvelopeEvent implements Event
     }
 
     /**
-     * Given a map ("json-like"), create an event with hourly granularity
+     * Given a map ("JSON-like"), create an event with hourly granularity
      *
      * @param eventName     name of the event
      * @param eventDateTime event timestamp
@@ -263,8 +263,10 @@ public class SmileEnvelopeEvent implements Event
         gen.writeStartObject();
         gen.writeStringField("eventName", eventName);
         gen.writeFieldName("payload");
-        // TODO for some reason this works regardless of whether JsonObjectMapper or SmileObjectMapper is used
-        // which is super convenient, but also mysterious
+        /* Note: output format used depends completely on generator we are being passed
+         * and NOT on which mapper we use -- mappers are format independent and rely
+         * on underlying JsonParser/JsonGenerator for low-level handling.
+         */
         getObjectMapper().writeTree(gen, root);
         gen.writeEndObject();
     }

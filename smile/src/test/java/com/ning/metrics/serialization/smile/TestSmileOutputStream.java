@@ -16,9 +16,7 @@
 
 package com.ning.metrics.serialization.smile;
 
-import com.ning.metrics.serialization.event.Granularity;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
-import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
@@ -36,7 +34,6 @@ import java.util.List;
 public class TestSmileOutputStream
 {
     private SmileFactory f;
-    private static final Granularity eventGranularity = Granularity.MINUTE;
 
     @BeforeTest
     public void setUp() throws IOException
@@ -63,7 +60,6 @@ public class TestSmileOutputStream
     private byte[] createSmilePayload() throws IOException
     {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        final JsonGenerator g = f.createJsonGenerator(stream);
 
         SmileEnvelopeEventSerializer serializer = new SmileEnvelopeEventSerializer(false);
         serializer.open(stream);

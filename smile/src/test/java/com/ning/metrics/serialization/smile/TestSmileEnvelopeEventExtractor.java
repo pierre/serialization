@@ -88,8 +88,6 @@ public class TestSmileEnvelopeEventExtractor
         serializer.close();
 
         final InputStream in = new ByteArrayInputStream(out.toByteArray());
-        final String jsonString = out.toString();
-        System.out.println(jsonString); // TODO
 
         final SmileEnvelopeEventDeserializer deserializer = new SmileEnvelopeEventDeserializer(in, plainJson);
 

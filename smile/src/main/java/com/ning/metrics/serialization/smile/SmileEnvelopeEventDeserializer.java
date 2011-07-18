@@ -22,7 +22,6 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.codehaus.jackson.smile.SmileGenerator;
 import org.codehaus.jackson.smile.SmileParser;
@@ -80,9 +79,19 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
             mapper = jsonObjectMapper;
         }
 
-        // check that
-        if (parser.nextToken() != JsonToken.START_ARRAY) {
-            throw new IOException("I can't find a START_ARRAY. The inputStream is supposed to be a list!");
+        /* check that we either point to START_ARRAY or START_OBJECT; in former case
+         * it is assumed we have array of event objects; in latter case just a
+         * sequence of event objects.
+         */
+        nextToken = parser.nextToken();
+        boolean inArray = (nextToken == JsonToken.START_ARRAY);
+        if (inArray) {
+            nextToken = parser.nextToken();
+        }
+        // either way, first 'real' event must be a JSON Object
+        if (nextToken != JsonToken.START_OBJECT) {
+            throw new IOException("Invalid stream: expected JsonToken.START_OBJECT (in array context? "
+                    +inArray+"): instead encountered: "+nextToken);
         }
     }
 
@@ -93,18 +102,22 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
         }
 
         // don't advance nextToken if you don't have to
-        if (nextToken != null && nextToken != JsonToken.END_ARRAY) {
-            return true;
-        }
-
-        try {
-            // get next token
-            nextToken = parser.nextToken();
-            return nextToken != JsonToken.END_ARRAY && nextToken != null;
-        }
-        catch (Exception e) {
+        if (nextToken == JsonToken.END_ARRAY) {
             return false;
         }
+
+        if (nextToken == null) {
+            try {
+                // get next token
+                nextToken = parser.nextToken();
+            }
+            catch (Exception e) {
+                // why not set 'hasFailed' here?
+                return false;
+            }
+        }
+        // could verify that it is JsonToken.START_OBJECT?
+        return nextToken != JsonToken.END_ARRAY && nextToken != null;
     }
 
     /**
@@ -154,39 +167,19 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
 
         pbIn.unread(firstByte);
 
-        if (firstByte == SMILE_MARKER) {
-            return deserialize(pbIn, smileObjectMapper);
-        }
-        else {
-            return deserialize(pbIn, jsonObjectMapper);
-        }
-    }
-
-    private static List<SmileEnvelopeEvent> deserialize(final InputStream in, final ObjectMapper objectMapper) throws IOException
-    {
+        SmileEnvelopeEventDeserializer deser = (firstByte == SMILE_MARKER) ?
+                new SmileEnvelopeEventDeserializer(pbIn, false) :
+                new SmileEnvelopeEventDeserializer(pbIn, true);
         final List<SmileEnvelopeEvent> events = new LinkedList<SmileEnvelopeEvent>();
 
-        final JsonParser jp = objectMapper.getJsonFactory().createJsonParser(in);
-        final JsonNode root = objectMapper.readValue(jp, JsonNode.class);
-
-        if (root instanceof ArrayNode) {
-            final ArrayNode nodes = (ArrayNode) root;
-            for (final JsonNode node : nodes) {
-                try {
-                    final SmileEnvelopeEvent event = new SmileEnvelopeEvent(node);
-                    events.add(event);
-                }
-                catch (IOException e) {
-                    // keep trying. there might only be one malformed tree?
-                }
+        while (deser.hasNextEvent()) {
+            SmileEnvelopeEvent event = deser.getNextEvent();
+            if (event == null) {
+                // TODO: this is NOT expected, should warn
+                break;
             }
+            events.add(event);
         }
-        else {
-            throw new IOException("root JsonNode must be an ArrayNode");
-        }
-
-        jp.close();
-
         return events;
     }
 }
