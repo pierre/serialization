@@ -18,8 +18,8 @@ package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
+import com.yammer.metrics.guice.Timed;
 import org.apache.commons.io.FileUtils;
-import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weakref.jmx.Managed;
@@ -64,7 +64,6 @@ public class DiskSpoolEventWriter implements EventWriter
     private final AtomicBoolean flushEnabled;
     private final AtomicLong flushIntervalInSeconds;
     private final EventHandler eventHandler;
-    private final int rateWindowSizeMinutes;
     private final SyncType syncType;
     private final int syncBatchSize;
     private final File spoolDirectory;
@@ -74,7 +73,6 @@ public class DiskSpoolEventWriter implements EventWriter
     private final File lockDirectory;
     private final AtomicBoolean currentlyFlushing = new AtomicBoolean(false);
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
-    private final EventRate writeRate;
     private final EventSerializer eventSerializer;
 
     private volatile ObjectOutputter currentOutputter;
@@ -89,11 +87,10 @@ public class DiskSpoolEventWriter implements EventWriter
         final long flushIntervalInSeconds,
         final ScheduledExecutorService executor,
         final SyncType syncType,
-        final int syncBatchSize,
-        final int rateWindowSizeMinutes
+        final int syncBatchSize
     )
     {
-        this(eventHandler, spoolPath, flushEnabled, flushIntervalInSeconds, executor, syncType, syncBatchSize, rateWindowSizeMinutes, null);
+        this(eventHandler, spoolPath, flushEnabled, flushIntervalInSeconds, executor, syncType, syncBatchSize, null);
     }
 
     public DiskSpoolEventWriter(
@@ -104,12 +101,10 @@ public class DiskSpoolEventWriter implements EventWriter
         final ScheduledExecutorService executor,
         final SyncType syncType,
         final int syncBatchSize,
-        final int rateWindowSizeMinutes,
         final EventSerializer eventSerializer
     )
     {
         this.eventHandler = eventHandler;
-        this.rateWindowSizeMinutes = rateWindowSizeMinutes;
         this.syncType = syncType;
         this.syncBatchSize = syncBatchSize;
         this.spoolDirectory = new File(spoolPath);
@@ -120,8 +115,6 @@ public class DiskSpoolEventWriter implements EventWriter
         this.flushEnabled = new AtomicBoolean(flushEnabled);
         this.flushIntervalInSeconds = new AtomicLong(flushIntervalInSeconds);
         this.eventSerializer = eventSerializer;
-
-        writeRate = new EventRate(Period.minutes(rateWindowSizeMinutes));
 
         createSpoolDir(spoolDirectory);
         createSpoolDir(tmpSpoolDirectory);
@@ -200,6 +193,7 @@ public class DiskSpoolEventWriter implements EventWriter
         return spooledFileList;
     }
 
+    @Timed(name = "DiskSpoolEventWriter")
     @Override
     public synchronized void write(final Event event) throws IOException
     {
@@ -221,7 +215,6 @@ public class DiskSpoolEventWriter implements EventWriter
 
         try {
             currentOutputter.writeObject(event);
-            writeRate.increment();
         }
         catch (RuntimeException e) {
             eventSerializationFailures.incrementAndGet();
@@ -409,12 +402,6 @@ public class DiskSpoolEventWriter implements EventWriter
                 renameFile(file, spoolDirectory);
             }
         }
-    }
-
-    @Managed(description = "rate at which write() calls are succeeding to local disk")
-    public long getWriteRate()
-    {
-        return writeRate.getRate() / rateWindowSizeMinutes;
     }
 
     @Managed(description = "count of events that could not be serialized from memory to disk")
