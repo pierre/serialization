@@ -44,18 +44,18 @@ public class ThresholdEventWriter implements EventWriter
     private final AtomicLong maxWriteCount;
     private final ScheduledExecutorService executor;
 
-    private volatile long maxFlushPeriodNanos;
+    private volatile long maxUncommittedPeriodNanos;
 
-    private long lastFlushNanos;
+    private long lastCommitNanos;
     private long uncommittedWriteCount = 0;
     private boolean acceptsEvents = false;
 
-    public ThresholdEventWriter(final EventWriter delegate, final long maxUncommittedWriteCount, final long maxFlushPeriodInSeconds)
+    public ThresholdEventWriter(final EventWriter delegate, final long maxUncommittedWriteCount, final long maxUncommittedPeriodInSeconds)
     {
         this.delegate = delegate;
         this.maxWriteCount = new AtomicLong(maxUncommittedWriteCount);
-        setMaxFlushPeriodInSeconds(maxFlushPeriodInSeconds);
-        this.lastFlushNanos = getNow();
+        setMaxUncommittedPeriodInSeconds(maxUncommittedPeriodInSeconds);
+        this.lastCommitNanos = getNow();
 
         this.executor = new FailsafeScheduledExecutor("ThresholdEventWriterCommitter");
         executor.scheduleWithFixedDelay(new Runnable()
@@ -70,7 +70,7 @@ public class ThresholdEventWriter implements EventWriter
                     log.warn(String.format("Got exception while trying to commit: %s", e));
                 }
             }
-        }, maxFlushPeriodInSeconds, maxFlushPeriodInSeconds, TimeUnit.SECONDS);
+        }, maxUncommittedPeriodInSeconds, maxUncommittedPeriodInSeconds, TimeUnit.SECONDS);
 
         acceptsEvents = true;
     }
@@ -108,7 +108,7 @@ public class ThresholdEventWriter implements EventWriter
         delegate.commit();
 
         uncommittedWriteCount = 0;
-        lastFlushNanos = getNow();
+        lastCommitNanos = getNow();
     }
 
     /**
@@ -153,7 +153,7 @@ public class ThresholdEventWriter implements EventWriter
     {
         acceptsEvents = false;
 
-        // Stop the flusher
+        // Stop the committer
         executor.shutdown();
         try {
             executor.awaitTermination(5, TimeUnit.SECONDS);
@@ -178,7 +178,7 @@ public class ThresholdEventWriter implements EventWriter
 
     private synchronized void commitIfNeeded() throws IOException
     {
-        if (uncommittedWriteCount > maxWriteCount.get() || (getNow() - maxFlushPeriodNanos > lastFlushNanos)) {
+        if (uncommittedWriteCount > maxWriteCount.get() || (getNow() - maxUncommittedPeriodNanos > lastCommitNanos)) {
             forceCommit();
         }
     }
@@ -206,14 +206,14 @@ public class ThresholdEventWriter implements EventWriter
     }
 
     @Managed(description = "Set the max number of seconds between commits of local disk spools")
-    public void setMaxFlushPeriodInSeconds(final long maxFlushPeriodInSeconds)
+    public void setMaxUncommittedPeriodInSeconds(final long maxUncommittedPeriodInSeconds)
     {
-        this.maxFlushPeriodNanos = maxFlushPeriodInSeconds * 1000000000;
+        this.maxUncommittedPeriodNanos = maxUncommittedPeriodInSeconds * 1000000000;
     }
 
     @Managed(description = "The max number of seconds between commits of local disk spools")
-    public long getMaxFlushPeriodInSeconds()
+    public long getMaxUncommittedPeriodInSeconds()
     {
-        return maxFlushPeriodNanos / 1000000000;
+        return maxUncommittedPeriodNanos / 1000000000;
     }
 }
