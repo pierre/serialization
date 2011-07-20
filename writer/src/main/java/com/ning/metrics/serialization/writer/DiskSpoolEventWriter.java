@@ -165,7 +165,7 @@ public class DiskSpoolEventWriter implements EventWriter
                     flush();
                 }
                 catch (Exception e) {
-                    log.error(String.format("Failed commit by {}", eventHandler.toString()), e);
+                    log.error(String.format("Failed commit by %s", eventHandler.toString()), e);
                 }
                 finally {
                     final long sleepSeconds = getSpooledFileList().isEmpty() || !flushEnabled.get() ? flushIntervalInSeconds.get() : 0;
