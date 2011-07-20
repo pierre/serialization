@@ -57,9 +57,9 @@ public class TestThresholdEventWriter
         eventWriter.setMaxWriteCount(20);
         Assert.assertEquals(eventWriter.getMaxWriteCount(), 20);
 
-        Assert.assertEquals(eventWriter.getMaxFlushPeriodInSeconds(), 300);
-        eventWriter.setMaxFlushPeriodInSeconds(600);
-        Assert.assertEquals(eventWriter.getMaxFlushPeriodInSeconds(), 600);
+        Assert.assertEquals(eventWriter.getMaxUncommittedPeriodInSeconds(), 300);
+        eventWriter.setMaxUncommittedPeriodInSeconds(600);
+        Assert.assertEquals(eventWriter.getMaxUncommittedPeriodInSeconds(), 600);
     }
 
     @Test(groups = "fast")
