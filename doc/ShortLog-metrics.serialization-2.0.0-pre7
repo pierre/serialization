@@ -1,0 +1,11 @@
+Pierre-Alexandre Meyer (9):
+      [maven-release-plugin] prepare for next development iteration
+      hadoop: add example of Thrift storage
+      writer: add close method to EventWriter
+      writer: expose spoolPath in the EventWriter interface
+      writer: fix NPE in tests
+      hadoop: exclude transient dependencies from pig
+      writer: cleanup shutdown sequence
+      writer: update MockEventWriter behavior to be same as the real ones
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre7
+

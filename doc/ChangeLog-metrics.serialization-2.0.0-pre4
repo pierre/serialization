@@ -1,0 +1,83 @@
+commit 241ac4e799dddfb099d6531a161138c042977260
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon May 23 16:49:07 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre4
+
+commit 8ff9d1248764d47f4bd892ebcf7711fb1aa63165
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon May 23 16:42:30 2011 -0700
+
+    writer: use final where possible in Outputters
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit d7c59802af5e79ebbe3101d612e838c08cf97bb2
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon May 23 16:40:10 2011 -0700
+
+    writer: fix Javadocs in ObjectOutputterFactory
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 4079c24585f39650758fdc0d3f7a38d278a86279
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon May 23 16:35:26 2011 -0700
+
+    writer: use final when possible in DiskSpoolEventWriter
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit b8f97094e9c35734a430705e401b5d45e74cc5d2
+Author: Cole Ott <cole@ning.com>
+Date:   Mon May 23 16:32:14 2011 -0700
+
+    added SmileEnvelopeEventSerializer
+    
+    modified TestSmileEnvelopeEventExtractor to use SmileEnvelopeEventSerializer
+     rather than serializing "manually"
+
+commit 4967685ffe3dc3a23d06f18ca65107b0666146de
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon May 23 16:11:13 2011 -0700
+
+    writer: make logger final in TestDiskSpoolEventWriter
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 54d93e3b9c2e666f1d481820a73d7d8dab54e13c
+Author: Cole Ott <cole@ning.com>
+Date:   Mon May 23 14:22:13 2011 -0700
+
+    DiskSpoolEventWriter: crucial bugfix in callbackHandler
+    
+    StubEventHandler: fixed bug that kept tests from passing
+
+commit 7cf8418c8d7cf2e470bacd98d135c57b2b6e2724
+Author: Cole Ott <cole@ning.com>
+Date:   Mon May 23 14:00:16 2011 -0700
+
+    EventHandler: handles by file, not by event
+    
+    * removed rollback(). that's the callbackHandler's responsibility.
+    * removed exceptions from handle()'s signature. exceptions should
+      be handled using callbackHandler.onError() inside of the handle implementation
+    
+    * CallbackHandler also takes File args now
+    
+    * some of this commit's code is taken from commit add2fe1663f824e86d40e12d84e937670df45fd5
+      on branch zeroCopy (hackathon changes)
+
+commit 325b2253b2cb07f81028866d5ad7fccdc1a95419
+Author: Cole Ott <cole@ning.com>
+Date:   Fri May 20 16:11:39 2011 -0700
+
+    added EventSerializer class. Overhauled ObjectOutputters.
+    
+    * introduced generic typing in ObjectOutputter, EventSerializer, and EventWriter
+
+commit 2260aa9644cfee3158e0fa8f23575da2b5bc3b71
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 19 17:50:10 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

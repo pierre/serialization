@@ -1,0 +1,12 @@
+Cole Ott (5):
+      added "IGNORE this error" messages for some tests.
+      SmileEnvelopeEventExtractor: created class
+      SmileEnvelopeEventExtractor: added extractNextEvent()
+      pom: added log4j dependency
+      pom: bumped to pre3
+
+Pierre-Alexandre Meyer (3):
+      [maven-release-plugin] prepare for next development iteration
+      Revert "pom: bumped to pre3"
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre2
+

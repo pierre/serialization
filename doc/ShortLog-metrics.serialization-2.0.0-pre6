@@ -1,0 +1,10 @@
+Cole Ott (3):
+      Generify MockEventWriter, ThresholdEventWriter
+      de-generified nearly everything
+      Smile/ThriftEnvelopeEventDeserializer: hasNextEvent() == false after any exceptions are thrown
+
+Pierre-Alexandre Meyer (3):
+      [maven-release-plugin] prepare for next development iteration
+      common: make GranularityPathMapper public
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre6
+

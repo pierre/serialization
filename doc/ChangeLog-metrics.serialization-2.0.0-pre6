@@ -1,0 +1,51 @@
+commit 0c3f5e7806dcbf3ab12a08db91b283d523edb8b6
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Wed Jun 15 14:49:00 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre6
+
+commit 37a84c9d334f3b6df5fb75d7037c67a7db59bd16
+Author: Cole Ott <cole@ning.com>
+Date:   Fri Jun 3 13:55:27 2011 -0700
+
+    Smile/ThriftEnvelopeEventDeserializer: hasNextEvent() == false after any exceptions are thrown
+
+commit 198cadba5e30083d77324e88d5bd7f6c04766f55
+Author: Cole Ott <cole@ning.com>
+Date:   Wed Jun 1 15:38:50 2011 -0700
+
+    de-generified nearly everything
+    
+    * EventSerializer
+    * EventDeserializer
+    * ObjectOutput
+    * EventWriter
+    
+    Added comment explaining motivation for de-generification.
+    Basically, we only have 2 event types anyways, and a few changes can make
+    all of this generification moot. Additionally, generics were making the code very messy
+    because they had to propagate through the event flow, and ultimately we were just ignoring
+    warnings and exposing ourselves to runtime exceptions anyways. Most importantly,
+    ditching generics makes the code more obvious and predictable.
+
+commit 57d43603317a4e5749c02d0d4996f01b3fe77eff
+Author: Cole Ott <cole@ning.com>
+Date:   Wed Jun 1 13:51:15 2011 -0700
+
+    Generify MockEventWriter, ThresholdEventWriter
+
+commit 487355fab7b5c76bb4af08633d65d4857590af5e
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri May 27 16:34:46 2011 -0700
+
+    common: make GranularityPathMapper public
+    
+    We need it in the collector to flush manually the files.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 8056373d78b6b8da198621fd97b87635f7f84dcf
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri May 27 14:33:32 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

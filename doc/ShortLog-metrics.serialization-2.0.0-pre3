@@ -1,0 +1,5 @@
+Pierre-Alexandre Meyer (3):
+      [maven-release-plugin] prepare for next development iteration
+      pom.xml: bump jackson to 1.8.1
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre3
+

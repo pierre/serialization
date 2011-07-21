@@ -1,0 +1,119 @@
+commit e3849c87b1efdf564cd7571a064a82e0f16c7893
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri May 27 14:33:26 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre5
+
+commit 56779d7d2817360347b4faa921b1fc4cebc6e592
+Author: Cole Ott <cole@ning.com>
+Date:   Fri May 27 14:24:58 2011 -0700
+
+    Added interface EventDeserializer, classes ThriftEnvelopeEventSerializer/Deserializer
+    
+    renamed SmileEnvelopeEventExtractor to SmileEnvelopeEventDeserializer
+
+commit 7ac2ab7c58bbc3eca7fa214427ae3ba82fb0929e
+Author: Cole Ott <cole@ning.com>
+Date:   Thu May 26 19:34:33 2011 -0700
+
+    Added ThriftEnvelopeEventSerializer (incomplete/untested)
+
+commit f8e84892b7ed3ac58af92fcca69deef2feb1ce5e
+Author: Cole Ott <cole@ning.com>
+Date:   Thu May 26 18:38:28 2011 -0700
+
+    removed all SmileBucketEvent-related code!
+
+commit 2aefa85b7a5523ff79eaa6304657063ff7dba090
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 26 16:05:47 2011 -0700
+
+    writer: make sure to flush events even if no event is offered
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 7a6ef039ab6dbc917407632dea928784c1af9cc3
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 26 15:33:33 2011 -0700
+
+    writer: fix bug on close
+    
+    We weren't properly flushing the streams.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 0955a7c34369a1f096a30054ea9de8f551802acf
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 26 14:48:11 2011 -0700
+
+    smile: simplify SmileEnvelopeEventExtractor if-tests
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 7f67543800284d94a123c285930e0e07b9fc90ab
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue May 24 17:40:03 2011 -0700
+
+    thrift: use final when possible
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 2fda51c872cfe612f42513d43f17ae3e87254f54
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue May 24 17:35:24 2011 -0700
+
+    thrift: replace if statement with switch
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit b836c3b7f7c8ea4e439a5848933e06b5dce88630
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue May 24 17:34:28 2011 -0700
+
+    common: use final when possible
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 10ac7e39e21771b5cc8d760198489c4a738bdd06
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue May 24 17:29:58 2011 -0700
+
+    smile: use final when possible
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 10ae2cb9d24b41b57c3aef1ac9bc252bd2516714
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue May 24 17:26:23 2011 -0700
+
+    writer: remove annoying stacktrace in DiskSpoolEventWriter
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit ae2f20917d73beb1746c0bd23107d455952befbd
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue May 24 17:26:08 2011 -0700
+
+    writer: use final when possible
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 77e99d3335280da2775c1aca00e6fbb0f3fef5e5
+Author: Cole Ott <cole@ning.com>
+Date:   Tue May 24 16:28:05 2011 -0700
+
+    TestDiskSpoolEventWriter: added generics to silence complaints
+
+commit 55440dbb98f79a7840ca759847739fd62e5725a9
+Author: Cole Ott <cole@ning.com>
+Date:   Tue May 24 16:26:58 2011 -0700
+
+    tiny changes to SmileEnvelopeEvent & DiskSpoolEventWriter
+    
+    just cleaned up some code
+
+commit ece82ad278869c44fcc9be6ac8ec1bfeb611209b
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon May 23 16:49:13 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

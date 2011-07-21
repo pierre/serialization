@@ -1,0 +1,58 @@
+commit b9fffe223f0cc04bd6baf6c9552c2b0e43455ca6
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 12 19:32:55 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre8
+
+commit 9c225e2a8198ba58dad0219c5696876af91bfd2f
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon Jul 11 13:58:38 2011 -0700
+
+    pom.xml: bump goodwill-access to 0.1.2
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 4a916648e03dfeab8dcc1158088b5dcc9e1948e9
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon Jul 11 13:58:28 2011 -0700
+
+    pom.xml: bump jackson to 1.8.3
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit c25314b64e555abc082b251851dec6a0541ed586
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon Jul 11 13:21:06 2011 -0700
+
+    writer: use FailsafeScheduledExecutor from mogwee-executors
+    
+    The FailsafeScheduledExecutor will continue to schedule a task even
+    if the previous run had an exception. It also ensures that uncaught
+    exceptions are logged.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 198856b749998c0fbfa8accf8904b681e6c865c8
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon Jul 11 10:58:27 2011 -0700
+
+    smile: re-introduce the isPlainJson property
+    
+    We need this property for metadata purposes only, not for serialization.
+    Since we use SmileEnvelopeEvent events for both Smile and Json, we need
+    to give extra hints to the collector on how the event is/should be
+    serialized.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 6274e8835d2fa4e1b63c3b661408691ab5dbb1cc
+Author: Tatu <tatu@ning.com>
+Date:   Thu Jul 7 15:17:03 2011 -0700
+
+    Simplified Smile-event handling, much less back and forth
+
+commit a0ea78ba1674922d4ed6ac1ec8ab235020c7dd82
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 5 16:18:50 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

@@ -1,0 +1,21 @@
+commit f3fc877c0366fe8badc25ea33073dda8c2596467
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 19 17:50:05 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre3
+
+commit c39ecd9b38f14a586a512437c3f43e27cc19651c
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 19 17:46:47 2011 -0700
+
+    pom.xml: bump jackson to 1.8.1
+    
+    1.8.1 features Smile bug fixes.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 04da50729912f385d16ba6230424c61dc7150b5b
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 19 17:18:15 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

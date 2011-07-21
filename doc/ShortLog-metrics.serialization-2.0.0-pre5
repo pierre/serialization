@@ -1,0 +1,20 @@
+Cole Ott (5):
+      tiny changes to SmileEnvelopeEvent & DiskSpoolEventWriter
+      TestDiskSpoolEventWriter: added generics to silence complaints
+      removed all SmileBucketEvent-related code!
+      Added ThriftEnvelopeEventSerializer (incomplete/untested)
+      Added interface EventDeserializer, classes ThriftEnvelopeEventSerializer/Deserializer
+
+Pierre-Alexandre Meyer (11):
+      [maven-release-plugin] prepare for next development iteration
+      writer: use final when possible
+      writer: remove annoying stacktrace in DiskSpoolEventWriter
+      smile: use final when possible
+      common: use final when possible
+      thrift: replace if statement with switch
+      thrift: use final when possible
+      smile: simplify SmileEnvelopeEventExtractor if-tests
+      writer: fix bug on close
+      writer: make sure to flush events even if no event is offered
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre5
+

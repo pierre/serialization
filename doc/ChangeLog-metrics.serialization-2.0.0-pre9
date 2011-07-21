@@ -1,0 +1,23 @@
+commit 5533ee3b1f7a7f7b585f67056e57998e5a8ce690
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu Jul 14 13:13:41 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre9
+
+commit 29cef6f7c77726b16429bf293aca65a9c1222104
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu Jul 14 10:06:46 2011 -0700
+
+    writer: silence error on DiskSpoolEventWriter shutdown
+    
+    mogwee-executors reports once in a while a RejectedExecutionException
+    on shutdown - this is due to a race condition when the thread is closing down
+    and trying to schedule itself in the same time.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit b30bc21dddaa5ae24cc9e58e89325cb193b9d41e
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 12 19:33:02 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

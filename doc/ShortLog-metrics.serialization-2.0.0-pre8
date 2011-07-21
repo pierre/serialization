@@ -1,0 +1,11 @@
+Pierre-Alexandre Meyer (6):
+      [maven-release-plugin] prepare for next development iteration
+      smile: re-introduce the isPlainJson property
+      writer: use FailsafeScheduledExecutor from mogwee-executors
+      pom.xml: bump jackson to 1.8.3
+      pom.xml: bump goodwill-access to 0.1.2
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre8
+
+Tatu (1):
+      Simplified Smile-event handling, much less back and forth
+

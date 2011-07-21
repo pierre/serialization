@@ -1,0 +1,81 @@
+commit aa3802fd8719b759ed557a698c1f32e75faac31b
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 5 16:18:44 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre7
+
+commit c11997213f2603ff4cfefb21dd81deae0988545d
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 5 14:44:42 2011 -0700
+
+    writer: update MockEventWriter behavior to be same as the real ones
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit d59847fe14f6046102be41d06ec9ebc27f9fc8f2
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 5 14:22:14 2011 -0700
+
+    writer: cleanup shutdown sequence
+    
+    * Fix a bug where the executor behind the ThresholdEventWriter isn't
+      closed on close()
+    * Make the library clean itself up on shutdown (commit/flush files) -
+      the caller shouldn't need to do that
+    * Make sure one doesn't try to offer events during the shutdown sequence
+    
+    The drawback of this patch is that the shutdown sequence can take some
+    time. We may want to add a shutdownNow() method if we need it to bypass
+    the flush().
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 3fb7ae1f50082b12fe3598b69fb74f27aaafc8a1
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 5 13:30:44 2011 -0700
+
+    hadoop: exclude transient dependencies from pig
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 704b3fb59cc49ed90d97ee79567fc0a634050ec8
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jun 28 21:23:30 2011 -0700
+
+    writer: fix NPE in tests
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit a53130dca6a70705a4692186dffc676e7e964a7a
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jun 28 20:13:47 2011 -0700
+
+    writer: expose spoolPath in the EventWriter interface
+    
+    This is useful for cleanup purposes (e.g. on shutdown).
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 12733398c764209db1bf0523078ad2a539b479bc
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jun 28 13:32:10 2011 -0700
+
+    writer: add close method to EventWriter
+    
+    This fixes a Thread leak in the collector.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 8c85102cfbf1acc867d2104f6b13f63e45a1c509
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jun 24 14:29:32 2011 -0700
+
+    hadoop: add example of Thrift storage
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 0357c01abf5ff3a1169e28b3582ae90ec61e9cf1
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Wed Jun 15 14:49:05 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

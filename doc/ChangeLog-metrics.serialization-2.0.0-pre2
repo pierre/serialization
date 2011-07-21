@@ -1,0 +1,56 @@
+commit 304fa738015dc7a8b827c99cbf599c45cb71ff08
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 19 17:18:10 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre2
+
+commit c2bf05337f0f798af69fe0b2754b925d1e00a353
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu May 19 17:14:01 2011 -0700
+
+    Revert "pom: bumped to pre3"
+    
+    Why?
+    
+    This reverts commit 72a1aeafd0355a2a837da6673838e39fd2fc393e.
+
+commit 72a1aeafd0355a2a837da6673838e39fd2fc393e
+Author: Cole Ott <cole@ning.com>
+Date:   Thu May 19 15:15:06 2011 -0700
+
+    pom: bumped to pre3
+
+commit 9c63e095eb6eb04ee0bea3ac0e01804caef75e9f
+Author: Cole Ott <cole@ning.com>
+Date:   Thu May 19 15:02:25 2011 -0700
+
+    pom: added log4j dependency
+
+commit 1f3539d94097073903bdd434c752c7d12005fdbd
+Author: Cole Ott <cole@ning.com>
+Date:   Wed May 18 12:33:17 2011 -0700
+
+    SmileEnvelopeEventExtractor: added extractNextEvent()
+    
+    * updated test
+    * reformatted test, which introduced a lot of annoying minute formatting changes (sorry!)
+
+commit 360ecc595d647830ee1436140e8b5e4dda2b5162
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon May 16 11:57:12 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration
+
+commit c4ac3ac5be3827bfd008d082c9e7a3f9f3417f28
+Author: Cole Ott <cole@ning.com>
+Date:   Wed May 11 17:24:51 2011 -0700
+
+    SmileEnvelopeEventExtractor: created class
+    
+    SmileEnvelopeEvent: added writeToJsonGenerator() to write Json including eventName as well.
+
+commit 81db54957ed4586ea0ea5de45fe3d4f9f92b071d
+Author: Cole Ott <cole@ning.com>
+Date:   Mon May 9 19:36:16 2011 -0700
+
+    added "IGNORE this error" messages for some tests.

@@ -1,0 +1,5 @@
+Pierre-Alexandre Meyer (3):
+      [maven-release-plugin] prepare for next development iteration
+      writer: silence error on DiskSpoolEventWriter shutdown
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre9
+

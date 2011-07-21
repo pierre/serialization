@@ -1,0 +1,14 @@
+Cole Ott (4):
+      added EventSerializer class. Overhauled ObjectOutputters.
+      EventHandler: handles by file, not by event
+      DiskSpoolEventWriter: crucial bugfix in callbackHandler
+      added SmileEnvelopeEventSerializer
+
+Pierre-Alexandre Meyer (6):
+      [maven-release-plugin] prepare for next development iteration
+      writer: make logger final in TestDiskSpoolEventWriter
+      writer: use final when possible in DiskSpoolEventWriter
+      writer: fix Javadocs in ObjectOutputterFactory
+      writer: use final where possible in Outputters
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre4
+

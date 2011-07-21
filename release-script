@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# After release:perform, do
+#
+#  ./release-script metrics.serialization-2.0.0-pre8 metrics.serialization-2.0.0-pre9
+
+last="$1"
+new="$2"
+git log --no-merges $new ^$last > doc/ChangeLog-$new
+git shortlog --no-merges $new ^$last > doc/ShortLog-$new
