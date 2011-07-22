@@ -452,16 +452,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <resources>
-            <resource><!-- Don't bundle log4j.xml in the final JAR -->
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>
-                        log4j.xml
-                    </exclude>
-                </excludes>
-            </resource>
-        </resources>
     </build>
     <reporting>
         <plugins>
