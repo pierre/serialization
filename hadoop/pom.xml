@@ -14,6 +14,12 @@
 
     <dependencies>
         <dependency>
+            <!-- For goodwill-access -->
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.ning</groupId>
             <artifactId>metrics.goodwill-access</artifactId>
         </dependency>
@@ -36,6 +42,10 @@
         <dependency>
             <groupId>org.apache.pig</groupId>
             <artifactId>pig</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

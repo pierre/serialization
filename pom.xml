@@ -73,6 +73,12 @@
                 <version>1.1.1</version>
             </dependency>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>r09</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.mogwee</groupId>
                 <artifactId>mogwee-executors</artifactId>
                 <version>1.1.0</version>
@@ -80,7 +86,7 @@
             <dependency>
                 <groupId>com.ning</groupId>
                 <artifactId>metrics.goodwill-access</artifactId>
-                <version>0.1.3</version>
+                <version>0.1.4</version>
                 <exclusions>
                     <exclusion>
                         <!-- Requires 1.6.x due to async-http-client dependency -->
@@ -153,6 +159,11 @@
                         <artifactId>commons-el</artifactId>
                     </exclusion>
                     <exclusion>
+                        <!-- We user jcl-over-slf4j -->
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>hsqldb</groupId>
                         <artifactId>hsqldb</artifactId>
                     </exclusion>
@@ -204,8 +215,21 @@
                 <version>0.8.0</version>
                 <exclusions>
                     <exclusion>
+                        <groupId>commons-el</groupId>
+                        <artifactId>commons-el</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <!-- We user jcl-over-slf4j -->
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>hsqldb</groupId>
                         <artifactId>hsqldb</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.mortbay.jetty</groupId>
@@ -243,8 +267,17 @@
                 <version>0.6.1</version>
                 <exclusions>
                     <exclusion>
+                        <!-- We user jcl-over-slf4j -->
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>junit</groupId>
                         <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -262,6 +295,13 @@
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-smile</artifactId>
                 <version>1.8.3</version>
+            </dependency>
+            <dependency>
+                <!-- For Hadoop -->
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>1.5.11</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
