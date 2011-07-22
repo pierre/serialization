@@ -1,0 +1,21 @@
+Pierre-Alexandre Meyer (16):
+      [maven-release-plugin] prepare for next development iteration
+      logging: move to slf4j
+      build: add maven plugins
+      smile: attached reduced pom
+      smile: add serializer tests
+      smile: remove extra line
+      writer: fix NPE on startup when we cannot create spool directories
+      writer: fix log message
+      writer: use metrics library to get write rate
+      writer: rename maxFlushPeriodNanos in ThresholdEventWriter
+      writer: fix tests compilation
+      writer: remove unused dependency on metrics-core
+      doc: add ChangeLogs to keep track of releases
+      pom.xml: move to mogwee-executors 1.1.0
+      hadoop: add FileSystemAccess class from collector
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre10
+
+Tatu (1):
+      Further simplify/robustify smile/json handling; no functional changes
+

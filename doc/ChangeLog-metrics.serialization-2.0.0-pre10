@@ -1,0 +1,140 @@
+commit 828be8733825cb304b1a56ad754f171eb0dcc6a9
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 22 10:43:49 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre10
+
+commit 720d05b990b5ce1fd4260e0c840b725fec2f55d5
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 22 10:39:36 2011 -0700
+
+    hadoop: add FileSystemAccess class from collector
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit fe7c4d3685137938157e79576cc7c17fd303f108
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu Jul 21 11:23:31 2011 -0700
+
+    pom.xml: move to mogwee-executors 1.1.0
+    
+    This gets rid of a log4j dependency (need to downgrade goodwill-access
+    due to a circular dependency).
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 5c7b53cd4135ce82c8058bf39c15b4ebf5feff13
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu Jul 21 11:16:54 2011 -0700
+
+    doc: add ChangeLogs to keep track of releases
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 7a70304d25007269b5aa9b81bf99c7513951a47e
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Wed Jul 20 15:43:52 2011 -0700
+
+    writer: remove unused dependency on metrics-core
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 24590483d2d7c2d58d03413d7738288bab9f65e0
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Wed Jul 20 15:42:28 2011 -0700
+
+    writer: fix tests compilation
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit de873a91ca2dc54c62a7b53af58ba0e504f5c632
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Wed Jul 20 15:38:04 2011 -0700
+
+    writer: rename maxFlushPeriodNanos in ThresholdEventWriter
+    
+    It's really maxUncommittedPeriodNanos - the ThresholdEventWriter
+    never flushes implicitly.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 4804f978f7747ddc3d1f37f6b2df860a190852dd
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Wed Jul 20 15:36:46 2011 -0700
+
+    writer: use metrics library to get write rate
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 55d7122c41c2c8f2aeff78f41aeae10b3020c1f7
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Wed Jul 20 12:30:37 2011 -0700
+
+    writer: fix log message
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 4f1f2778efda05b18b09d45d615adc084a0ef030
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon Jul 18 14:32:58 2011 -0700
+
+    writer: fix NPE on startup when we cannot create spool directories
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 355d375e5efa91771b443bd9890d06278ea27c0c
+Author: Tatu <tatu@ning.com>
+Date:   Mon Jul 18 11:49:08 2011 -0700
+
+    Further simplify/robustify smile/json handling; no functional changes
+
+commit 9f2ffad084386b526f75434f6add5b845f532f66
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 15 19:54:45 2011 -0700
+
+    smile: remove extra line
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 62949f817cbc59fe91a465646447ab543aa665c8
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 15 19:54:10 2011 -0700
+
+    smile: add serializer tests
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 575ec4a6032d3a1e37483194e31d14de373a556b
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 15 15:42:50 2011 -0700
+
+    smile: attached reduced pom
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 9088dae3f187cadb1f4e91835a8fa1504a26f026
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 15 10:57:55 2011 -0700
+
+    build: add maven plugins
+    
+    Add maven-dependency-versions-check-plugin and
+    maven-duplicate-finder-plugin.
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit d11f8d3b71da564c787d4d48bb4faf6d7d818d22
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 15 10:56:38 2011 -0700
+
+    logging: move to slf4j
+    
+    No more dependency on log4j!
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit a19b819f53a1efa3918787e91e952ecb25b56f99
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Thu Jul 14 13:13:46 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration
