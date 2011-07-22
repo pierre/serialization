@@ -81,6 +81,13 @@
                 <groupId>com.ning</groupId>
                 <artifactId>metrics.goodwill-access</artifactId>
                 <version>0.1.3</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- Requires 1.6.x due to async-http-client dependency -->
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.ning</groupId>
