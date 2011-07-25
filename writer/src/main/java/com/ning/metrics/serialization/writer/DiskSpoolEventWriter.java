@@ -18,7 +18,8 @@ package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
-import com.yammer.metrics.guice.Timed;
+import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.TimerMetric;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,7 @@ public class DiskSpoolEventWriter implements EventWriter
     private final AtomicBoolean currentlyFlushing = new AtomicBoolean(false);
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
     private final EventSerializer eventSerializer;
+    private final TimerMetric writeTimer;
 
     private volatile ObjectOutputter currentOutputter;
     private volatile File currentOutputFile;
@@ -115,6 +117,7 @@ public class DiskSpoolEventWriter implements EventWriter
         this.flushEnabled = new AtomicBoolean(flushEnabled);
         this.flushIntervalInSeconds = new AtomicLong(flushIntervalInSeconds);
         this.eventSerializer = eventSerializer;
+        writeTimer = Metrics.newTimer(DiskSpoolEventWriter.class, spoolPath, TimeUnit.MILLISECONDS, TimeUnit.SECONDS);
 
         createSpoolDir(spoolDirectory);
         createSpoolDir(tmpSpoolDirectory);
@@ -193,7 +196,6 @@ public class DiskSpoolEventWriter implements EventWriter
         return spooledFileList;
     }
 
-    @Timed(name = "DiskSpoolEventWriter")
     @Override
     public synchronized void write(final Event event) throws IOException
     {
@@ -214,7 +216,9 @@ public class DiskSpoolEventWriter implements EventWriter
         }
 
         try {
+            final long startTime = System.nanoTime();
             currentOutputter.writeObject(event);
+            writeTimer.update(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
         }
         catch (RuntimeException e) {
             eventSerializationFailures.incrementAndGet();

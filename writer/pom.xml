@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>com.yammer.metrics</groupId>
-            <artifactId>metrics-guice</artifactId>
+            <artifactId>metrics-core</artifactId>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
