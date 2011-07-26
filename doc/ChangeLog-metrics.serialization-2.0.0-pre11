@@ -1,0 +1,46 @@
+commit 4fad50afbdce58077fd391ec1f70a4383f4c0d1a
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Tue Jul 26 09:45:58 2011 -0700
+
+    [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre11
+
+commit 8825e366c10d9a7d386ff116b55e4e0bf5c5ba05
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Mon Jul 25 16:52:28 2011 -0700
+
+    writer: expose timing metrics manually, not via Guice
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 6196a9ac088a88d0564290df52ee558396318240
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 22 15:18:57 2011 -0700
+
+    build: remove obsolete log4j.xml files
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit f90d854438bff3411e4554e4ad7bf4c9e94a3923
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 22 14:27:25 2011 -0700
+
+    pom.xml: cleanup logging dependencies
+    
+    Make sure we only rely on slf4j and derivatives (no more
+    commons-logging).
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 398779324a93716fe60f7caaae9913b34ccb9f77
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 22 10:53:43 2011 -0700
+
+    doc: add ChangeLog for metrics.serialization-2.0.0-pre10
+    
+    Signed-off-by: Pierre-Alexandre Meyer <pierre@ning.com>
+
+commit 038e856f0db3b50fd8a8ecf65df538287adb9e12
+Author: Pierre-Alexandre Meyer <pierre@ning.com>
+Date:   Fri Jul 22 10:43:55 2011 -0700
+
+    [maven-release-plugin] prepare for next development iteration

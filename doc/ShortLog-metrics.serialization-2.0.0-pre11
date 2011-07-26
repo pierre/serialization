@@ -1,0 +1,8 @@
+Pierre-Alexandre Meyer (6):
+      [maven-release-plugin] prepare for next development iteration
+      doc: add ChangeLog for metrics.serialization-2.0.0-pre10
+      pom.xml: cleanup logging dependencies
+      build: remove obsolete log4j.xml files
+      writer: expose timing metrics manually, not via Guice
+      [maven-release-plugin] prepare release metrics.serialization-2.0.0-pre11
+
