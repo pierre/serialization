@@ -74,6 +74,7 @@ public class DiskSpoolEventWriter implements EventWriter
     private final File lockDirectory;
     private final AtomicBoolean currentlyFlushing = new AtomicBoolean(false);
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
+    private final CompressionCodec codec;
     private final EventSerializer eventSerializer;
     private final TimerMetric writeTimer;
 
@@ -92,7 +93,7 @@ public class DiskSpoolEventWriter implements EventWriter
         final int syncBatchSize
     )
     {
-        this(eventHandler, spoolPath, flushEnabled, flushIntervalInSeconds, executor, syncType, syncBatchSize, null);
+        this(eventHandler, spoolPath, flushEnabled, flushIntervalInSeconds, executor, syncType, syncBatchSize, new NoCompressionCodec(), null);
     }
 
     public DiskSpoolEventWriter(
@@ -103,6 +104,7 @@ public class DiskSpoolEventWriter implements EventWriter
         final ScheduledExecutorService executor,
         final SyncType syncType,
         final int syncBatchSize,
+        final CompressionCodec codec,
         final EventSerializer eventSerializer
     )
     {
@@ -116,6 +118,7 @@ public class DiskSpoolEventWriter implements EventWriter
         this.lockDirectory = new File(spoolDirectory, "_lock");
         this.flushEnabled = new AtomicBoolean(flushEnabled);
         this.flushIntervalInSeconds = new AtomicLong(flushIntervalInSeconds);
+        this.codec = codec;
         this.eventSerializer = eventSerializer;
         writeTimer = Metrics.newTimer(DiskSpoolEventWriter.class, spoolPath, TimeUnit.MILLISECONDS, TimeUnit.SECONDS);
 
@@ -207,11 +210,12 @@ public class DiskSpoolEventWriter implements EventWriter
         if (currentOutputter == null) {
             currentOutputFile = new File(tmpSpoolDirectory, String.format("%d.bin", fileId.incrementAndGet()));
 
+            final FileOutputStream outputStream = codec.getFileOutputStream(currentOutputFile);
             if (eventSerializer == null) {
-                currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType, syncBatchSize);
+                currentOutputter = ObjectOutputterFactory.createObjectOutputter(outputStream, syncType, syncBatchSize);
             }
             else {
-                currentOutputter = ObjectOutputterFactory.createObjectOutputter(new FileOutputStream(currentOutputFile), syncType, syncBatchSize, eventSerializer);
+                currentOutputter = ObjectOutputterFactory.createObjectOutputter(outputStream, syncType, syncBatchSize, eventSerializer);
             }
         }
 
