@@ -89,6 +89,11 @@
                 <version>0.1.4</version>
                 <exclusions>
                     <exclusion>
+                        <!-- Always use the latest version -->
+                        <groupId>com.ning</groupId>
+                        <artifactId>metrics.serialization-common</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <!-- Requires 1.6.x due to async-http-client dependency -->
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-api</artifactId>
