@@ -93,9 +93,8 @@ public class TestDiskSpoolEventWriter
             Assert.assertEquals(e.getClass(), IOException.class);
         }
 
-        testSpoolDirs(1, 0, 0);
-        writer.rollback();
-        testSpoolDirs(0, 0, 1);
+        // In case of failure, we close the outputter and put it in the spool directory
+        testSpoolDirs(0, 1, 0);
     }
 
     @Test(groups = "fast")

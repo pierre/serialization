@@ -80,7 +80,12 @@ public class SmileEnvelopeEventSerializer implements EventSerializer
     @Override
     public void close() throws IOException
     {
-        jsonGenerator.writeEndArray();
-        jsonGenerator.close();
+        try {
+            jsonGenerator.writeEndArray();
+        }
+        finally {
+            // Make sure to close the generator, even if we are in a bad state
+            jsonGenerator.close();
+        }
     }
 }

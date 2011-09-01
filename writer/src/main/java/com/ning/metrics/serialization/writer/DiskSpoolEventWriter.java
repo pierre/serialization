@@ -233,7 +233,12 @@ public class DiskSpoolEventWriter implements EventWriter
             eventSerializationFailures.incrementAndGet();
             // If we got bad data, the stream may be in a bad state (i.e. jackson might be unable to append more data).
             // It's safer to close the stream and reopen a new one.
-            forceCommit();
+            try {
+                forceCommit();
+            }
+            catch (IOException ignored) {
+                // We want to throw the original one
+            }
             //noinspection AccessToStaticFieldLockedOnInstance
             throw new IOException("unable to serialize event", e);
         }
@@ -249,12 +254,17 @@ public class DiskSpoolEventWriter implements EventWriter
     public synchronized void forceCommit() throws IOException
     {
         if (currentOutputFile != null) {
-            currentOutputter.close();
+            try {
+                currentOutputter.close();
+            }
+            finally {
+                // The above can blow away because the stream is in a bad state.
+                // Either way - make sure to close the file
+                renameFile(currentOutputFile, spoolDirectory);
 
-            renameFile(currentOutputFile, spoolDirectory);
-
-            currentOutputFile = null;
-            currentOutputter = null;
+                currentOutputFile = null;
+                currentOutputter = null;
+            }
         }
     }
 
