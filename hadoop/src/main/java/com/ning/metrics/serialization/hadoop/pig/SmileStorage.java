@@ -62,8 +62,9 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
 
     public SmileStorage(String schemaName, String goodwillHost, String goodwillPort) throws IOException
     {
+        GoodwillAccessor goodwillAccessor = null;
         try {
-            GoodwillAccessor goodwillAccessor = new GoodwillAccessor(goodwillHost, Integer.parseInt(goodwillPort));
+            goodwillAccessor = new GoodwillAccessor(goodwillHost, Integer.parseInt(goodwillPort));
             schema = goodwillAccessor.getSchema(schemaName).get();
 
             if (schema == null) {
@@ -76,6 +77,11 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
         }
         catch (ExecutionException e) {
             throw new IOException("Exception while trying to fetch Thrift schema", e);
+        }
+        finally {
+            if (goodwillAccessor != null) {
+                goodwillAccessor.close();
+            }
         }
     }
 
