@@ -37,30 +37,25 @@ import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class SmileStorage extends LoadFunc implements LoadMetadata
 {
-    private static final ObjectMapper mapper = new ObjectMapper();
-
     private final TupleFactory factory = TupleFactory.getInstance();
     private final GoodwillSchema schema;
 
     private RecordReader reader;
 
-    public SmileStorage(String schemaName) throws IOException
+    public SmileStorage(final String schemaName) throws IOException
     {
         this(schemaName, System.getProperty("goodwill.host", "127.0.0.1"), System.getProperty("goodwill.port", "8080"));
     }
 
-    public SmileStorage(String schemaName, String goodwillHost, String goodwillPort) throws IOException
+    public SmileStorage(final String schemaName, final String goodwillHost, final String goodwillPort) throws IOException
     {
         GoodwillAccessor goodwillAccessor = null;
         try {
@@ -103,7 +98,7 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
      * @throws java.io.IOException if the location is not valid.
      */
     @Override
-    public void setLocation(String location, Job job) throws IOException
+    public void setLocation(final String location, final Job job) throws IOException
     {
         FileInputFormat.setInputPaths(job, location);
     }
@@ -134,10 +129,9 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
      * @throws java.io.IOException if there is an exception during initialization
      */
     @Override
-    public void prepareToRead(RecordReader reader, PigSplit split) throws IOException
+    public void prepareToRead(final RecordReader reader, final PigSplit split) throws IOException
     {
         this.reader = reader;
-        PigSplit split1 = split;
     }
 
     /**
@@ -158,19 +152,17 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
                 return null;
             }
 
-            Object value = reader.getCurrentValue();
+            final Object value = reader.getCurrentValue();
 
             if (value instanceof SmileEnvelopeEvent) {
                 final SmileEnvelopeEvent envelope = (SmileEnvelopeEvent) value;
                 final JsonNode data = (JsonNode) envelope.getData();
-                final Map<String, Object> eventMap = mapper.convertValue(data, new TypeReference<Map<String, Object>>()
-                {
-                });
 
-                final Tuple tuple = factory.newTuple(eventMap.size());
+                final Tuple tuple = factory.newTuple(data.size());
                 int i = 0;
                 for (final GoodwillSchemaField field : schema.getSchema()) {
-                    tuple.set(i, eventMap.get(field.getName()));
+                    final JsonNode node = data.get(field.getName());
+                    tuple.set(i, getJsonValue(node));
                     i++;
                 }
 
@@ -187,7 +179,26 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
         return null;
     }
 
-    private byte getPigType(SchemaFieldType type)
+    private Object getJsonValue(final JsonNode node)
+    {
+        if (node.isNumber()) {
+            return node.getNumberValue();
+        }
+        else if (node.isBoolean()) {
+            return node.getBooleanValue();
+        }
+        else if (node.isTextual()) {
+            return node.getTextValue();
+        }
+        else if (node.isNull()) {
+            return null;
+        }
+        else {
+            return node;
+        }
+    }
+
+    private byte getPigType(final SchemaFieldType type)
     {
         switch (type) {
             case BOOLEAN:
@@ -225,10 +236,10 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
      * @throws java.io.IOException if an exception occurs while determining the schema
      */
     @Override
-    public ResourceSchema getSchema(String location, Job job) throws IOException
+    public ResourceSchema getSchema(final String location, final Job job) throws IOException
     {
-        List<Schema.FieldSchema> schemaList = new ArrayList<Schema.FieldSchema>();
-        for (GoodwillSchemaField field : schema.getSchema()) {
+        final List<Schema.FieldSchema> schemaList = new ArrayList<Schema.FieldSchema>();
+        for (final GoodwillSchemaField field : schema.getSchema()) {
             schemaList.add(new Schema.FieldSchema(field.getName(), getPigType(field.getType())));
         }
 
@@ -249,7 +260,7 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
      * @throws java.io.IOException if an exception occurs while retrieving statistics
      */
     @Override
-    public ResourceStatistics getStatistics(String location, Job job) throws IOException
+    public ResourceStatistics getStatistics(final String location, final Job job) throws IOException
     {
         return null;
     }
@@ -267,7 +278,7 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
      * @throws java.io.IOException if an exception occurs while retrieving partition keys
      */
     @Override
-    public String[] getPartitionKeys(String location, Job job) throws IOException
+    public String[] getPartitionKeys(final String location, final Job job) throws IOException
     {
         return null;
     }
@@ -285,7 +296,7 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
      *                             mechanism or contains non-partition fields.
      */
     @Override
-    public void setPartitionFilter(Expression partitionFilter) throws IOException
+    public void setPartitionFilter(final Expression partitionFilter) throws IOException
     {
     }
 }
