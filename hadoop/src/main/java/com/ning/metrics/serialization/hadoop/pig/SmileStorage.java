@@ -192,10 +192,10 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
             case INTEGER:
                 return DataType.INTEGER;
             case LONG:
+            case DATE:
                 return DataType.LONG;
             case DOUBLE:
                 return DataType.DOUBLE;
-            case DATE:
             case IP:
             case STRING:
             default:
