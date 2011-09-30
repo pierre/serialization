@@ -162,7 +162,7 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
                 int i = 0;
                 for (final GoodwillSchemaField field : schema.getSchema()) {
                     final JsonNode node = data.get(field.getName());
-                    tuple.set(i, getJsonValue(node));
+                    tuple.set(i, getJsonValue(field.getType(), node));
                     i++;
                 }
 
@@ -179,22 +179,25 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
         return null;
     }
 
-    private Object getJsonValue(final JsonNode node)
+    private Object getJsonValue(final SchemaFieldType type, final JsonNode node)
     {
-        if (node.isNumber()) {
-            return node.getNumberValue();
-        }
-        else if (node.isBoolean()) {
-            return node.getBooleanValue();
-        }
-        else if (node.isTextual()) {
-            return node.getTextValue();
-        }
-        else if (node.isNull()) {
-            return null;
-        }
-        else {
-            return node;
+        switch (type) {
+            case BOOLEAN:
+                return node.getIntValue();
+            case BYTE:
+                return new Byte(node.getTextValue());
+            case SHORT:
+            case INTEGER:
+                return node.getIntValue();
+            case LONG:
+            case DATE:
+                return node.getLongValue();
+            case DOUBLE:
+                return node.getDoubleValue();
+            case IP:
+            case STRING:
+            default:
+                return node.getTextValue();
         }
     }
 

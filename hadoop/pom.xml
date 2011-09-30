@@ -12,6 +12,11 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
+            <!-- Runtime dependency for pig 0.9+ -->
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr</artifactId>
+        </dependency>
+        <dependency>
             <!-- For goodwill-access -->
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
