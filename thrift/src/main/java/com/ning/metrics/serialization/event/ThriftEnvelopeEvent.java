@@ -21,7 +21,12 @@ import com.ning.metrics.serialization.thrift.ThriftEnvelopeDeserializer;
 import com.ning.metrics.serialization.thrift.ThriftEnvelopeSerializer;
 import org.joda.time.DateTime;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -32,21 +37,19 @@ public class ThriftEnvelopeEvent implements Event
     private Granularity granularity;
     private transient byte[] serializedBytes;
     private final transient ThriftEnvelopeSerializer serializer = new ThriftEnvelopeSerializer();
-    private final transient ThriftEnvelopeDeserializer deserializer = new ThriftEnvelopeDeserializer();
+    private final transient ThriftEnvelopeDeserializer deserializer;
 
     /**
      * Public no-arg constructor, for deserialization
      */
     public ThriftEnvelopeEvent()
     {
-        eventDateTime = null;
-        thriftEnvelope = null;
-        granularity = null;
+        this(null, null, null);
     }
 
-    public ThriftEnvelopeEvent(InputStream in) throws IOException
+    public ThriftEnvelopeEvent(final DateTime eventDateTime, final ThriftEnvelope thriftEnvelope)
     {
-        deserializeFromStream(in);
+        this(eventDateTime, thriftEnvelope, Granularity.HOURLY);
     }
 
     public ThriftEnvelopeEvent(final DateTime eventDateTime, final ThriftEnvelope thriftEnvelope, final Granularity granularity)
@@ -54,11 +57,22 @@ public class ThriftEnvelopeEvent implements Event
         this.eventDateTime = eventDateTime;
         this.thriftEnvelope = thriftEnvelope;
         this.granularity = granularity;
+
+        deserializer = new ThriftEnvelopeDeserializer();
     }
 
-    public ThriftEnvelopeEvent(final DateTime eventDateTime, final ThriftEnvelope thriftEnvelope)
+    /**
+     * Deserialize one event from the specified stream.
+     * This expects the stream to be open and won't close it. The specified deserializer should take care of this.
+     *
+     * @param in           inputstream to read
+     * @param deserializer deserializer responsible to open/close the stream
+     * @throws IOException generic I/O Exception
+     */
+    public ThriftEnvelopeEvent(final InputStream in, final ThriftEnvelopeDeserializer deserializer) throws IOException
     {
-        this(eventDateTime, thriftEnvelope, Granularity.HOURLY);
+        this.deserializer = deserializer;
+        deserializeFromStream(in);
     }
 
     @Override
@@ -120,10 +134,20 @@ public class ThriftEnvelopeEvent implements Event
 
         final ByteArrayInputStream inputBuffer = new ByteArrayInputStream(fullPayload, 0, fullPayload.length);
 
+        deserializer.open(inputBuffer);
         deserializeFromStream(inputBuffer);
+        deserializer.close();
     }
 
-    private void deserializeFromStream(InputStream in) throws IOException
+    /**
+     * Given an InputStream, extract the eventDateTime, granularity and thriftEnvelope to build
+     * the ThriftEnvelopeEvent.
+     * This method expects the stream to be open and won't close it for you.
+     *
+     * @param in InputStream to read
+     * @throws IOException generic I/O Exception
+     */
+    private void deserializeFromStream(final InputStream in) throws IOException
     {
         final byte[] dateTimeBytes = new byte[8];
         in.read(dateTimeBytes, 0, 8);
@@ -135,9 +159,7 @@ public class ThriftEnvelopeEvent implements Event
         in.read(granularityBytes, 0, granularityBytes.length);
         granularity = Granularity.valueOf(new String(granularityBytes, Charset.forName("UTF-8")));
 
-        deserializer.open(in);
         thriftEnvelope = deserializer.deserialize(null);
-        deserializer.close();
     }
 
     @Override

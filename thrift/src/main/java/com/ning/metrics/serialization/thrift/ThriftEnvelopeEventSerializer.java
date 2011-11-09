@@ -27,13 +27,13 @@ public class ThriftEnvelopeEventSerializer implements EventSerializer
     OutputStream out;
 
     @Override
-    public void open(OutputStream out) throws IOException
+    public void open(final OutputStream out) throws IOException
     {
         this.out = out;
     }
 
     @Override
-    public void serialize(Event event) throws IOException
+    public void serialize(final Event event) throws IOException
     {
         if (!(event instanceof ThriftEnvelopeEvent)) {
             throw new IllegalArgumentException("ThriftEnvelopeEventSerializer can only serialize ThriftEnvelopeEvents");
