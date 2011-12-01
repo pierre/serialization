@@ -97,7 +97,6 @@ public enum SchemaFieldType
      * @param id   position in the schema (should be unique by schema)
      * @return newly created SchemaField
      */
-    @SuppressWarnings("unused")
     public static SchemaField createSchemaField(final String name, final String type, final short id)
     {
         try {
