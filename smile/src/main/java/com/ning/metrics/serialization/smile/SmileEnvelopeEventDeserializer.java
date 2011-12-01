@@ -95,25 +95,32 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
         }
     }
 
+    public boolean hasFailed() { return hasFailed; }
+    
     public boolean hasNextEvent()
+    {
+        try {
+            return _hasNextEvent();
+        } catch (Exception e) {
+            hasFailed = true;
+            return false;
+        }
+    }
+
+    private boolean _hasNextEvent() throws IOException
     {
         if (hasFailed) {
             return false;
         }
 
         // don't advance nextToken if you don't have to
-        if (nextToken == JsonToken.END_ARRAY) {
-            return false;
-        }
 
         if (nextToken == null) {
-            try {
-                // get next token
-                nextToken = parser.nextToken();
-            }
-            catch (Exception e) {
-                // why not set 'hasFailed' here?
-                return false;
+            // get next token
+            nextToken = parser.nextToken();
+            // and if it's the end of array (or input), close explicitly
+            if (nextToken == null || nextToken == JsonToken.END_ARRAY) {
+                parser.close();
             }
         }
         // could verify that it is JsonToken.START_OBJECT?
@@ -129,11 +136,10 @@ public class SmileEnvelopeEventDeserializer implements EventDeserializer
      */
     public SmileEnvelopeEvent getNextEvent() throws IOException
     {
-        if (!hasNextEvent()) {
-            return null;
-        }
-
         try {
+            if (!_hasNextEvent()) {
+                return null;
+            }
             final JsonNode node = mapper.readValue(parser, JsonNode.class);
             nextToken = null; // reset nextToken
 
