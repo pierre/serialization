@@ -58,13 +58,14 @@ public class ThriftStorage extends LoadFunc implements LoadMetadata
 
     public ThriftStorage(String schemaName) throws IOException
     {
-        this(schemaName, System.getProperty("goodwill.host", "127.0.0.1"), Integer.getInteger("goodwill.port", 8080));
+        this(schemaName, System.getProperty("goodwill.host", "127.0.0.1"), System.getProperty("goodwill.port", "8080"));
     }
 
-    public ThriftStorage(String schemaName, String goodwillHost, int goodwillPort) throws IOException
+
+    public ThriftStorage(String schemaName, String goodwillHost, String goodwillPort) throws IOException
     {
         try {
-            GoodwillAccessor goodwillAccessor = new GoodwillAccessor(goodwillHost, goodwillPort);
+            GoodwillAccessor goodwillAccessor = new GoodwillAccessor(goodwillHost, Integer.parseInt(goodwillPort));
             schema = goodwillAccessor.getSchema(schemaName).get();
 
             if (schema == null) {

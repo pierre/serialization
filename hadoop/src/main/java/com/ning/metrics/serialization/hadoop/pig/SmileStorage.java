@@ -68,10 +68,10 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
             }
         }
         catch (InterruptedException e) {
-            throw new IOException("Interrupted while trying to fetch Thrift schema", e);
+            throw new IOException("Interrupted while trying to fetch Smile schema", e);
         }
         catch (ExecutionException e) {
-            throw new IOException("Exception while trying to fetch Thrift schema", e);
+            throw new IOException("Exception while trying to fetch Smile schema", e);
         }
         finally {
             if (goodwillAccessor != null) {
