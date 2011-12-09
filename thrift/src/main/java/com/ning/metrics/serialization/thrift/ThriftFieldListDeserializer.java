@@ -43,11 +43,20 @@ public class ThriftFieldListDeserializer
 
         TField payloadField = payloadProtocol.readFieldBegin();
 
+        // TODO Should we enforce starting at 0/1 instead?
+        short expectedFieldNb = payloadField.id;
         while (payloadField.type != TType.STOP) {
-            final DataItem dataItem = dataItemDeserializer.fromThrift(payloadProtocol, payloadField);
-            thriftFieldList.add(new ThriftFieldImpl(dataItem, payloadField));
-            payloadProtocol.readFieldEnd();
-            payloadField = payloadProtocol.readFieldBegin();
+            // Handle missing fields
+            if (payloadField.id != expectedFieldNb) {
+                thriftFieldList.add(new ThriftFieldImpl(null, expectedFieldNb));
+            }
+            else {
+                final DataItem dataItem = dataItemDeserializer.fromThrift(payloadProtocol, payloadField);
+                thriftFieldList.add(new ThriftFieldImpl(dataItem, payloadField));
+                payloadProtocol.readFieldEnd();
+                payloadField = payloadProtocol.readFieldBegin();
+            }
+            expectedFieldNb++;
         }
 
         payloadProtocol.readStructEnd();

@@ -22,7 +22,7 @@ import org.apache.thrift.protocol.TField;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TType;
 
-class ThriftFieldImpl extends ThriftField
+public class ThriftFieldImpl extends ThriftField
 {
     private final TField field;
     private final DataItem dataItem;
@@ -30,7 +30,7 @@ class ThriftFieldImpl extends ThriftField
     public ThriftFieldImpl(final DataItem dataItem, final short id)
     {
         this.dataItem = dataItem;
-        this.field = new TField("", dataItem.getThriftType(), id);
+        this.field = new TField("", dataItem == null ? TType.VOID : dataItem.getThriftType(), id);
     }
 
     public ThriftFieldImpl(final DataItem dataItem, final TField field)
@@ -54,6 +54,10 @@ class ThriftFieldImpl extends ThriftField
     @Override
     public void write(final TProtocol protocol) throws TException
     {
+        if (dataItem == null) {
+            return;
+        }
+
         protocol.writeFieldBegin(field);
 
         switch (field.type) {
@@ -85,20 +89,43 @@ class ThriftFieldImpl extends ThriftField
     }
 
     @Override
-    public boolean equals(final Object obj)
+    public String toString()
     {
-        return obj instanceof ThriftField && dataItem.equals(((ThriftField) obj).getDataItem());
+        final StringBuilder sb = new StringBuilder();
+        sb.append("ThriftFieldImpl");
+        sb.append("{dataItem=").append(dataItem);
+        sb.append(", field=").append(field);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ThriftFieldImpl that = (ThriftFieldImpl) o;
+
+        if (dataItem != null ? !dataItem.equals(that.dataItem) : that.dataItem != null) {
+            return false;
+        }
+        if (field != null ? !field.equals(that.field) : that.field != null) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public int hashCode()
     {
-        return dataItem.hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return dataItem.getString();
+        int result = field != null ? field.hashCode() : 0;
+        result = 31 * result + (dataItem != null ? dataItem.hashCode() : 0);
+        return result;
     }
 }
