@@ -38,9 +38,18 @@ import java.util.Map;
  */
 public class SmileEnvelopeEvent implements Event
 {
-    // UTF-8 won't work!
+    /**
+     * Main nominal character set is Latin-1 just because it is a
+     * single-byte subset of Unicode, so it can be used for
+     * "hiding" binary data as Strings and going back: UTF-8
+     * does not work because not all byte sequences represent
+     * valid Unicode encodings.
+     */
     public static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
+    /**
+     * Character set used for Event names can be UTF-8 however
+     */
     public static final Charset NAME_CHARSET = Charset.forName("UTF-8");
 
     protected static final SmileFactory smileFactory = new SmileFactory();
@@ -73,6 +82,11 @@ public class SmileEnvelopeEvent implements Event
     {
     }
 
+    public SmileEnvelopeEvent(final String eventName, final Map<String, Object> map) throws IOException
+    {
+        this(eventName, new DateTime(), map);
+    }
+    
     /**
      * Given a map ("JSON-like"), create an event with hourly granularity
      *
@@ -81,11 +95,19 @@ public class SmileEnvelopeEvent implements Event
      * @param map           event data
      * @throws IOException generic serialization exception
      */
-    public SmileEnvelopeEvent(final String eventName, final DateTime eventDateTime, final Map<String, Object> map) throws IOException
+    public SmileEnvelopeEvent(final String eventName, final DateTime eventDateTime,
+            final Map<String, Object> map) throws IOException
+    {
+        this(eventName, Granularity.HOURLY, eventDateTime, map);
+    }
+
+    public SmileEnvelopeEvent(final String eventName, final Granularity granularity,
+            final DateTime eventDateTime,
+            final Map<String, Object> map) throws IOException
     {
         this.eventName = eventName;
         this.eventDateTime = eventDateTime;
-        this.granularity = Granularity.HOURLY;
+        this.granularity = granularity;
 
         ObjectNode root = getObjectMapper().createObjectNode();
 
@@ -98,20 +120,51 @@ public class SmileEnvelopeEvent implements Event
         this.root = root;
     }
 
+    /**
+     * @deprecated Use POJO-converting factory method {@link #fromPOJO(String, Granularity, Object)}
+     *     instead
+     */
+    @Deprecated
     public SmileEnvelopeEvent(final String eventName, final JsonNode node)
     {
         this(eventName, null, node);
     }
 
-    public SmileEnvelopeEvent(final String eventName, final Granularity granularity, final JsonNode node)
+    /**
+     * @deprecated Use POJO-converting factory method {@link #fromPOJO(String, Granularity, Object)}
+     *     instead
+     */
+    @Deprecated
+    public SmileEnvelopeEvent(final String eventName, final Granularity granularity,
+            final JsonNode node)
+    {
+        this(eventName, granularity, null, node);
+    }
+    
+    protected SmileEnvelopeEvent(final String eventName, final Granularity granularity,
+            final DateTime eventDateTime, final JsonNode node)
     {
         this.eventName = eventName;
-        this.root = node;
         this.granularity = granularity;
-
+        this.eventDateTime = eventDateTime;
+        this.root = node;
         setEventPropertiesFromNode(node);
     }
+    
+    public static SmileEnvelopeEvent fromPOJO(final String eventName, final Granularity granularity,
+            final Object pojo)
+    {
+        return fromPOJO(eventName, granularity, new DateTime(), pojo);
+    }
 
+    public static SmileEnvelopeEvent fromPOJO(final String eventName, final Granularity granularity,
+            final DateTime eventDateTime,
+            final Object pojo)
+    {
+        JsonNode tree = smileObjectMapper.valueToTree(pojo);
+        return new SmileEnvelopeEvent(eventName, granularity, eventDateTime, tree);
+    }
+    
     public SmileEnvelopeEvent(final String eventName, final byte[] inputBytes, final DateTime eventDateTime, final Granularity granularity) throws IOException
     {
         this.eventName = eventName;
@@ -123,8 +176,10 @@ public class SmileEnvelopeEvent implements Event
 
     // this constructor needs a node arg generated via writeToJsonGenerator()
     // can throw RuntimeExceptions very easily, because any JsonNode.get() call return null
+    @SuppressWarnings("deprecation")
     public SmileEnvelopeEvent(final JsonNode node) throws IOException
     {
+        // TODO: "asText()" was added in Jackson 1.9; convert when we are sure clients use it
         eventName = node.path("eventName").getValueAsText();
         root = node.get("payload");
         if ((root == null || root.size() == 0) || (eventName == null || eventName.isEmpty())) {
@@ -288,8 +343,9 @@ public class SmileEnvelopeEvent implements Event
 
     private void setEventPropertiesFromNode(final JsonNode node)
     {
-        eventDateTime = getEventDateTimeFromJson(node);
-
+        if (eventDateTime == null) {
+            eventDateTime = getEventDateTimeFromJson(node);
+        }
         if (granularity == null) {
             granularity = getGranularityFromJson(node);
         }
@@ -297,31 +353,27 @@ public class SmileEnvelopeEvent implements Event
 
     public static DateTime getEventDateTimeFromJson(final JsonNode node)
     {
-        final JsonNode eventDateTimeNode = node.path(SMILE_EVENT_DATETIME_TOKEN_NAME);
-
-        DateTime nodeDateTime = new DateTime();
-        if (!eventDateTimeNode.isMissingNode()) {
-            nodeDateTime = new DateTime(eventDateTimeNode.getLongValue());
-        }
-
-        return nodeDateTime;
+        final JsonNode eventDateTimeNode = node.get(SMILE_EVENT_DATETIME_TOKEN_NAME);
+        return (eventDateTimeNode == null) ?
+                new DateTime() : new DateTime(eventDateTimeNode.getLongValue());
     }
 
+    @SuppressWarnings("deprecation")
     public static Granularity getGranularityFromJson(final JsonNode node)
     {
-        final JsonNode granularityNode = node.path(SMILE_EVENT_GRANULARITY_TOKEN_NAME);
+        final JsonNode granularityNode = node.get(SMILE_EVENT_GRANULARITY_TOKEN_NAME);
 
-        Granularity nodeGranularity = Granularity.HOURLY;
-        if (!granularityNode.isMissingNode()) {
-            try {
-                nodeGranularity = Granularity.valueOf(granularityNode.getValueAsText());
-            }
-            catch (IllegalArgumentException e) {
-                nodeGranularity = null;
-            }
+        if (granularityNode == null) {
+            return Granularity.HOURLY;
         }
-
-        return nodeGranularity;
+        try {
+            // TODO: convert to use 'asText()' once we go to Jackson 2.0
+            return Granularity.valueOf(granularityNode.getValueAsText());
+        }
+        catch (IllegalArgumentException e) {
+            // hmmmh. Returning null seems dangerous; but that's what we had...
+            return null;
+        }
     }
 
     private JsonNode parseAsTree(final byte[] smilePayload) throws IOException
