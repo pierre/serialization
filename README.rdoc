@@ -2,7 +2,12 @@
 
 Collection of classes to serialize data.
 
-= Hadoop pig and goodwill
+
+== To build
+
+    mvn install
+
+== Hadoop pig and goodwill
 
 For instance, if you have a Netflow event in Goodwill, you can do:
 
@@ -11,13 +16,9 @@ For instance, if you have a Netflow event in Goodwill, you can do:
     NETFLOW_DATA = FILTER NETFLOW_DATA by protocol == 'TCP';
 
 
-= To build
+== License (see LICENSE-2.0.txt file for full license)
 
-    mvn assembly:assembly
-
-= License (see LICENSE-2.0.txt file for full license)
-
-Copyright 2010 Ning
+Copyright 2010-2012 Ning
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
