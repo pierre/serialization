@@ -22,6 +22,8 @@ import com.ning.metrics.goodwill.access.GoodwillSchemaField;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
 import com.ning.metrics.serialization.hadoop.SmileInputFormat;
 import com.ning.metrics.serialization.schema.SchemaFieldType;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.RecordReader;
@@ -36,7 +38,6 @@ import org.apache.pig.data.DataType;
 import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
-import org.codehaus.jackson.JsonNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -183,21 +184,21 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
     {
         switch (type) {
             case BOOLEAN:
-                return node.getIntValue();
+                return node.intValue();
             case BYTE:
-                return new Byte(node.getTextValue());
+                return new Byte(node.textValue());
             case SHORT:
             case INTEGER:
-                return node.getIntValue();
+                return node.intValue();
             case LONG:
             case DATE:
-                return node.getLongValue();
+                return node.longValue();
             case DOUBLE:
-                return node.getDoubleValue();
+                return node.doubleValue();
             case IP:
             case STRING:
             default:
-                return node.getTextValue();
+                return node.textValue();
         }
     }
 

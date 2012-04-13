@@ -16,13 +16,13 @@
 
 package com.ning.metrics.serialization.event;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.smile.SmileFactory;
-import org.codehaus.jackson.smile.SmileGenerator;
-import org.codehaus.jackson.smile.SmileParser;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
+import com.fasterxml.jackson.dataformat.smile.SmileGenerator;
+import com.fasterxml.jackson.dataformat.smile.SmileParser;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -179,8 +179,7 @@ public class SmileEnvelopeEvent implements Event
     @SuppressWarnings("deprecation")
     public SmileEnvelopeEvent(final JsonNode node) throws IOException
     {
-        // TODO: "asText()" was added in Jackson 1.9; convert when we are sure clients use it
-        eventName = node.path("eventName").getValueAsText();
+        eventName = node.path("eventName").asText();
         root = node.get("payload");
         if ((root == null || root.size() == 0) || (eventName == null || eventName.isEmpty())) {
             throw new IOException("Cannot construct a SmileEnvelopeEvent from just a JsonNode unless JsonNode has eventName and payload properties.");
@@ -355,7 +354,7 @@ public class SmileEnvelopeEvent implements Event
     {
         final JsonNode eventDateTimeNode = node.get(SMILE_EVENT_DATETIME_TOKEN_NAME);
         return (eventDateTimeNode == null) ?
-                new DateTime() : new DateTime(eventDateTimeNode.getLongValue());
+                new DateTime() : new DateTime(eventDateTimeNode.longValue());
     }
 
     @SuppressWarnings("deprecation")
@@ -367,8 +366,7 @@ public class SmileEnvelopeEvent implements Event
             return Granularity.HOURLY;
         }
         try {
-            // TODO: convert to use 'asText()' once we go to Jackson 2.0
-            return Granularity.valueOf(granularityNode.getValueAsText());
+            return Granularity.valueOf(granularityNode.asText());
         }
         catch (IllegalArgumentException e) {
             // hmmmh. Returning null seems dangerous; but that's what we had...

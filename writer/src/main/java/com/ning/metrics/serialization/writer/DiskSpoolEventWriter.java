@@ -19,7 +19,7 @@ package com.ning.metrics.serialization.writer;
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
 import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.TimerMetric;
+import com.yammer.metrics.core.Timer;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +76,7 @@ public class DiskSpoolEventWriter implements EventWriter
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
     private final CompressionCodec codec;
     private final EventSerializer eventSerializer;
-    private final TimerMetric writeTimer;
+    private final Timer writeTimer;
 
     private volatile ObjectOutputter currentOutputter;
     private volatile File currentOutputFile;

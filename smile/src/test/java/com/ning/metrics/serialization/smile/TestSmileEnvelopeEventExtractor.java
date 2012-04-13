@@ -17,11 +17,12 @@ package com.ning.metrics.serialization.smile;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.SmileEnvelopeEvent;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.smile.SmileFactory;
-import org.codehaus.jackson.smile.SmileGenerator;
-import org.codehaus.jackson.smile.SmileParser;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
+import com.fasterxml.jackson.dataformat.smile.SmileGenerator;
+import com.fasterxml.jackson.dataformat.smile.SmileParser;
 import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -131,9 +132,9 @@ public class TestSmileEnvelopeEventExtractor
 
         final JsonNode aData = (JsonNode) a.getData();
         final JsonNode bData = (JsonNode) b.getData();
-        Assert.assertEquals(aData.get("firstName").getTextValue(), bData.get("firstName").getTextValue());
-        Assert.assertEquals(aData.get("lastName").getTextValue(), bData.get("lastName").getTextValue());
-        Assert.assertEquals(aData.get("theNumberFive").getIntValue(), bData.get("theNumberFive").getIntValue());
+        Assert.assertEquals(aData.get("firstName").textValue(), bData.get("firstName").textValue());
+        Assert.assertEquals(aData.get("lastName").textValue(), bData.get("lastName").textValue());
+        Assert.assertEquals(aData.get("theNumberFive").intValue(), bData.get("theNumberFive").intValue());
     }
 
     private SmileEnvelopeEvent makeSampleEvent() throws IOException

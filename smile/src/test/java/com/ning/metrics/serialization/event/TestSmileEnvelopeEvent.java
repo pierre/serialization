@@ -16,11 +16,11 @@
 
 package com.ning.metrics.serialization.event;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.smile.SmileFactory;
-import org.codehaus.jackson.smile.SmileGenerator;
-import org.codehaus.jackson.smile.SmileParser;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
+import com.fasterxml.jackson.dataformat.smile.SmileGenerator;
+import com.fasterxml.jackson.dataformat.smile.SmileParser;
 import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
@@ -184,8 +184,8 @@ public class TestSmileEnvelopeEvent
         Assert.assertEquals(event.getName(), "myEvent");
         Assert.assertEquals(SmileEnvelopeEvent.getEventDateTimeFromJson((JsonNode) event.getData()), eventDateTime);
         Assert.assertEquals(SmileEnvelopeEvent.getGranularityFromJson((JsonNode) event.getData()), Granularity.HOURLY);
-        Assert.assertEquals(((JsonNode) event.getData()).get("foo").getValueAsText(), "bar");
-        Assert.assertEquals(((JsonNode) event.getData()).get("bleh").getValueAsInt(), 12);
+        Assert.assertEquals(((JsonNode) event.getData()).get("foo").asText(), "bar");
+        Assert.assertEquals(((JsonNode) event.getData()).get("bleh").asInt(), 12);
     }
 
     /*
