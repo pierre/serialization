@@ -55,6 +55,11 @@
             <artifactId>metrics.serialization-thrift</artifactId>
         </dependency>
         <dependency>
+            <!-- Pig requires a newer version -->
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
