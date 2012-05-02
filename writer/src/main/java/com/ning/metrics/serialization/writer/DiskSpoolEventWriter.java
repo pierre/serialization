@@ -18,7 +18,9 @@ package com.ning.metrics.serialization.writer;
 
 import com.ning.metrics.serialization.event.Event;
 import com.ning.metrics.serialization.event.EventSerializer;
+
 import com.yammer.metrics.Metrics;
+import com.yammer.metrics.core.MetricName;
 import com.yammer.metrics.core.Timer;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -76,6 +78,7 @@ public class DiskSpoolEventWriter implements EventWriter
     private final AtomicLong eventSerializationFailures = new AtomicLong(0);
     private final CompressionCodec codec;
     private final EventSerializer eventSerializer;
+    private final MetricName writeTimerName;
     private final Timer writeTimer;
 
     private volatile ObjectOutputter currentOutputter;
@@ -120,7 +123,8 @@ public class DiskSpoolEventWriter implements EventWriter
         this.flushIntervalInSeconds = new AtomicLong(flushIntervalInSeconds);
         this.codec = codec;
         this.eventSerializer = eventSerializer;
-        writeTimer = Metrics.newTimer(DiskSpoolEventWriter.class, spoolPath, TimeUnit.MILLISECONDS, TimeUnit.SECONDS);
+        writeTimerName = new MetricName(DiskSpoolEventWriter.class, spoolPath);
+        writeTimer = Metrics.newTimer(writeTimerName, TimeUnit.MILLISECONDS, TimeUnit.SECONDS);
 
         createSpoolDir(spoolDirectory);
         createSpoolDir(tmpSpoolDirectory);
@@ -299,6 +303,9 @@ public class DiskSpoolEventWriter implements EventWriter
         // Cleanup the current state
         forceCommit();
         flush();
+
+        // Unregister the timer to avoid leaks
+        Metrics.defaultRegistry().removeMetric(writeTimerName);
     }
 
     /**
