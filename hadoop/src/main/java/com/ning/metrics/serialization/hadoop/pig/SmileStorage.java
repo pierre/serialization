@@ -39,6 +39,9 @@ import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 import org.apache.pig.impl.logicalLayer.schema.Schema;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +49,13 @@ import java.util.concurrent.ExecutionException;
 
 public class SmileStorage extends LoadFunc implements LoadMetadata
 {
+    private static final Logger log = LoggerFactory.getLogger(SmileStorage.class);
+
     private final TupleFactory factory = TupleFactory.getInstance();
     private final GoodwillSchema schema;
 
     private RecordReader reader;
+    private PigSplit split;
 
     public SmileStorage(final String schemaName) throws IOException
     {
@@ -133,6 +139,7 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
     public void prepareToRead(final RecordReader reader, final PigSplit split) throws IOException
     {
         this.reader = reader;
+        this.split = split;
     }
 
     /**
@@ -172,6 +179,21 @@ public class SmileStorage extends LoadFunc implements LoadMetadata
             else {
                 throw new IOException(String.format("Expected SmileEnvelopeEvent, not %s", value.getClass()));
             }
+        }
+        catch (NullPointerException e) {
+            String splitInfo = "<no split info>";
+            if(split != null) {
+               splitInfo = split.toString();
+            }
+            log.error(String.format("Corrupt Smile file (%s), ignoring the rest of the input",splitInfo), e);
+        }
+        catch (com.fasterxml.jackson.core.JsonParseException e) {
+            String splitInfo = "<no split info>";
+            if(split != null) {
+               splitInfo = split.toString();
+            }
+            log.error(String.format("Corrupt Smile file (%s), ignoring the rest of the input",splitInfo), e);
+            return null;
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
